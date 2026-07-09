@@ -14,7 +14,7 @@ namespace BitswardITSM.Core
         private readonly DatabaseManager _db;
         private readonly SlaEngine _slaEngine;
         private readonly TriageEngine _triageEngine;
-        
+
         private int _selectedTicketId = -1;
         private string _selectedTicketType = null;
         private Timer _lockTimer;
@@ -38,7 +38,7 @@ namespace BitswardITSM.Core
         private void MainForm_Load(object sender, EventArgs e)
         {
             lblUserContext.Text = $"Welcome, {_username} ({_userRole}) | ID: {_employeeId ?? "N/A"}";
-            
+
             // Show Admin control button only if the role is Admin
             btnNavAdmin.Visible = (_userRole == "Admin");
 
@@ -82,13 +82,38 @@ namespace BitswardITSM.Core
 
         private void ConfigureGrids(DataGridView grid)
         {
-            if (grid.Columns.Count > 0)
-            {
-                grid.Columns["ID"].Width = 40;
-                grid.Columns["Priority"].Width = 60;
-                grid.Columns["Status"].Width = 80;
-                grid.Columns["CreatedAt"].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm";
-            }
+            if (grid.Columns.Count == 0) return;
+
+            // Null-safe helper — MySQL column alias casing can vary by driver version
+            SetColumnWidth(grid, "ID", 45);
+            SetColumnWidth(grid, "Priority", 65);
+            SetColumnWidth(grid, "Status", 85);
+            SetColumnWidth(grid, "Creator", 110);
+            SetColumnWidth(grid, "Assignee", 110);
+
+            var dateCol = grid.Columns["CreatedAt"] ?? grid.Columns["createdat"];
+            if (dateCol != null) dateCol.DefaultCellStyle.Format = "yyyy-MM-dd HH:mm";
+
+            // Style header row
+            grid.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(37, 43, 54);
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+            grid.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI Semibold", 9f, System.Drawing.FontStyle.Bold);
+            grid.EnableHeadersVisualStyles = false;
+
+            // Row styling
+            grid.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(28, 32, 40);
+            grid.DefaultCellStyle.ForeColor = System.Drawing.Color.White;
+            grid.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(41, 128, 185);
+            grid.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
+            grid.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(33, 38, 47);
+            grid.GridColor = System.Drawing.Color.FromArgb(50, 58, 70);
+        }
+
+        /// <summary>Safely sets column width — no crash if column name doesn't exist.</summary>
+        private static void SetColumnWidth(DataGridView grid, string colName, int width)
+        {
+            var col = grid.Columns[colName];
+            if (col != null) col.Width = width;
         }
 
         private void TabControlQueues_SelectedIndexChanged(object sender, EventArgs e)
@@ -342,32 +367,51 @@ namespace BitswardITSM.Core
             var grid = sender as DataGridView;
             if (grid == null || e.RowIndex < 0) return;
 
-            // Highlight cells based on SLA priority and warning alerts
-            if (grid.Columns[e.ColumnIndex].Name == "Priority")
+            string colName = grid.Columns[e.ColumnIndex].Name;
+
+            // Color-code Priority column
+            if (string.Equals(colName, "Priority", StringComparison.OrdinalIgnoreCase))
             {
                 string val = e.Value?.ToString();
-                if (val == "P1") e.CellStyle.ForeColor = Color.Red;
+                if (val == "P1") e.CellStyle.ForeColor = Color.OrangeRed;
                 else if (val == "P2") e.CellStyle.ForeColor = Color.Orange;
+                else if (val == "P3") e.CellStyle.ForeColor = Color.Goldenrod;
+                e.FormattingApplied = true;
             }
 
-            if (grid.Columns[e.ColumnIndex].Name == "Status")
+            // SLA-based row coloring on the Status column
+            if (string.Equals(colName, "Status", StringComparison.OrdinalIgnoreCase))
             {
-                // Inspect SLA warnings
-                var row = grid.Rows[e.RowIndex];
-                DateTime createdAt = Convert.ToDateTime(row.Cells["CreatedAt"].Value);
-                string priority = row.Cells["Priority"].Value.ToString();
-
-                var config = _slaEngine.GetSlaConfig(priority);
-
-                if (_slaEngine.IsBreached(createdAt, null, priority))
+                try
                 {
-                    e.CellStyle.BackColor = Color.FromArgb(255, 210, 210); // Light Red
-                    e.CellStyle.ForeColor = Color.DarkRed;
+                    var row = grid.Rows[e.RowIndex];
+
+                    // Null-safe cell retrieval (column name case may vary by MySQL driver version)
+                    var createdAtCell = row.Cells["CreatedAt"] ?? row.Cells["createdat"];
+                    var priorityCell = row.Cells["Priority"] ?? row.Cells["priority"];
+
+                    if (createdAtCell?.Value == null || createdAtCell.Value == DBNull.Value) return;
+                    if (priorityCell?.Value == null || priorityCell.Value == DBNull.Value) return;
+
+                    DateTime createdAt = Convert.ToDateTime(createdAtCell.Value);
+                    string priority = priorityCell.Value.ToString();
+
+                    if (_slaEngine.IsBreached(createdAt, null, priority))
+                    {
+                        e.CellStyle.BackColor = Color.FromArgb(255, 210, 210);
+                        e.CellStyle.ForeColor = Color.DarkRed;
+                        e.FormattingApplied = true;
+                    }
+                    else if (_slaEngine.IsNearBreach(createdAt, priority))
+                    {
+                        e.CellStyle.BackColor = Color.FromArgb(255, 239, 166);
+                        e.CellStyle.ForeColor = Color.Brown;
+                        e.FormattingApplied = true;
+                    }
                 }
-                else if (_slaEngine.IsNearBreach(createdAt, priority))
+                catch
                 {
-                    e.CellStyle.BackColor = Color.FromArgb(255, 239, 166); // Light Yellow
-                    e.CellStyle.ForeColor = Color.Brown;
+                    // Suppress formatting errors — never crash the grid paint cycle
                 }
             }
         }
@@ -401,7 +445,7 @@ namespace BitswardITSM.Core
         }
 
         private void BtnNavTickets_Click(object sender, EventArgs e) { } // Already on tickets grid
-        
+
         private void BtnNavTasks_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Tasks List navigation clicked. Tasks are managed directly from the Ticket details splits panel.", "System Operations");

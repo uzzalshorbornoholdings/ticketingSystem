@@ -21,16 +21,27 @@ namespace BitswardITSM.Core
         {
             try
             {
-                // Ensure base admin exists
-                // Since this runs during Form Load, the admin user 'admin' (password: admin123)
-                // is initialized automatically if it is the first launch.
+                // Resolve schema.sql path relative to the executable (goes up from bin\Debug to project root)
+                string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                string schemaPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\..\..\docs\schema.sql"));
+
+                // Fallback: look in the same folder as the exe (for deployment)
+                if (!System.IO.File.Exists(schemaPath))
+                    schemaPath = System.IO.Path.Combine(exeDir, "schema.sql");
+
+                // Step 1: Initialize database schema (CREATE IF NOT EXISTS — safe to run every launch)
+                if (System.IO.File.Exists(schemaPath))
+                    _dbManager.InitializeDatabase(schemaPath);
+
+                // Step 2: Seed default admin if no users exist yet
                 _authManager.SeedDefaultAdmin();
             }
             catch (Exception ex)
             {
-                lblError.Text = "Database initialization error: Checks local database logs.";
-                MessageBox.Show($"DB Connection failed. Ensure local XAMPP MySQL is active.\nError Details: {ex.Message}", 
-                                "System Alert", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                lblError.Text = "Database initialization error. Check XAMPP MySQL is running.";
+                MessageBox.Show(
+                    $"DB Connection failed. Ensure local XAMPP MySQL is active.\nError Details: {ex.Message}",
+                    "System Alert", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
