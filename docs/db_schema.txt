@@ -1,0 +1,53 @@
+========================================================================
+Bitsward ITSM & Issue Ticketing System - Database & Sync Documentation
+========================================================================
+
+1. DATABASE SCHEMA: bitsward_tickets
+------------------------------------
+The database schema defines nine tables to map the industry standard ticket workflows:
+
+- departments: Stores unique department names.
+  - Columns: id (INT AUTO_INCREMENT PK), name (VARCHAR UNIQUE)
+
+- employees: Stores employee profile information, department linking and a self-referencing reports_to_id constraint (representing their direct manager).
+  - Columns: id (VARCHAR PK), name (VARCHAR), designation (VARCHAR), department_id (INT FK), reports_to_id (VARCHAR FK)
+
+- slas: Stores service level agreement specifications.
+  - Columns: id (INT AUTO_INCREMENT PK), name (VARCHAR UNIQUE), resolution_hours (INT), alert_threshold_minutes (INT)
+  - Pre-seeded Categories: P1 (2h), P2 (8h), P3 (24h), P4 (72h).
+
+- tickets: The core entity that represents Incidents (INC), Service Requests (SR), or Change Requests (CR).
+  - Columns: id (INT AUTO_INCREMENT PK), title (VARCHAR), description (TEXT), type (VARCHAR), priority (VARCHAR), sla_id (INT FK), status (VARCHAR), creator_employee_id (VARCHAR FK), assigned_employee_id (VARCHAR FK), locked_by (VARCHAR FK), locked_until (DATETIME), created_at (DATETIME), updated_at (DATETIME)
+
+- ticket_threads: Log messages or conversation items in a ticket.
+  - Columns: id (INT AUTO_INCREMENT PK), ticket_id (INT FK), employee_id (VARCHAR FK), message (TEXT), created_at (DATETIME)
+
+- tasks: Standalone/ticket-referenced sub-tasks that block ticket closure until complete.
+  - Columns: id (INT AUTO_INCREMENT PK), ticket_id (INT FK), title (VARCHAR), status (VARCHAR), created_at (DATETIME)
+
+- change_requests: Metadata specific to change advisory board (CAB) reviews and windows.
+  - Columns: id (INT AUTO_INCREMENT PK), ticket_id (INT FK UNIQUE), risk_score (VARCHAR), cab_approved (TINYINT), maintenance_window_start (DATETIME), maintenance_window_end (DATETIME)
+
+- audit_logs: Logging mechanism tracking state changes, status overrides, and user assignments.
+  - Columns: id (INT AUTO_INCREMENT PK), ticket_id (INT FK), employee_id (VARCHAR FK), action (VARCHAR), details (TEXT), created_at (DATETIME)
+
+
+2. DATA SYNCHRONIZATION ALGORITHM (OrganogramSync.cs)
+-----------------------------------------------------
+The synchronization utilizes a dual-pass upsert mechanism to handle cross-employee self-referencing relationship mapping (managers) safely:
+
+- PASS 1: Initialize departments and basic employee records.
+  - Reads line-by-line from `org/organogram.csv`.
+  - Splitting fields by commas into: EmployeeID, Name, Designation, Department, ReportsTo.
+  - Checks departments cache: inserts if not present and returns the primary key ID.
+  - Inserts/Updates the line's employee using:
+    `INSERT INTO employees (id, name, designation, department_id) VALUES (...) ON DUPLICATE KEY UPDATE name=name, designation=designation, department_id=department_id;`
+    (At this step, `reports_to_id` remains NULL/unchanged to bypass hierarchical dependency failures).
+
+- PASS 2: Establish the hierarchical reporting tree structure.
+  - Iterates through the records list again.
+  - Resolves the manager's ID:
+    - If the reports-to name matches "Board of Directors" or is blank, the supervisor is set to NULL.
+    - If reports-to matches an employee's exact name in the database, maps reports_to_id to that record's primary ID.
+    - If reports-to represents a known departmental designation (e.g. "Director of Infrastructure"), maps it to the corresponding manager's id (e.g. VP of Infrastructure & Networking's ID, which is MGT-003).
+  - Updates the employee with the resolved manager's ID.

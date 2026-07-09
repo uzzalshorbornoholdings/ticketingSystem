@@ -1,0 +1,28 @@
+EmployeeID,Name,Designation,Department,ReportsTo
+MGT-001,Dr. Md. Shafiqul Islam,Chief Technology Officer (CTO),Executive Leadership,Board of Directors
+MGT-002,Dr. Md. Nasim Akhtar,Director of Cybersecurity & SOC,Cybersecurity,Dr. Md. Shafiqul Islam
+MGT-003,Dr. Amran Hossain,VP of Infrastructure & Networking,NOC / Network Admin,Dr. Md. Shafiqul Islam
+MGT-004,Sumaya Kazary,Head of Quality Assurance (QA),QA,Dr. Md. Shafiqul Islam
+MGT-005,Dr. Momotaz Begum,Head of IT Operations & Systems,IT / System Admin,Dr. Md. Shafiqul Islam
+MGT-006,Litan Islam,Head of DevOps & Cloud Engineering,DevOps,Dr. Md. Shafiqul Islam
+MGT-007,Mst. Sumaya Khatun,Head of Linux Platform Admin,Linux Platform,Dr. Amran Hossain
+MGT-008,Md. Abu Bakkar Siddique,Head of Client Platforms (Win/Mac),Windows / MAC Admin,Dr. Amran Hossain
+MGT-009,Dr. Main Uddin Ahmed,Head of Data Science & Network Logic,Network Strategy,Dr. Md. Shafiqul Islam
+21-0-52-020-004,S. M. RISADUL ISLAM,Security Engineer,Cybersecurity,Dr. Md. Nasim Akhtar
+21-0-52-020-035,UZZAL CHANDRA BOISSHA,Security Engineer,Cybersecurity,Dr. Md. Nasim Akhtar
+21-0-52-020-023,KHANDAKER ARIFUR RAHMAN,QA Engineer,QA,Sumaya Kazary
+21-0-52-020-003,MD. MUHYMINUL HAQUE SIUM,NOC Engineer,NOC,Dr. Amran Hossain
+21-0-52-020-038,Md. Ahsan Habib,Network Engineer,Network Admin,Dr. Amran Hossain
+21-0-52-020-031,Bidhan Roy,Linux Admin Engineer,Linux Platform,Mst. Sumaya Khatun
+21-0-52-020-054,Md Jasim Sharif,Windows Admin Engineer,Windows Admin,Md. Abu Bakkar Siddique
+21-0-52-020-044,Ruhul Amin Fuad,SOC Analyst Engineer,SOC,Dr. Md. Nasim Akhtar
+21-0-52-020-043,MD ABU SHYID,MAC Admin Engineer,MAC Platform,Md. Abu Bakkar Siddique
+21-0-52-020-047,Utpal Chandra Das,DevOps Engineer,DevOps,Litan Islam
+21-0-52-020-022,Jannatul Ferdose,QA Engineer,QA,Sumaya Kazary
+21-0-52-020-016,FARJANA AKTER,Linux Admin Engineer,Linux Platform,Mst. Sumaya Khatun
+21-0-52-020-050,Jinnurain Jihan,DevOps Engineer,DevOps,Litan Islam
+21-0-52-020-029,MD. FASABBIR MIAH,System Engineer,System Admin,Dr. Momotaz Begum
+21-0-52-020-024,MST. AFSANA KHATUN,IT Support Engineer,IT,Dr. Momotaz Begum
+21-0-52-020-056,Ariful Islam Anik,Windows Admin Engineer,Windows Admin,Md. Abu Bakkar Siddique
+21-0-52-020-063,Md Kaosar Zaman,SOC Analyst Engineer,SOC,Dr. Md. Nasim Akhtar
+21-0-52-020-033,Sornali Akter,MAC Admin Engineer,MAC Platform,Md. Abu Bakkar Siddique

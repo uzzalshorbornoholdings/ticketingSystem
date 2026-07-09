@@ -1,0 +1,70 @@
+We are looking to build a high-grade, industry-standard Ticketing and ITSM (IT Service Management) system tailored for Bitsward System Limited.
+The stack is specific: C# .NET Framework (WinForms) and MySQL. To ensure the Google Antigravity AI agent performs at a 15-year veteran level, the prompt must be structured as a "State Machine." It needs to track progress so that any agent can pick up the "Mental Model" of the project instantly.
+
+MASTER PROMPT: Bitsward ITSM & Issue Ticketing System
+Role: You are an Expert Senior System Analyst and Lead Developer.
+Objective: Build a fully functional, industry-standard Desktop Issue Ticketing System using C# (.NET Framework WinForms) and MySQL.
+Environment:
+DB: MySQL (XAMPP Windows)
+Frontend: C# WinForms (Modern, Clean, Interactive)
+Data Source: org/organogram.csv for automated employee/department sync.
+Agent Protocol: Follow the "Continuous Development Lifecycle" (Git, Documentation, and State Tracking).
+1. OPERATIONAL PROTOCOLS (Mandatory)
+Before starting any task, and after completing any task, you must adhere to these rules:
+Local Version Control: After every functional sub-task, execute:
+git add .
+git commit -m "Feature: [Task Name] - [Brief Description]"
+Documentation: Maintain a /docs folder. After each phase (Database, Backend, UI), generate a .txt file (e.g., db_schema.txt, api_logic.txt) explaining the architecture and logic.
+State Tracking: Maintain a progress_log.txt in the root. Every time you finish a session, update this file with:
+
+Completed Tasks
+[>] Current Task
+
+Next Steps
+This ensures a new agent can resume immediately.
+UI Design: WinForms must look modern. Use flat design principles, custom padding, and modern color palettes (Deep Blues, Slate Greys, Success Greens). If a UI task is complex, generate a Python script to automate the .Designer.cs adjustments or provide step-by-step instructions for the user.
+2. SYSTEM ARCHITECTURE & PHASES
+PHASE 1: Data Foundation & CSV Sync
+Database Design: Create a MySQL schema named bitsward_tickets. Tables: employees, departments, tickets, slas, ticket_threads, tasks, change_requests.
+Organogram Sync Script: Create a C# utility (or a standalone script) that reads org/organogram.csv and syncs it to the employees and departments tables. Handle updates and new hires automatically.
+Relationship Mapping: Map the "Reports To" hierarchy to enable automatic escalation paths.
+PHASE 2: The Core Triage Engine (Backend Logic)
+Classification Engine: Logic to split incoming traffic into Incident (INC), Service Request (SR), and Change Request (CR).
+Smart Assignment Algorithm:
+Priority 1: Direct Manager (based on Organogram).
+Priority 2: Workload Balancing (assign to staff with fewest active tickets).
+Priority 3: Skill-based (Departmental routing: SOC, NOC, Linux Admin, etc.).
+SLA Engine: Logic to calculate "Time to Resolution" based on P1-P4 priority levels.
+PHASE 3: Modern UI Implementation
+Dashboard UI Matrix:
+Sidebar navigation (Icons + Text).
+Real-time Triage Queue (DataGrid with color-coded SLA timers).
+Tabbed interface for Incidents vs. Requests vs. Changes.
+Interactive Elements:
+Custom "Ticket Card" views.
+Status indicators (Blinking Red for breached SLAs).
+Manual UI Instruction: If you cannot programmatically set a property (like a specific Anchor or Docking in a complex nested panel), provide a 1-2-3 step guide for the user to do in the VS Designer.
+PHASE 4: Functional Modules
+Ticket Lifecycle: Open -> Triage -> Assigned -> In Progress -> (Optional Approval Gate) -> Resolved -> Closed.
+Agent Collision Avoidance: Implement a "Soft Lock" mechanism in the DB. When an agent opens a ticket, flag it as locked_by for X minutes.
+Thread Actions: Ability to split a thread entry into a "Sub-Task" or a new "Ticket".
+Change Request (CR) Subsystem: Implement the "CAB Review" workflow and "Risk Profiler" logic.
+PHASE 5: Notifications & Reporting
+In-App Alerts: A notification bell and toast pop-ups for new assignments.
+Audit Logs: Every change (Status change, assignment, note) must be logged in a history table.
+3. DATA STRUCTURE (Organogram Context)
+Use the provided employee data to seed the system:
+Executive Leadership: CTO (Dr. Md. Shafiqul Islam).
+Departments: Cybersecurity (SOC), NOC/Network, QA, IT/System Admin, DevOps, Linux Platform, Windows/MAC Admin.
+Routing Rules:
+Security issues -> SOC (Dr. Md. Nasim Akhtar).
+Network issues -> NOC (Dr. Amran Hossain).
+Hardware/Windows -> Windows Admin (Md. Abu Bakkar Siddique).
+4. STARTING TASK
+Task 1: Initialize the project structure.
+Create the folder hierarchy: /src, /docs, /org, /idea.
+Initialize a local git repository.
+Generate the MySQL schema.sql based on the Industry Standard components mentioned (INC, SR, CR, SLA).
+Create the DatabaseManager.cs class to handle connections.
+Create the OrganogramSync.cs to import the provided CSV data into the database.
+Wait for user confirmation after Task 1 is complete and documented.

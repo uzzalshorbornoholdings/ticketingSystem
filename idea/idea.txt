@@ -1,0 +1,307 @@
+Act as a 15 years smart senior system Analysis designer and developer,
+1. You should carefully need to Understand my need as expert system analyst
+2. Understand my Tec stack, i am using MySQL as database using my local windows xampp, Microsoft Visual Studio's C# and windows and desktop windows webform application using .net framework.
+3. For coding and development i will using Google Antigravity ai agent
+
+-----
+Your task is understand my initial idea, and generate google Antigravity ai agent friendly planning and implementation master prompt, after i provide this master prompt to ai agent created project root directory as text plan prompt, please write that prompt as details and consistent and  corelative, after this prompt the ai agent start develop my idea project fully functional complete app using idea and technology.
+
+Write that prompt in following style that in the mid development stage if i change the agent and take a new agent it can track the progress and continue from there. and after each part of task complete it should locally git commit the codebase that if need it can rollback from previous version.
+
+And each stage complete it should maintain a text documentation, for example after complete database design it make a text base database design documentation as  text file, like each stage it document that further i can understand myself oversee that like documentations. and those documentation should store in separate folder in project directory.
+
+Make sure that fronted  should interactive smart clean and modern looking, for UI Design in Microsoft visual studio, you can generate automatic python scripts if you need, during implementation if any task that i  need to manually did in windows UI please instruct me step by step. 
+
+Also you have very long 15 years experience in using multiple industry standard Issue ticketing system and you expertly  know how this standard ticketing system front end and backend work procedure.
+
+-----
+Idea: My raw idea.
+
+concept and  industry standard:
+Easy Issue Reporting
+Users can quickly report device issues with detailed descriptions, photos, and automatic location tagging from any room panel or mobile device
+Smart Staff Assignment
+Automatically assign tickets to available support staff based on expertise, location, and workload. Manual assignment is also available for managers
+Real-Time Notifications
+Technical staff receive instant notifications with issue details and exact location Stay informed with push notifications, email alerts, and in-app updates
+Location Awareness
+Technicians get precise location information including building, floor, room name, and interactive floor maps to quickly locate the issue
+Service Level Agreements
+Simply set your business hours and our system will handle the rest leaving you worry-free.
+Ticket Filters
+Our powerful ticket filtering system makes sure the right tickets goes to the right department leaving you with a clutter-free environment.
+Customer Support Portal
+Robust customer support portal system to help your business maintain happy customer relationships
+Features: 
+
+Custom Fields
+Customize the data collected from users when submitting a ticket to help get straight to the issue.
+You can create custom lists of data to add to each ticket or specific help topics for clients to choose from when creating a ticket. Custom Fields, Forms and Lists can be added to each web ticket created or only show up when a specific help topic is chosen. They can be configured as best suits your business needs.
+Custom Columns and Queues
+A custom queue is a view of tickets based on a custom criteria that you specify.
+It allows you to create your own personal views of tickets and specify what information you would like to see. A custom column is an additional field that is not displayed initially when viewing the ticket tab. Using custom columns allows you to include these fields in the ticket list.
+Ticket Filters
+Define rules to route incoming tickets to the right department, agents, as well as trigger actions.
+By using the filter system, osTicket empowers you to automate the creation and routing of tickets. Set actions such as ticket rejection, department/agent assignment or even send an automated canned response. Rule criteria of filter can include any custom field added to the forms as well as user data.
+Help Topics
+Configurable help topics for web tickets allow you to route inquiries to exactly the right department for swift resolution.
+Tickets can be streamlined for faster response time by being routed based on predetermined new ticket options. Combined with custom forms, you can design a specific form for each help topic to gather additional or particular information for each request type.
+Agent Collision Avoidance
+Ticket locking mechanism to allow staff to lock tickets during response to avoid conflicting or dual responses.
+Avoid multiple agents responding to the same ticket at the same time! You set the amount of time the lock remains on a ticket. When a ticket is locked, other staff can not respond to the ticket until the lock expires.
+Assign, Transfer, & Referral
+Transfer tickets between departments to make sure it’s being handled by the correct agents, or assign tickets to a particular agent or team of agents.
+Refer a ticket to maintain view-only access to tickets when transferred or assigned to a department/agent. Tickets can be auto-assigned by help topics or departments when they arrive, but what if they need to be reassigned? No problem! You can reassign tickets to agents or a team of agents or transfer to a different department all together. Transfer, Assignment, and Referral notes are logged in the ticket thread to keep track of what’s happened in the ticket.
+Auto-Responder
+Configurable automatic reply sent out when a new ticket is opened or a message is received.
+Auto responses can be formatted to pull information from the ticket to personalize the email. osTicket supports placeholder variables such as %{ticket.name.first} which will pull the user’s first name in the auto response. Auto responses can be edited and customized for each dep
+Thread Action
+Agents now have the ability to create a Ticket or Task from a Ticket’s thread entry or from a Task’s thread entry.
+Need to create a separate ticket or task from a user’s message to separate or expand on that item? No problem! Now with thread action, agents can simply create a new ticket or task with the message and keep it in the original ticket thread. Thread actions are noted in the original ticket thread with reference to both the new item as well as the thread item it was pulled from.artment as well as associated with Help Topics.
+Service Level Agreements
+SLA Plans allow you to track tickets and due dates without the hassle!
+Get overdue alerts and notices on missed due dates, and priority escalation. Create an unlimited number of SLA Plans and assign them to help topics, departments or ticket filters.
+Customer Portal
+All support requests and responses are archived online for end users.
+Users can login using their email address and a ticket number or they can register a profile for full access to all tickets they are associated with. Build out a robust knowledge base for users to self service their issues.
+Tasks
+Create an internal to-do list for agents.
+Tasks can be associated with tickets or they can stand alone in the help desk. When tasks are ticket-related, this prevents the tickets from being closed until all tasks within the ticket are complete. Add collaborators to include external users to the task items while keeping them separate from the ticket thread and contents
+
+--
+basic industry standard work System Environment:
+Possible System Components
+
+
+
+system components categorized by their functional architectural layers:
+## 1. Input & Ingestion Layer (Sources)
+ * **User Endpoint Portal:** Interface where end-users manually submit issues or requests.
+ * **Monitoring & Alerting Tools:** Automated systems (e.g., SIEM, network monitors) that generate system alerts based on anomalies or thresholds.
+## 2. Central Processing & Triage Layer
+ * **Ticketing UI Dashboard:** The core operational console where incoming items are aggregated, validated, and categorized.
+ * **Classification Engine:** Component that splits traffic into three distinct modules:
+   * **Incident (INC):** For broken systems or outages.
+   * **Service Request (SR):** For routine requests, access, or new assets.
+   * **Change Request (CR):** For planned modifications to production environments.
+## 3. Operations & Resolution Layer (Teams & Roles)
+### 🖥️ IT (Helpdesk / L1 Support)
+ * Handles initial user-facing hardware/software troubleshooting and basic fulfillment.
+### 🌐 NOC (Network Operations Center)
+ * **Network Admin Infrastructure:** Manages switches, routers, firewalls, and network bandwidth stability.
+### 🛡️ SOC (Security Operations Center)
+ * **Detection Team:** Monitors SIEM alerts, filters out noise, and validates true security incidents.
+ * **Incident Response (IR) Team:** Executes active containment, mitigation, and eradication during an active security breach.
+ * **Threat Hunter Team:** Proactively searches through logs to discover hidden, sophisticated threats.
+### ♾️ QA / DevOps
+ * Manages deployment pipelines, application stability, CI/CD health, and software bug testing.
+### ⚙️ SYS Admin (System Administration)
+ * **Linux Admin:** Manages Linux-based servers and infrastructure environments.
+ * **Windows Admin:** Manages Active Directory, Windows Server architectures, and enterprise OS patching.
+ * **Mac Admin:** Manages enterprise Apple device configurations and MDM compliance.
+## 4. Lifecycle & Workflow Subsystems
+### 📋 Service Request (SR) Subsystem
+ * **Submission Module:** Interactive service catalog for asset selection.
+ * **Manager Approval Gate:** Automated workflow routing requests to authorized managers for sign-off.
+ * **Fulfillment Engine:** Dispatches tasks directly to IT or Sys Admins.
+ * **Closure Module:** User validation and automatic ticket resolution tracking.
+### 🛠️ Change Request (CR) Subsystem
+ * **Creation & Risk Profiler:** Assesses the scope and assigns a risk score (Low/Medium/High).
+ * **CAB (Change Advisory Board) Review Interface:** Dashboard for stakeholders to evaluate, schedule, and approve production changes.
+ * **Implementation & Maintenance Window Scheduler:** Tracks scheduled downtime or maintenance slots.
+ * **PIR (Post-Implementation Review) & Rollback Engine:** Verifies success criteria or triggers structured safe rollback scripts if a change fails.
+## 5. Dashboard UI Layout Matrix Components
+ * **Triage Queue Component:** A real-time, unassigned incoming ticket feed.
+ * **Team Queue Filter View:** Custom role-based dashboards (e.g., viewing only *Linux Admin* or *Detection Team* tickets).
+ * **SLA Countdown Timers:** Color-coded visual counters mapping resolution deadlines based on ticket priority metrics (P1 to P4).
+ * **Request Separation Navigation Tabs:** Top-level UI structural tabs to instantly switch focus between Incidents, SRs, and CRs.
+
+-----
+
+
+—--------------------------------------------------------------------------------------
+Organogram.csv | This file contains the organization employee information, issue tricating applications automatically pull the data from organogram.csv and in ui it could be automatically used.
+This organogram.csv can exist in the project root directory’s org named folder. You should make a script like something after running that database to automatically upload/update/sync the organogram.csv file info in the database.
+—-------------------------------------------------------------------------------------
+
+
+
+Management Structure: Bitsward System Limited
+
+
+
+
+
+
+
+
+Name
+Corporate Industry Designation
+Department
+Reports To
+
+
+Dr. Md. Shafiqul Islam
+Chief Technology Officer (CTO)
+Executive Leadership
+Board of Directors
+
+
+Dr. Md. Nasim Akhtar
+Director of Cybersecurity & SOC
+Cybersecurity
+CTO
+
+
+Dr. Amran Hossain
+VP of Infrastructure & Networking
+NOC / Network Admin
+CTO
+
+
+Sumaya Kazary
+Head of Quality Assurance (QA)
+QA
+CTO
+
+
+Dr. Momotaz Begum
+Head of IT Operations & Systems
+IT / System Admin
+CTO
+
+
+Litan Islam
+Head of DevOps & Cloud Engineering
+DevOps
+CTO
+
+
+Mst. Sumaya Khatun
+Head of Linux Platform Admin
+Linux Platform
+Director of Infrastructure
+
+
+Md. Abu Bakkar Siddique
+Head of Client Platforms (Win/Mac)
+Windows / MAC Admin
+Director of Infrastructure
+
+
+Dr. Main Uddin Ahmed
+Head of Data Science & Network Logic
+Network Strategy
+CTO
+
+
+
+
+Operational Employee Database (Engineers)
+
+
+
+
+
+
+
+
+Employee ID
+Full Name
+Corporate Designation
+Department
+Managed by
+21-0-52-020-004
+S. M. RISADUL ISLAM
+Security Engineer
+Cybersecurity
+Dr. Md. Nasim Akhtar
+21-0-52-020-035
+UZZAL CHANDRA BOISSHA
+Security Engineer
+Cybersecurity
+Dr. Md. Nasim Akhtar
+21-0-52-020-023
+KHANDAKER ARIFUR RAHMAN
+QA Engineer
+QA
+Sumaya Kazary
+21-0-52-020-003
+MD. MUHYMINUL HAQUE SIUM
+NOC Engineer
+NOC
+Dr. Amran Hossain
+21-0-52-020-038
+Md. Ahsan Habib
+Network Engineer
+Network Admin
+Dr. Amran Hossain
+21-0-52-020-031
+Bidhan Roy
+Linux Admin Engineer
+Linux Platform
+Mst. Sumaya Khatun
+21-0-52-020-054
+Md Jasim Sharif
+Windows Admin Engineer
+Windows Admin
+Md. Abu Bakkar Siddique
+21-0-52-020-044
+Ruhul Amin Fuad
+SOC Analyst Engineer
+SOC
+Dr. Md. Nasim Akhtar
+21-0-52-020-043
+MD ABU SHYID
+MAC Admin Engineer
+MAC Platform
+Md. Abu Bakkar Siddique
+21-0-52-020-047
+Utpal Chandra Das
+DevOps Engineer
+DevOps
+Litan Islam
+21-0-52-020-022
+Jannatul Ferdose
+QA Engineer
+QA
+Sumaya Kazary
+21-0-52-020-016
+FARJANA AKTER
+Linux Admin Engineer
+Linux Platform
+Mst. Sumaya Khatun
+21-0-52-020-050
+Jinnurain Jihan
+DevOps Engineer
+DevOps
+Litan Islam
+21-0-52-020-029
+MD. FASABBIR MIAH
+System Engineer
+System Admin
+Dr. Momotaz Begum
+21-0-52-020-024
+MST. AFSANA KHATUN
+IT Support Engineer
+IT
+Dr. Momotaz Begum
+21-0-52-020-056
+Ariful Islam Anik
+Windows Admin Engineer
+Windows Admin
+Md. Abu Bakkar Siddique
+21-0-52-020-063
+Md Kaosar Zaman
+SOC Analyst Engineer
+SOC
+Dr. Md. Nasim Akhtar
+21-0-52-020-033
+Sornali Akter
+MAC Admin Engineer
+MAC Platform
+Md. Abu Bakkar Siddique
+
+
+
+Note the the master prompt is store inside project root directory inside idea name folders idea.txt
