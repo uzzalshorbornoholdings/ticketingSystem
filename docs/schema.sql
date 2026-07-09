@@ -100,3 +100,15 @@ INSERT INTO slas (name, resolution_hours, alert_threshold_minutes) VALUES
 ON DUPLICATE KEY UPDATE 
 resolution_hours = VALUES(resolution_hours), 
 alert_threshold_minutes = VALUES(alert_threshold_minutes);
+
+-- 10. Users Table (Role-based Authentication)
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id VARCHAR(50) UNIQUE,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    salt VARCHAR(50) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+

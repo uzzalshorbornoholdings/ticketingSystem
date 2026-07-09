@@ -10,10 +10,14 @@ Completed Tasks
 - Created C# business-hours-aware SLA deadline engine /src/SlaEngine.cs.
 - Created test runner and validation logic /src/Program.cs.
 - Created API and core backend logic documentation /docs/api_logic.txt.
+- Appended users table to /docs/schema.sql database structure.
+- Developed dynamic SHA-256 salted authentication in /src/AuthManager.cs.
+- Created user control methods (creation, listing, role changes) in /src/AdminManager.cs.
+- Documented authentication salting and privilege roles in /docs/auth_logic.txt.
 
 [>] Current Task
-- Phase 2 Backend Engine Complete. Awaiting compilation/verification.
+- Authentication & Administration Engine Complete. Awaiting review.
 
 Next Steps
-- Verify compilation and run console-harness simulation.
-- Phase 3: Modern UI WinForms implementation (Sidebar, grids, color-coded countdown timelines).
+- Verify database creation, CSV sync, SLA math, and Auth system via dynamic simulation.
+- Phase 3: GUI Modern WinForms design.

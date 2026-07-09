@@ -1,0 +1,37 @@
+========================================================================
+Bitsward ITSM & Issue Ticketing System - Auth & User Admin Documentation
+========================================================================
+
+1. USER AUTHENTICATION SCHEME (AuthManager.cs)
+---------------------------------------------
+Dynamic Salt Cryptographic Hashing:
+- To prevent dictionary attacks and rainbow table lookups, password storage uses SHA-256 with dynamic (per-user) cryptographically secure salts.
+- Salt Generation: Creates a 16-byte random array using C# `System.Security.Cryptography.RandomNumberGenerator`, formatted as a 32-character hexadecimal string.
+- Hashing Algorithm: Computes `SHA256(password + salt)`.
+- Database storage parameters:
+  - Users table stores the `username`, `password_hash`, `salt` string, and assigned `role`.
+
+Default Auto-Seeding (CTO Account):
+- If the system starts and sees zero records in the `users` table, `SeedDefaultAdmin()` automatically initializes a root credential:
+  - Username: admin
+  - Password: admin123
+  - Role: Admin
+  - Linked Employee: MGT-001 (Chief Technology Officer, Dr. Md. Shafiqul Islam)
+
+
+2. ROLE DEFINITIONS
+-------------------
+The system supports 4 privilege roles:
+- Admin: Can access the administration dashboard, register new user logins for synced organogram employees, update roles, and audit system logs.
+- Manager: Has oversight on departmental tickets, and handles Change Advisory Board (CAB) reviews and approvals.
+- Agent: Operational technical staff (e.g. NOC, SOC, DevOps engineers) who resolve tickets, acquire ticket locks, and maintain task items.
+- User: Standard employee who submits new issue tickets/requests and tracks their own item history.
+
+
+3. ADMIN PANEL INTERFACE API (AdminManager.cs)
+----------------------------------------------
+The admin panel UI communicates with the backend via these database API routines:
+- GetUnassociatedEmployees(): Returns a list of employees synced from the organogram CSV who do not currently possess active login credentials. The administrator uses this list to register new logins.
+- CreateUserAccount(employeeId, username, password, role): Creates a salted user entry linked to the targeted employee ID.
+- GetAllUsers(): Retrieves lists of registered users mapping account details to corporate designations and department names.
+- UpdateUserRole(username, role): Adjusts permissions (e.g., promoting an Agent to Manager).

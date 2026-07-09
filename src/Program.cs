@@ -14,7 +14,7 @@ namespace BitswardITSM.Core
 
             // Absolute paths matching project workspace settings
             string projectRoot = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\"));
-            
+
             // Check if running from bin folder; fall back to execution directory if needed
             if (!Directory.Exists(Path.Combine(projectRoot, "org")))
             {
@@ -31,7 +31,7 @@ namespace BitswardITSM.Core
             // 1. Initializing Database Manager
             var db = new DatabaseManager(server: "127.0.0.1", user: "root", password: "");
             Console.WriteLine("\n[1] Testing connection to local MySQL (XAMPP)...");
-            
+
             if (!db.TestConnection(out string connError))
             {
                 Console.WriteLine($"Connection failed (Make sure XAMPP MySQL is active): {connError}");
@@ -117,6 +117,51 @@ namespace BitswardITSM.Core
             var sunDeadline = sla.CalculateDeadline(sunTime, 2);
             Console.WriteLine($"Sunday 12:00 PM + P1 (2h SLA) -> Deadline: {sunDeadline:yyyy-MM-dd HH:mm:ss} (Expected: Monday 11:00 AM)");
 
+            // 6. Testing Authentication and Admin Panel logic
+            Console.WriteLine("\n[6] Testing User Registration and Auth system...");
+            var auth = new AuthManager(db);
+
+            // Seed default admin first
+            auth.SeedDefaultAdmin();
+            Console.WriteLine("  - Default admin seeded!");
+
+            // Test login
+            bool canLoginAdmin = auth.Login("admin", "admin123", out string rootRole, out string rootEmp);
+            Console.WriteLine($"  - Admin login verify: {canLoginAdmin} (Expected: True), Role: {rootRole}, EmployeeId: {rootEmp}");
+
+            bool wrongLogin = auth.Login("admin", "wrongpass", out _, out _);
+            Console.WriteLine($"  - Incorrect login verify: {wrongLogin} (Expected: False)");
+
+            // Test admin panel options
+            var admin = new AdminManager(db);
+
+            // Register a user linked to employee S. M. RISADUL ISLAM (ID: 21-0-52-020-004)
+            bool createdUser = admin.CreateUserAccount("21-0-52-020-004", "risad", "risad123", "Agent", out string registerErr);
+            if (createdUser)
+            {
+                Console.WriteLine("  - Created user 'risad' linked to S. M. RISADUL ISLAM!");
+            }
+            else
+            {
+                Console.WriteLine($"  - User registration skipped/failed: {registerErr}");
+            }
+
+            // Verify login of newly created user
+            bool canLoginUser = auth.Login("risad", "risad123", out string userRole, out string userEmp);
+            Console.WriteLine($"  - User login verify: {canLoginUser} (Expected: True), Role: {userRole}, EmployeeId: {userEmp}");
+
+            // Update role
+            bool roleUpdated = admin.UpdateUserRole("risad", "Manager", out string roleErr);
+            Console.WriteLine($"  - Updated role for 'risad' to Manager: {roleUpdated}");
+
+            // Login again to verify updated role
+            auth.Login("risad", "risad123", out string updatedRole, out _);
+            Console.WriteLine($"  - User login role after shift check: {updatedRole} (Expected: Manager)");
+
+            // Show list of remaining unassociated employees
+            var unassociated = admin.GetUnassociatedEmployees();
+            Console.WriteLine($"  - Number of employees still lacking user credentials: {unassociated.Rows.Count}");
+
             Console.WriteLine("\nAll live database tests completed. Ready for application integration!");
             Console.ReadLine();
         }
@@ -126,7 +171,7 @@ namespace BitswardITSM.Core
             Console.WriteLine("========================================");
             Console.WriteLine("DRY RUN ALGORITHMIC SIMULATION");
             Console.WriteLine("========================================");
-            
+
             // Validate SLA math manually
             var sla = new SlaEngine(null);
             var friTime = new DateTime(2026, 7, 10, 16, 30, 0); // Friday
@@ -142,6 +187,11 @@ namespace BitswardITSM.Core
             string cls = triage.ClassifyTicket("Security firewall intrusion alert", "Intruder detected in our system");
             string dept = triage.ResolveTargetDepartment("Security firewall intrusion alert", "Intruder detected in our system");
             Console.WriteLine($"Intrusion Alert Class: {cls}, Dept: {dept}");
+
+            // Mock hashing checks
+            var auth = new AuthManager(null);
+            bool canLoginDummy = auth.Login("dummy", "dummy", out _, out _);
+            Console.WriteLine($"Dummy dry run login verify: {canLoginDummy} (Expected: False)");
 
             Console.WriteLine("\nDynamic Algorithmic Verification Successful (Verified Business Hours Offsets).");
         }
