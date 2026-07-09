@@ -1,0 +1,46 @@
+========================================================================
+Bitsward ITSM & Issue Ticketing System - API & Core Logic Documentation
+========================================================================
+
+1. CORE TRIAGE ENGINE (TriageEngine.cs)
+--------------------------------------
+The triage engine is responsible for two primary operations upon ticket ingestion: Classification and Department Routing.
+
+Classification Rules:
+- Incident (INC): Triggered by keywords related to software bugs, outages, and issues: "outage", "broken", "bug", "crash", "alert", "failure", "not working", "down", "error", "issue", "breach", "fail", "security breach", "attack".
+- Service Request (SR): Triggered by keywords related to accesses, orders, and standard lifecycle setups: "request", "access", "procure", "new employee", "order", "provision", "add user", "create account", "reset password", "install software", "need licence", "help", "how to".
+- Change Request (CR): Triggered by keywords indicating planned maintenance, deployments, and patching: "deploy", "patch", "upgrade", "migration", "maintenance window", "rollout", "release deployment", "config change".
+- Default: If no keywords match, it falls back to Incident (INC).
+
+Department Routing Rules:
+The triage engine performs content keyword search on the concatenated Title and Description to route to one of the 6 core active operational departments:
+- "Cybersecurity" / "SOC": "security", "breach", "firewall", "siem", "soc", "phishing", "attack", "hacked", "malware", "virus", "intrusion", "leak"
+- "NOC / Network Admin": "switch", "router", "wifi", "network", "bandwidth", "ip address", "dns", "gateway", "vlan", "internet offline"
+- "Linux Platform": "linux", "ubuntu", "redhat", "centos", "cron", "bash script", "ssh key", "sudoers"
+- "Windows / MAC Admin": "windows", "mac", "active directory", "ad account", "laptop", "pc", "desktop", "os patching", "outlook", "office", "macos", "keychain"
+- "DevOps": "ci/cd", "pipeline", "docker", "cloud", "aws", "kubernetes", "jenkins", "terraform", "ec2"
+- "QA": "test", "bug report", "qa", "verification", "crash in build", "automated test", "selenium"
+- Default: If no keywords match, falls back to "IT / System Admin" (general L1 support).
+
+
+2. 3-TIER SMART ASSIGNMENT ALGORITHM
+------------------------------------
+Once the target department is resolved, the assignment follows this strict prioritization:
+
+- TIER 1 (Direct Manager): Matches the creator's reports_to_id. If the supervisor belongs to the target department, they are assigned the ticket.
+- TIER 2 (Workload Balancing): If Tier 1 is skipped, query all employees in the target department. We sort them by the number of active tickets ('Open', 'Triage', 'Assigned', 'In Progress') in ascending order. The employee with the lowest count is assigned. (Note: Department heads are excluded from general workload balancing if there are other engineers).
+- TIER 3 (Department Head Fallback): If workload balancing can't find staff, assign directly to the head of that department.
+- TIER 4 (Ultimate Fallback): Should all else fail, route to the CTO (Dr. Md. Shafiqul Islam, ID: MGT-001).
+
+
+3. SLA BUSINESS HOURS ENGINE (SlaEngine.cs)
+-------------------------------------------
+SLA calculations enforce business hours (9:00 AM - 5:00 PM) on business days (Monday to Friday):
+- Saturday and Sunday are skipped entirely.
+- Ticket resolution targets count down ONLY during active working windows.
+- Any time spent outside 9:00 AM - 5:00 PM is carried forward to 9:00 AM of the next valid business day.
+- Warning alerts are triggered when the time remaining reaches the warning thresholds defined per priority:
+  - P1: 2 hours resolution, 30 min Warning Alert limit
+  - P2: 8 hours resolution, 120 min Warning Alert limit
+  - P3: 24 hours resolution, 360 min Warning Alert limit
+  - P4: 72 hours resolution, 1440 min Warning Alert limit
