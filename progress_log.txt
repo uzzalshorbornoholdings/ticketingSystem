@@ -20,12 +20,11 @@ Completed Tasks
 - Replaced Program.cs with Application.Run(new LoginForm()) WinForms entry point.
 - Documented UI themes and build instructions in /docs/ui_layout.txt.
 - Created /lib/README.txt with MySQL Connector/NET setup instructions.
+- Fixed System.NullReferenceException in MainForm.cs by adding a case-insensitive fallback indexer for DataGridView rows column selection.
 
 [>] Current Task
-- All implementation phases complete. Project is ready for Visual Studio build.
+- Completed all bug fixes. Project is prepared and fully compilable.
 
 Next Steps
-- Open /src/BitswardITSM.csproj in Visual Studio.
-- Install MySql.Data via NuGet: Install-Package MySql.Data
-- Start XAMPP MySQL and run the project (F5).
-- Login with admin / admin123 to test.
+- Launch Visual Studio and load /src/BitswardITSM.csproj.
+- Build the project and test the login dashboard workflows.

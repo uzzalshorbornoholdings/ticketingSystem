@@ -141,9 +141,13 @@ namespace BitswardITSM.Core
             if (grid.SelectedRows.Count > 0)
             {
                 var row = grid.SelectedRows[0];
-                int ticketId = Convert.ToInt32(row.Cells["ID"].Value);
-                _selectedTicketType = type;
-                DisplayTicketDetails(ticketId);
+                var idCell = row.Cells["ID"] ?? row.Cells["id"];
+                if (idCell?.Value != null && idCell.Value != DBNull.Value)
+                {
+                    int ticketId = Convert.ToInt32(idCell.Value);
+                    _selectedTicketType = type;
+                    DisplayTicketDetails(ticketId);
+                }
             }
         }
 
