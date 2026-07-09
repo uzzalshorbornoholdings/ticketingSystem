@@ -1,0 +1,92 @@
+========================================================================
+Bitsward ITSM - WinForms UI Layout & Build Guide
+========================================================================
+
+COLOR THEME (All Forms)
+-----------------------
+Background:     #1C2028  (Dark Navy)
+Sidebar:        #252B36  (Dark Slate)
+Header Panel:   #2980B9  (Bitsward Blue)
+Accent Green:   #2ECC71  (Action / Confirm buttons)
+Accent Red:     #E74C3C  (Danger / Logout)
+Accent Purple:  #9B59B6  (Split Task)
+Text Primary:   #FFFFFF  (White)
+Text Secondary: #BDC3C7  (Silver Gray)
+SLA Breached:   #FFD2D2 bg / #8B0000 fg
+SLA Warning:    #FFEF A6 bg / Brown fg
+
+1. LoginForm.cs (Startup)
+--------------------------
+- Size: 380 x 360
+- Blue header: BITSWARD ITSM title + subtitle
+- Dark input boxes for username (plain) and password (masked)
+- Green flat "SIGN IN" button
+- Red error label below inputs
+- On success: hides itself, launches MainForm passing (role, employeeId, username, db)
+- On MainForm close: re-shows LoginForm (allows re-login)
+- auto-seeds admin/admin123 on first load via SeedDefaultAdmin()
+
+2. MainForm.cs (Primary Dashboard)
+------------------------------------
+- Size: 1184 x 681, centered
+- Top bar: Blue, "ITSM Operational Dashboard" + right-aligned user/role context
+- Left sidebar (200px): flat nav buttons for Tickets, Tasks, Changes, Admin*, Logout
+  * Admin button hidden if role != "Admin"
+- Main Area: SplitContainer (520px | rest)
+  LEFT PANEL: TabControl with 3 tabs
+    [Incidents (INC)] - Blue tab
+    [Service Requests (SR)]
+    [Changes (CR)]
+    Each tab contains a DataGridView showing ID, Title, Priority, Status, Creator,
+    Assignee, CreatedAt, LockedBy columns.
+    - Priority P1 cells: RED text
+    - Priority P2 cells: ORANGE text
+    - Status cell: red background if SLA BREACHED, yellow if SLA NEAR WARNING
+  RIGHT PANEL: Ticket Detail Card
+    - Title (bold, white)
+    - Description text
+    - Priority / Status / SLA Deadline labels
+    - Assignee / Lock status indicator (yellow warning banner)
+    - [Claim Ticket] button: assigns ticket to logged-in user
+    - [Status dropdown + Update Status] button
+    - Thread history (RichTextBox, read-only, scrollable)
+    - Thread input + [Post Comment] button
+    - [Split Task] button: creates sub-task via dialog prompt
+- Auto 30-sec soft lock refresh timer
+- On tab switch: releases current lock, clears detail panel
+
+3. AdminForm.cs (Modal Dialog, opened from MainForm sidebar)
+--------------------------------------------------------------
+- Size: 784 x 561
+- Blue header: "ITSM Administration Console" + status text (green confirmation)
+- TabControl with 2 tabs:
+  [Manage Users]:
+    DataGridView listing all registered users (username, role, name, designation, dept)
+    Bottom action bar: shows selected user, role combo (Admin/Manager/Agent/User),
+    [Modify Role] button.
+    Safety guard: built-in 'admin' user cannot be demoted below Admin.
+  [Provision Login Account]:
+    DataGridView listing employees without user accounts (from organogram)
+    Bottom: shows selected employee info, username input, password input (masked),
+    role combo, [Generate Login Account] button.
+
+BUILD & RUN INSTRUCTIONS
+------------------------
+1. Prerequisites:
+   - Visual Studio 2019 or 2022 (with .NET Desktop Development workload)
+   - XAMPP with MySQL service running on localhost:3306
+   - MySQL Connector/NET installed (see /lib/README.txt)
+
+2. Open project:
+   - Open `e:\DotnetProject\src\BitswardITSM.csproj` in Visual Studio
+
+3. Restore MySql.Data reference:
+   - Tools > NuGet Package Manager > Package Manager Console
+   - Run: Install-Package MySql.Data
+
+4. Set startup project to BitswardITSM and press F5 to run.
+
+5. First launch:
+   - Schema is auto-applied (CREATE IF NOT EXISTS) via docs/schema.sql
+   - Default admin account is seeded: username=admin, password=admin123
+   - Login and navigate to Admin Panel to provision employee accounts.
