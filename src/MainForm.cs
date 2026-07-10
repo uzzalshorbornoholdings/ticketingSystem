@@ -48,11 +48,7 @@ namespace BitswardITSM.Core
 
         private void LoadQueueData()
         {
-            gridIncidents.DataSource = FetchTicketsByType("INC");
-            gridServiceRequests.DataSource = FetchTicketsByType("SR");
-            gridChanges.DataSource = FetchTicketsByType("CR");
-
-            // Configure grids after data binding completes to avoid transient initialization issues
+            // Subscribe to DataBindingComplete before staging DataSource
             gridIncidents.DataBindingComplete -= Grid_DataBindingComplete;
             gridIncidents.DataBindingComplete += Grid_DataBindingComplete;
 
@@ -62,17 +58,9 @@ namespace BitswardITSM.Core
             gridChanges.DataBindingComplete -= Grid_DataBindingComplete;
             gridChanges.DataBindingComplete += Grid_DataBindingComplete;
 
-            // If data already bound and columns are present, configure immediately
-            try
-            {
-                if (gridIncidents.DataSource != null && gridIncidents.Columns.Count > 0) ConfigureGrids(gridIncidents);
-                if (gridServiceRequests.DataSource != null && gridServiceRequests.Columns.Count > 0) ConfigureGrids(gridServiceRequests);
-                if (gridChanges.DataSource != null && gridChanges.Columns.Count > 0) ConfigureGrids(gridChanges);
-            }
-            catch
-            {
-                // Swallow any transient exceptions during layout
-            }
+            gridIncidents.DataSource = FetchTicketsByType("INC");
+            gridServiceRequests.DataSource = FetchTicketsByType("SR");
+            gridChanges.DataSource = FetchTicketsByType("CR");
 
             ClearDetails();
         }
