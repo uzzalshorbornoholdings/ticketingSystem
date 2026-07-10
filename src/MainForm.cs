@@ -52,9 +52,27 @@ namespace BitswardITSM.Core
             gridServiceRequests.DataSource = FetchTicketsByType("SR");
             gridChanges.DataSource = FetchTicketsByType("CR");
 
-            ConfigureGrids(gridIncidents);
-            ConfigureGrids(gridServiceRequests);
-            ConfigureGrids(gridChanges);
+            // Configure grids after data binding completes to avoid transient initialization issues
+            gridIncidents.DataBindingComplete -= Grid_DataBindingComplete;
+            gridIncidents.DataBindingComplete += Grid_DataBindingComplete;
+
+            gridServiceRequests.DataBindingComplete -= Grid_DataBindingComplete;
+            gridServiceRequests.DataBindingComplete += Grid_DataBindingComplete;
+
+            gridChanges.DataBindingComplete -= Grid_DataBindingComplete;
+            gridChanges.DataBindingComplete += Grid_DataBindingComplete;
+
+            // If data already bound and columns are present, configure immediately
+            try
+            {
+                if (gridIncidents.DataSource != null && gridIncidents.Columns.Count > 0) ConfigureGrids(gridIncidents);
+                if (gridServiceRequests.DataSource != null && gridServiceRequests.Columns.Count > 0) ConfigureGrids(gridServiceRequests);
+                if (gridChanges.DataSource != null && gridChanges.Columns.Count > 0) ConfigureGrids(gridChanges);
+            }
+            catch
+            {
+                // Swallow any transient exceptions during layout
+            }
 
             ClearDetails();
         }
@@ -112,9 +130,21 @@ namespace BitswardITSM.Core
         /// <summary>Safely sets column width — no crash if column name doesn't exist.</summary>
         private static void SetColumnWidth(DataGridView grid, string colName, int width)
         {
+            if (grid == null || grid.Columns == null || string.IsNullOrEmpty(colName)) return;
+
             try
             {
-                var col = grid.Columns[colName] ?? grid.Columns[colName.ToLower()] ?? grid.Columns[colName.ToUpper()];
+                // Case-insensitive safe lookup without LINQ (avoids adding new using directives)
+                DataGridViewColumn col = null;
+                foreach (DataGridViewColumn c in grid.Columns)
+                {
+                    if (string.Equals(c.Name, colName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        col = c;
+                        break;
+                    }
+                }
+
                 if (col != null)
                 {
                     col.Width = width;
@@ -123,6 +153,15 @@ namespace BitswardITSM.Core
             catch
             {
                 // Avoid layout/initialize exceptions during grid load
+            }
+        }
+
+        private void Grid_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            var grid = sender as DataGridView;
+            if (grid != null)
+            {
+                ConfigureGrids(grid);
             }
         }
 
