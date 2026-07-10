@@ -1,0 +1,126 @@
+Deep Codebase Audit — Comprehensive Fix Plan
+After reading all 12 source files and cross-referencing them, I found 5 issues that can cause NullReferenceException or runtime crashes. Here they are, ordered by severity:
+
+Issue 1 (ROOT CAUSE): AutoSizeColumnsMode.Fill conflicts with explicit col.Width assignment
+CAUTION
+
+This is very likely the primary cause of the crash you are seeing at col.Width = width on line 150.
+
+In 
+MainForm.Designer.cs
+, all three grids are configured with:
+
+this.gridIncidents.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;  // Line 291
+But in 
+MainForm.cs
+ 
+ConfigureGrids()
+, we explicitly set column widths:
+
+SetColumnWidth(grid, "ID", 45);      // Line 94
+SetColumnWidth(grid, "Priority", 65); // Line 95
+When AutoSizeColumnsMode is Fill, WinForms internally manages column widths. Setting col.Width directly causes a conflict during the layout computation cycle, which throws NullReferenceException inside WinForms internal code like ComputeVisibleColumns().
+
+Fix
+Inside 
+ConfigureGrids
+, set AutoSizeColumnsMode to None before modifying widths, then set the Title column (the widest) to Fill so it takes remaining space:
+
+private void ConfigureGrids(DataGridView grid)
+  {
+      if (grid.Columns.Count == 0) return;
++
++     // Must disable auto-sizing before setting explicit widths
++     grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
++
+      SetColumnWidth(grid, "ID", 45);
+      ...
++     // Let the Title column fill remaining space
++     var titleCol = FindColumn(grid, "Title");
++     if (titleCol != null) titleCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+Issue 2: 
+HandleGridSelection
+ fires during data binding on empty grid
+The 
+SelectionChanged
+ event fires automatically when DataSource is set. At that moment SelectedRows[0].Cells["ID"] may have no value yet or the column may not exist. Although we added null-checks, the event could also trigger 
+DisplayTicketDetails
+ which runs heavy SQL queries unnecessarily during load.
+
+Fix
+Add an early-exit guard at the top of 
+HandleGridSelection
+:
+
+private void HandleGridSelection(DataGridView grid, string type)
+  {
++     if (grid.DataSource == null || grid.Columns.Count == 0) return;
+      if (grid.SelectedRows.Count > 0)
+Issue 3: 
+Grid_CellFormatting
+ uses row.Cells["CreatedAt"] without case-insensitive lookup
+On 
+MainForm.cs line 431
+, the cell lookup pattern:
+
+var createdAtCell = row.Cells["CreatedAt"] ?? row.Cells["createdat"];
+var priorityCell = row.Cells["Priority"] ?? row.Cells["priority"];
+This still throws if neither casing matches. Should use the same foreach pattern as 
+SetColumnWidth
+.
+
+Fix
+Create a reusable FindCell helper and use it in 
+Grid_CellFormatting
+ and 
+HandleGridSelection
+.
+
+Issue 4: 
+AdminForm.cs
+ unsafe Cells[] access without null checks
+In 
+AdminForm.cs lines 51-54
+ and 
+lines 96, 109-111
+, cells are accessed by column name without null checks:
+
+gridUsers.Columns["UserId"].Width = 50;   // Throws if MySQL returns "userid"
+row.Cells["Username"].Value.ToString();    // Throws if column casing differs
+Fix
+Wrap the column width setters in try-catch and add null checks on cell access.
+
+Issue 5: 
+LoginForm.cs
+ schema path resolution
+In 
+LoginForm.cs line 26
+, the path traversal goes up 4 levels (..\..\..\..\docs\schema.sql). From bin\Debug\, only 2 levels up reaches the src\ folder, then one more to the project root. The path needs ..\..\ (2 levels from bin\Debug\ to src\, then .. to project root).
+
+Fix
+Change path to @"..\..\..\..\docs\schema.sql" → verify it resolves correctly, or add a second fallback:
+
+if (!File.Exists(schemaPath))
+    schemaPath = Path.GetFullPath(Path.Combine(exeDir, @"..\..\docs\schema.sql"));
+Proposed Changes Summary
+[MODIFY] 
+MainForm.cs
+Add FindColumn and FindCell helper methods (case-insensitive)
+In ConfigureGrids: set AutoSizeColumnsMode = None before width assignment, then set Title to Fill
+In HandleGridSelection: add early-exit guard for empty/loading grids
+In Grid_CellFormatting: use FindCell helper instead of direct indexer
+[MODIFY] 
+AdminForm.cs
+Wrap LoadUserData/LoadUnassociatedEmployees column width setters in try-catch
+Add null-safe cell access in GridUsers_SelectionChanged and GridUnassociated_SelectionChanged
+[MODIFY] 
+LoginForm.cs
+Add additional fallback path for schema.sql resolution
+Verification Plan
+Automated Build Verification
+dotnet build e:\DotnetProject\src\BitswardITSM.csproj -o e:\DotnetProject\src\bin\DebugTemp
+Manual Verification
+Launch application, login with admin / admin123
+Verify grids load without crash
+Click rows in each tab — no NullReferenceException
+Open Admin panel — no crashes on user/employee grid selection
