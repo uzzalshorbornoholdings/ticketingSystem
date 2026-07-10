@@ -39,6 +39,50 @@ namespace BitswardITSM.Core
             lblStatusMsg.Text = string.Empty;
         }
 
+        private static void SetColumnWidth(DataGridView grid, string colName, int width)
+        {
+            if (grid == null || grid.Columns == null || string.IsNullOrEmpty(colName)) return;
+            try
+            {
+                foreach (DataGridViewColumn col in grid.Columns)
+                {
+                    if (string.Equals(col.Name, colName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        col.Width = width;
+                        break;
+                    }
+                }
+            }
+            catch
+            {
+                // Suppress exceptions
+            }
+        }
+
+        private static DataGridViewCell FindCell(DataGridViewRow row, string colName)
+        {
+            if (row == null || string.IsNullOrEmpty(colName)) return null;
+            var grid = row.DataGridView;
+            if (grid != null)
+            {
+                foreach (DataGridViewColumn col in grid.Columns)
+                {
+                    if (string.Equals(col.Name, colName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return row.Cells[col.Index];
+                    }
+                }
+            }
+            foreach (DataGridViewCell cell in row.Cells)
+            {
+                if (cell.OwningColumn != null && string.Equals(cell.OwningColumn.Name, colName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return cell;
+                }
+            }
+            return null;
+        }
+
         private void LoadUserData()
         {
             try
@@ -48,10 +92,10 @@ namespace BitswardITSM.Core
                 
                 if (gridUsers.Columns.Count > 0)
                 {
-                    gridUsers.Columns["UserId"].Width = 50;
-                    gridUsers.Columns["Username"].Width = 100;
-                    gridUsers.Columns["Role"].Width = 80;
-                    gridUsers.Columns["EmployeeId"].Width = 100;
+                    SetColumnWidth(gridUsers, "UserId", 50);
+                    SetColumnWidth(gridUsers, "Username", 100);
+                    SetColumnWidth(gridUsers, "Role", 80);
+                    SetColumnWidth(gridUsers, "EmployeeId", 100);
                 }
                 
                 lblSelectedUser.Text = "Select user to modify role...";
@@ -73,7 +117,7 @@ namespace BitswardITSM.Core
                 
                 if (gridUnassociated.Columns.Count > 0)
                 {
-                    gridUnassociated.Columns["EmployeeId"].Width = 100;
+                    SetColumnWidth(gridUnassociated, "EmployeeId", 100);
                 }
                 
                 lblSelectedEmpInfo.Text = "Select an employee from the list above...";
@@ -93,8 +137,10 @@ namespace BitswardITSM.Core
             if (gridUsers.SelectedRows.Count > 0)
             {
                 var row = gridUsers.SelectedRows[0];
-                _selectedUsername = row.Cells["Username"].Value.ToString();
-                string currentRole = row.Cells["Role"].Value.ToString();
+                var userCell = FindCell(row, "Username");
+                var roleCell = FindCell(row, "Role");
+                _selectedUsername = userCell?.Value?.ToString() ?? string.Empty;
+                string currentRole = roleCell?.Value?.ToString() ?? string.Empty;
                 
                 lblSelectedUser.Text = $"User: {_selectedUsername}";
                 cmbRoleEdit.SelectedItem = currentRole;
@@ -106,11 +152,15 @@ namespace BitswardITSM.Core
             if (gridUnassociated.SelectedRows.Count > 0)
             {
                 var row = gridUnassociated.SelectedRows[0];
-                _selectedEmployeeId = row.Cells["EmployeeId"].Value.ToString();
-                string name = row.Cells["Name"].Value.ToString();
-                string designation = row.Cells["Designation"].Value.ToString();
+                var empIdCell = FindCell(row, "EmployeeId");
+                var nameCell = FindCell(row, "Name");
+                var desigCell = FindCell(row, "Designation");
+
+                _selectedEmployeeId = empIdCell?.Value?.ToString();
+                string name = nameCell?.Value?.ToString() ?? string.Empty;
+                string designation = desigCell?.Value?.ToString() ?? string.Empty;
                 
-                lblSelectedEmpInfo.Text = $"Provision: {name} ({designation}) | ID: {_selectedEmployeeId}";
+                lblSelectedEmpInfo.Text = $"Provision: {name} ({designation}) | ID: {_selectedEmployeeId ?? "N/A"}";
             }
         }
 

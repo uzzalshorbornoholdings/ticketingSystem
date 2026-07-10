@@ -90,6 +90,9 @@ namespace BitswardITSM.Core
         {
             if (grid.Columns.Count == 0) return;
 
+            // Must disable auto-sizing before setting explicit widths to avoid layout crashes
+            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+
             // Null-safe helper — MySQL column alias casing can vary by driver version
             SetColumnWidth(grid, "ID", 45);
             SetColumnWidth(grid, "Priority", 65);
@@ -97,8 +100,12 @@ namespace BitswardITSM.Core
             SetColumnWidth(grid, "Creator", 110);
             SetColumnWidth(grid, "Assignee", 110);
 
-            var dateCol = grid.Columns["CreatedAt"] ?? grid.Columns["createdat"];
+            var dateCol = FindColumn(grid, "CreatedAt");
             if (dateCol != null) dateCol.DefaultCellStyle.Format = "yyyy-MM-dd HH:mm";
+
+            // Let the Title column fill remaining space dynamically
+            var titleCol = FindColumn(grid, "Title");
+            if (titleCol != null) titleCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
             // Style header row
             grid.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(37, 43, 54);
@@ -144,6 +151,41 @@ namespace BitswardITSM.Core
             }
         }
 
+        private static DataGridViewColumn FindColumn(DataGridView grid, string colName)
+        {
+            if (grid == null || grid.Columns == null || string.IsNullOrEmpty(colName)) return null;
+            foreach (DataGridViewColumn col in grid.Columns)
+            {
+                if (string.Equals(col.Name, colName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return col;
+                }
+            }
+            return null;
+        }
+
+        private static DataGridViewCell FindCell(DataGridViewRow row, string colName)
+        {
+            if (row == null || string.IsNullOrEmpty(colName)) return null;
+            var grid = row.DataGridView;
+            if (grid != null)
+            {
+                var col = FindColumn(grid, colName);
+                if (col != null)
+                {
+                    return row.Cells[col.Index];
+                }
+            }
+            foreach (DataGridViewCell cell in row.Cells)
+            {
+                if (cell.OwningColumn != null && string.Equals(cell.OwningColumn.Name, colName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return cell;
+                }
+            }
+            return null;
+        }
+
         private void Grid_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
             var grid = sender as DataGridView;
@@ -175,10 +217,11 @@ namespace BitswardITSM.Core
 
         private void HandleGridSelection(DataGridView grid, string type)
         {
+            if (grid == null || grid.DataSource == null || grid.Columns.Count == 0) return;
             if (grid.SelectedRows.Count > 0)
             {
                 var row = grid.SelectedRows[0];
-                var idCell = row.Cells["ID"] ?? row.Cells["id"];
+                var idCell = FindCell(row, "ID");
                 if (idCell?.Value != null && idCell.Value != DBNull.Value)
                 {
                     int ticketId = Convert.ToInt32(idCell.Value);
@@ -428,8 +471,8 @@ namespace BitswardITSM.Core
                     var row = grid.Rows[e.RowIndex];
 
                     // Null-safe cell retrieval (column name case may vary by MySQL driver version)
-                    var createdAtCell = row.Cells["CreatedAt"] ?? row.Cells["createdat"];
-                    var priorityCell = row.Cells["Priority"] ?? row.Cells["priority"];
+                    var createdAtCell = FindCell(row, "CreatedAt");
+                    var priorityCell = FindCell(row, "Priority");
 
                     if (createdAtCell?.Value == null || createdAtCell.Value == DBNull.Value) return;
                     if (priorityCell?.Value == null || priorityCell.Value == DBNull.Value) return;

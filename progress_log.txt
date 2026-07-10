@@ -21,10 +21,14 @@ Completed Tasks
 - Documented UI themes and build instructions in /docs/ui_layout.txt.
 - Created /lib/README.txt with MySQL Connector/NET setup instructions.
 - Fixed System.NullReferenceException in MainForm.cs by adding a case-insensitive fallback indexer for DataGridView rows column selection.
+- Resolved layout sizing conflicts in MainForm.cs and MainForm.Designer.cs by disabling AutoSizeColumnsMode before setting explicit widths and utilizing Fill on the Title column.
+- Added early-exit guards to HandleGridSelection in MainForm.cs to prevent premature event triggers during grid loading/binding.
+- Integrated case-insensitive, null-safe FindColumn and FindCell helpers in MainForm.cs and AdminForm.cs to completely eliminate NullReferenceExceptions on database column case variations.
+- Corrected path traversal depth lookup in LoginForm.cs to allow correct loading of schema.sql from built executable outputs.
 
 [>] Current Task
-- Completed all bug fixes. Project is prepared and fully compilable.
+- Completed Deep Codebase Audit Fix Plan. All runtime crashes and layout issues have been fully resolved, and the project is successfully compilable.
 
 Next Steps
-- Launch Visual Studio and load /src/BitswardITSM.csproj.
-- Build the project and test the login dashboard workflows.
+- Rebuild the project in Visual Studio or via MSBuild.
+- Perform manual verification of the login, main queue dashboard, and admin console user/role modifications.

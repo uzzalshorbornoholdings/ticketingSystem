@@ -21,11 +21,21 @@ namespace BitswardITSM.Core
         {
             try
             {
-                // Resolve schema.sql path relative to the executable (goes up from bin\Debug to project root)
+                // Resolve schema.sql path relative to the executable (supporting multiple folder depths)
                 string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                string schemaPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\..\..\docs\schema.sql"));
+                
+                // Try 3 levels up (e.g. from bin\Debug\ to project root)
+                string schemaPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\..\docs\schema.sql"));
 
-                // Fallback: look in the same folder as the exe (for deployment)
+                // Fallback 1: Try 4 levels up (e.g. deeper output folders)
+                if (!System.IO.File.Exists(schemaPath))
+                    schemaPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\..\..\docs\schema.sql"));
+
+                // Fallback 2: Try 2 levels up
+                if (!System.IO.File.Exists(schemaPath))
+                    schemaPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\docs\schema.sql"));
+
+                // Fallback 3: look in the same folder as the exe (for deployment)
                 if (!System.IO.File.Exists(schemaPath))
                     schemaPath = System.IO.Path.Combine(exeDir, "schema.sql");
 
