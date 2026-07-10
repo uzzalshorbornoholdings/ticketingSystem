@@ -112,8 +112,18 @@ namespace BitswardITSM.Core
         /// <summary>Safely sets column width — no crash if column name doesn't exist.</summary>
         private static void SetColumnWidth(DataGridView grid, string colName, int width)
         {
-            var col = grid.Columns[colName];
-            if (col != null) col.Width = width;
+            try
+            {
+                var col = grid.Columns[colName] ?? grid.Columns[colName.ToLower()] ?? grid.Columns[colName.ToUpper()];
+                if (col != null)
+                {
+                    col.Width = width;
+                }
+            }
+            catch
+            {
+                // Avoid layout/initialize exceptions during grid load
+            }
         }
 
         private void TabControlQueues_SelectedIndexChanged(object sender, EventArgs e)
