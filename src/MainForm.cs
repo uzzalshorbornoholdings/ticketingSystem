@@ -142,6 +142,8 @@ namespace BitswardITSM.Core
 
                 if (col != null)
                 {
+                    // Safely set auto size mode to None before setting width to prevent layout-lock crashes
+                    col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                     col.Width = width;
                 }
             }
@@ -191,7 +193,8 @@ namespace BitswardITSM.Core
             var grid = sender as DataGridView;
             if (grid != null)
             {
-                ConfigureGrids(grid);
+                // Defer grid configuration to avoid layout conflicts during active data binding/load phases
+                this.BeginInvoke(new Action(() => ConfigureGrids(grid)));
             }
         }
 

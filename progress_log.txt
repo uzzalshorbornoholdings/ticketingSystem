@@ -25,10 +25,16 @@ Completed Tasks
 - Added early-exit guards to HandleGridSelection in MainForm.cs to prevent premature event triggers during grid loading/binding.
 - Integrated case-insensitive, null-safe FindColumn and FindCell helpers in MainForm.cs and AdminForm.cs to completely eliminate NullReferenceExceptions on database column case variations.
 - Corrected path traversal depth lookup in LoginForm.cs to allow correct loading of schema.sql from built executable outputs.
+- Fixed System.NullReferenceException at DataGridViewBand.set_Thickness in SetColumnWidth by resetting col.AutoSizeMode to None before assigning Width in both MainForm.cs and AdminForm.cs.
+- Fixed layout-lock timing issue in Grid_DataBindingComplete by deferring ConfigureGrids via BeginInvoke so it runs after the data binding cycle completes.
 
 [>] Current Task
-- Completed Deep Codebase Audit Fix Plan. All runtime crashes and layout issues have been fully resolved, and the project is successfully compilable.
+- All known NullReferenceExceptions are resolved. Project compiled clean (0 Warnings, 0 Errors). Ready for live run testing.
 
 Next Steps
-- Rebuild the project in Visual Studio or via MSBuild.
-- Perform manual verification of the login, main queue dashboard, and admin console user/role modifications.
+- Stop any running instance in Visual Studio (stop debugging if active).
+- Press Ctrl+Shift+B to rebuild in Visual Studio, or F5 to launch.
+- Login with admin / admin123.
+- Verify: click rows in Incident / SR / CR tabs — no crash.
+- Verify: open Admin Panel, select users and employees — no crash.
+

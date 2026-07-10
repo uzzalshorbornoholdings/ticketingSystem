@@ -48,6 +48,8 @@ namespace BitswardITSM.Core
                 {
                     if (string.Equals(col.Name, colName, StringComparison.OrdinalIgnoreCase))
                     {
+                        // Safely set auto size mode to None before setting width to prevent layout-lock crashes
+                        col.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                         col.Width = width;
                         break;
                     }
