@@ -43,6 +43,21 @@ namespace BitswardITSM.Core
                 if (System.IO.File.Exists(schemaPath))
                     _dbManager.InitializeDatabase(schemaPath);
 
+                // Step 1.5: Auto-sync organogram before seeding default admin
+                string csvPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\..\org\organogram.csv"));
+                if (!System.IO.File.Exists(csvPath))
+                    csvPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\..\..\org\organogram.csv"));
+                if (!System.IO.File.Exists(csvPath))
+                    csvPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\org\organogram.csv"));
+                if (!System.IO.File.Exists(csvPath))
+                    csvPath = System.IO.Path.Combine(exeDir, "organogram.csv");
+
+                if (System.IO.File.Exists(csvPath))
+                {
+                    var sync = new OrganogramSync(_dbManager);
+                    sync.SyncFromCsv(csvPath);
+                }
+
                 // Step 2: Seed default admin if no users exist yet
                 _authManager.SeedDefaultAdmin();
             }

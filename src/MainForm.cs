@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
@@ -18,6 +19,7 @@ namespace BitswardITSM.Core
         private int _selectedTicketId = -1;
         private string _selectedTicketType = null;
         private Timer _lockTimer;
+        private readonly HashSet<int> _notifiedTicketIds = new HashSet<int>();
 
         public MainForm(string role, string employeeId, string username, DatabaseManager db)
         {
@@ -41,6 +43,21 @@ namespace BitswardITSM.Core
 
             // Show Admin control button only if the role is Admin
             btnNavAdmin.Visible = (_userRole == "Admin");
+
+            // Pre-populate notified ticket IDs to avoid alert spamming for historical tickets on startup
+            if (!string.IsNullOrEmpty(_employeeId))
+            {
+                try
+                {
+                    string query = "SELECT id FROM tickets WHERE assigned_employee_id = @empId";
+                    var dt = _db.ExecuteQuery(query, new MySqlParameter[] { new MySqlParameter("@empId", _employeeId) });
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        _notifiedTicketIds.Add(Convert.ToInt32(row["id"]));
+                    }
+                }
+                catch { }
+            }
 
             LoadQueueData();
             _lockTimer.Start();
@@ -238,73 +255,82 @@ namespace BitswardITSM.Core
         {
             _selectedTicketId = ticketId;
 
-            // Fetch Ticket Record
-            string query = @"
-                SELECT t.title, t.description, t.priority, t.status, t.created_at, 
-                       t.assigned_employee_id, assignee.name AS AssigneeName,
-                       t.locked_by, locker.name AS LockerName, t.locked_until
-                FROM tickets t
-                LEFT JOIN employees assignee ON t.assigned_employee_id = assignee.id
-                LEFT JOIN employees locker ON t.locked_by = locker.id
-                WHERE t.id = @id";
-
-            var dt = _db.ExecuteQuery(query, new MySqlParameter[] { new MySqlParameter("@id", ticketId) });
-            if (dt.Rows.Count == 0) return;
-
-            var row = dt.Rows[0];
-            lblDetailTitle.Text = $"[{ticketId}] " + row["title"].ToString();
-            lblDetailDesc.Text = row["description"].ToString();
-            lblDetailPriority.Text = "Priority: " + row["priority"].ToString();
-            lblDetailStatus.Text = "Status: " + row["status"].ToString();
-
-            // Calculate SLA deadlines
-            DateTime createdAt = Convert.ToDateTime(row["created_at"]);
-            string priority = row["priority"].ToString();
-            var config = _slaEngine.GetSlaConfig(priority);
-            DateTime deadline = _slaEngine.CalculateDeadline(createdAt, config.ResolutionHours);
-            lblDetailSla.Text = $"SLA Deadline: {deadline:yyyy-MM-dd HH:mm} (" + priority + ")";
-
-            if (_slaEngine.IsBreached(createdAt, null, priority))
-            {
-                lblDetailSla.ForeColor = Color.Red;
-                lblDetailSla.Text += " [BREACHED]";
-            }
-            else
-            {
-                lblDetailSla.ForeColor = Color.FromArgb(200, 207, 214);
-            }
-
-            lblDetailAssignee.Text = "Assignee: " + (row["AssigneeName"] != DBNull.Value ? row["AssigneeName"].ToString() : "Unassigned");
-
-            // Evaluate Soft Lock state
-            string lockedById = row["locked_by"].ToString();
-            if (!string.IsNullOrEmpty(lockedById) && row["locked_until"] != DBNull.Value)
-            {
-                DateTime lockedUntil = Convert.ToDateTime(row["locked_until"]);
-                if (DateTime.Now < lockedUntil)
-                {
-                    if (lockedById != _employeeId)
-                    {
-                        lblLockIndicator.Text = $"⚠️ Ticket locked by: {row["LockerName"]} (Read-only)";
-                        ToggleActionButtons(false);
-                    }
-                    else
-                    {
-                        lblLockIndicator.Text = "🔒 You have locked this ticket.";
-                        ToggleActionButtons(true);
-                    }
-                }
-                else
-                {
-                    AcquireSoftLock(ticketId);
-                }
-            }
-            else
-            {
-                AcquireSoftLock(ticketId);
-            }
-
-            LoadThreadHistory(ticketId);
+             // Fetch Ticket Record
+             string query = @"
+                 SELECT t.title, t.description, t.type AS Type, t.priority, t.status, t.created_at, 
+                        t.assigned_employee_id, assignee.name AS AssigneeName,
+                        t.locked_by, locker.name AS LockerName, t.locked_until
+                 FROM tickets t
+                 LEFT JOIN employees assignee ON t.assigned_employee_id = assignee.id
+                 LEFT JOIN employees locker ON t.locked_by = locker.id
+                 WHERE t.id = @id";
+ 
+             var dt = _db.ExecuteQuery(query, new MySqlParameter[] { new MySqlParameter("@id", ticketId) });
+             if (dt.Rows.Count == 0) return;
+ 
+             var row = dt.Rows[0];
+             string type = row["Type"].ToString();
+             lblDetailTitle.Text = $"[{ticketId}] " + row["title"].ToString();
+             lblDetailDesc.Text = row["description"].ToString();
+             lblDetailPriority.Text = "Priority: " + row["priority"].ToString();
+             lblDetailStatus.Text = "Status: " + row["status"].ToString();
+ 
+             // Calculate SLA deadlines
+             DateTime createdAt = Convert.ToDateTime(row["created_at"]);
+             string priority = row["priority"].ToString();
+             var config = _slaEngine.GetSlaConfig(priority);
+             DateTime deadline = _slaEngine.CalculateDeadline(createdAt, config.ResolutionHours);
+             lblDetailSla.Text = $"SLA Deadline: {deadline:yyyy-MM-dd HH:mm} (" + priority + ")";
+ 
+             if (_slaEngine.IsBreached(createdAt, null, priority))
+             {
+                 lblDetailSla.ForeColor = Color.Red;
+                 lblDetailSla.Text += " [BREACHED]";
+             }
+             else
+             {
+                 lblDetailSla.ForeColor = Color.FromArgb(200, 207, 214);
+             }
+ 
+             lblDetailAssignee.Text = "Assignee: " + (row["AssigneeName"] != DBNull.Value ? row["AssigneeName"].ToString() : "Unassigned");
+ 
+             // Configure Change Request specific layout and fetch CAB/Risk details
+             bool isCR = (type == "CR");
+             ConfigureCRPanel(isCR);
+             if (isCR)
+             {
+                 DisplayCRDetails(ticketId);
+             }
+ 
+             // Evaluate Soft Lock state
+             string lockedById = row["locked_by"].ToString();
+             if (!string.IsNullOrEmpty(lockedById) && row["locked_until"] != DBNull.Value)
+             {
+                 DateTime lockedUntil = Convert.ToDateTime(row["locked_until"]);
+                 if (DateTime.Now < lockedUntil)
+                 {
+                     if (lockedById != _employeeId)
+                     {
+                         lblLockIndicator.Text = $"⚠️ Ticket locked by: {row["LockerName"]} (Read-only)";
+                         ToggleActionButtons(false);
+                     }
+                     else
+                     {
+                         lblLockIndicator.Text = "🔒 You have locked this ticket.";
+                         ToggleActionButtons(true);
+                     }
+                 }
+                 else
+                 {
+                     AcquireSoftLock(ticketId);
+                 }
+             }
+             else
+             {
+                 AcquireSoftLock(ticketId);
+             }
+ 
+             LoadThreadHistory(ticketId);
         }
 
         private void AcquireSoftLock(int ticketId)
@@ -510,6 +536,7 @@ namespace BitswardITSM.Core
                 // Refresh lock timestamp
                 AcquireSoftLock(_selectedTicketId);
             }
+            CheckNewAssignments();
         }
 
         private void ClearDetails()
@@ -529,6 +556,7 @@ namespace BitswardITSM.Core
             lblLockIndicator.Text = string.Empty;
             txtThreadHistory.Clear();
             ToggleActionButtons(false);
+            ConfigureCRPanel(false);
         }
 
         private void BtnNavTickets_Click(object sender, EventArgs e) { } // Already on tickets grid
@@ -560,6 +588,619 @@ namespace BitswardITSM.Core
             ClearDetails();
             _lockTimer.Stop();
             this.Close();
+        }
+
+        private void BtnNewTicket_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new NewTicketDialog())
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        // 1. Triage and classify ticket type based on keywords
+                        string ticketType = _triageEngine.ClassifyTicket(dlg.TicketTitle, dlg.TicketDescription);
+
+                        // 2. Resolve SLA configuration and deadline
+                        var slaConfig = _slaEngine.GetSlaConfig(dlg.TicketPriority);
+
+                        // 3. Resolve target department based on keywords
+                        string targetDept = _triageEngine.ResolveTargetDepartment(dlg.TicketTitle, dlg.TicketDescription);
+
+                        // 4. Save to tickets database table (initially Open)
+                        string insertQuery = @"
+                            INSERT INTO tickets (title, description, type, priority, sla_id, creator_employee_id, status)
+                            VALUES (@title, @desc, @type, @priority, @sla_id, @creator, 'Open')";
+                        
+                        var insertParams = new MySqlParameter[] {
+                            new MySqlParameter("@title", dlg.TicketTitle),
+                            new MySqlParameter("@desc", dlg.TicketDescription),
+                            new MySqlParameter("@type", ticketType),
+                            new MySqlParameter("@priority", dlg.TicketPriority),
+                            new MySqlParameter("@sla_id", slaConfig.Id > 0 ? (object)slaConfig.Id : DBNull.Value),
+                            new MySqlParameter("@creator", string.IsNullOrEmpty(_employeeId) ? (object)DBNull.Value : _employeeId)
+                        };
+
+                        _db.ExecuteNonQuery(insertQuery, insertParams);
+
+                        // Get the generated ID
+                        object lastIdObj = _db.ExecuteScalar("SELECT LAST_INSERT_ID()");
+                        if (lastIdObj != null && lastIdObj != DBNull.Value)
+                        {
+                            int ticketId = Convert.ToInt32(lastIdObj);
+
+                            // 5. Run the Smart 3-tier Assignment Engine
+                            string assignedTo = _triageEngine.AssignTicket(ticketId, _employeeId, targetDept);
+
+                            // 6. Log the Audit trail
+                            LogAuditTrail(ticketId, "Create Ticket", $"Ticket created and triaged as {ticketType} for {targetDept}. Assigned to {assignedTo}");
+                            
+                            // Check if this was a Change Request to add change_requests row
+                            if (ticketType == "CR")
+                            {
+                                string crQuery = "INSERT INTO change_requests (ticket_id, risk_score) VALUES (@ticketId, 'Low')";
+                                _db.ExecuteNonQuery(crQuery, new MySqlParameter[] { new MySqlParameter("@ticketId", ticketId) });
+                            }
+                        }
+
+                        MessageBox.Show($"Ticket successfully submitted and assigned to the correct IT staff!", "Ticket Created", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        
+                        // Reload lists and select the appropriate tab
+                        LoadQueueData();
+                        if (ticketType == "INC") tabControlQueues.SelectedIndex = 0;
+                        else if (ticketType == "SR") tabControlQueues.SelectedIndex = 1;
+                        else if (ticketType == "CR") tabControlQueues.SelectedIndex = 2;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to submit ticket:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void CheckNewAssignments()
+        {
+            if (string.IsNullOrEmpty(_employeeId)) return;
+
+            try
+            {
+                string query = "SELECT id, title, type FROM tickets WHERE assigned_employee_id = @empId AND status = 'Assigned'";
+                var dt = _db.ExecuteQuery(query, new MySqlParameter[] { new MySqlParameter("@empId", _employeeId) });
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    int ticketId = Convert.ToInt32(row["id"]);
+                    if (!_notifiedTicketIds.Contains(ticketId))
+                    {
+                        _notifiedTicketIds.Add(ticketId);
+                        ShowToastNotification(ticketId, row["title"].ToString(), row["type"].ToString());
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void ShowToastNotification(int ticketId, string title, string type)
+        {
+            this.BeginInvoke(new Action(() => {
+                var toast = new ToastNotification(ticketId, title, type);
+                toast.Show();
+            }));
+        }
+
+        private Panel panelCRControls;
+        private Label lblRisk;
+        private Label lblCAB;
+        private Label lblWindow;
+        private Button btnRisk;
+        private Button btnCABApprove;
+        private Button btnSchedule;
+
+        private void InitializeCRPanel()
+        {
+            if (panelCRControls != null) return;
+
+            panelCRControls = new Panel
+            {
+                Location = new Point(15, 275),
+                Width = 413,
+                Height = 85,
+                BackColor = Color.FromArgb(44, 62, 80), // Sleek blue slate
+                Visible = false
+            };
+
+            var lblHeader = new Label
+            {
+                Text = "🛠️ CAB REVIEW & RISK ENGINE",
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(236, 240, 241),
+                Location = new Point(8, 6),
+                Width = 250,
+                Height = 15
+            };
+            panelCRControls.Controls.Add(lblHeader);
+
+            lblRisk = new Label
+            {
+                Text = "Risk: Low",
+                Font = new Font("Segoe UI", 8.5F),
+                ForeColor = Color.FromArgb(200, 207, 214),
+                Location = new Point(8, 25),
+                Width = 120,
+                Height = 15
+            };
+            panelCRControls.Controls.Add(lblRisk);
+
+            btnRisk = new Button
+            {
+                Text = "Assess Risk",
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                BackColor = Color.FromArgb(52, 73, 94),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(8, 48),
+                Width = 85,
+                Height = 24
+            };
+            btnRisk.FlatAppearance.BorderSize = 0;
+            btnRisk.Click += BtnAssessRisk_Click;
+            panelCRControls.Controls.Add(btnRisk);
+
+            lblCAB = new Label
+            {
+                Text = "CAB: Pending",
+                Font = new Font("Segoe UI", 8.5F),
+                ForeColor = Color.FromArgb(200, 207, 214),
+                Location = new Point(135, 25),
+                Width = 120,
+                Height = 15
+            };
+            panelCRControls.Controls.Add(lblCAB);
+
+            btnCABApprove = new Button
+            {
+                Text = "Approve (CAB)",
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                BackColor = Color.FromArgb(39, 174, 96),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(135, 48),
+                Width = 95,
+                Height = 24
+            };
+            btnCABApprove.FlatAppearance.BorderSize = 0;
+            btnCABApprove.Click += BtnCABApprove_Click;
+            panelCRControls.Controls.Add(btnCABApprove);
+
+            lblWindow = new Label
+            {
+                Text = "Window: None",
+                Font = new Font("Segoe UI", 8.5F),
+                ForeColor = Color.FromArgb(200, 207, 214),
+                Location = new Point(255, 25),
+                Width = 150,
+                Height = 15
+            };
+            panelCRControls.Controls.Add(lblWindow);
+
+            btnSchedule = new Button
+            {
+                Text = "Schedule Window",
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                BackColor = Color.FromArgb(155, 89, 182),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(255, 48),
+                Width = 110,
+                Height = 24
+            };
+            btnSchedule.FlatAppearance.BorderSize = 0;
+            btnSchedule.Click += BtnScheduleWindow_Click;
+            panelCRControls.Controls.Add(btnSchedule);
+
+            this.panelTicketDetails.Controls.Add(panelCRControls);
+        }
+
+        private void ConfigureCRPanel(bool isCR)
+        {
+            InitializeCRPanel();
+
+            if (isCR)
+            {
+                panelCRControls.Visible = true;
+                txtThreadHistory.Location = new Point(15, 370);
+                txtThreadHistory.Height = 177;
+            }
+            else
+            {
+                panelCRControls.Visible = false;
+                txtThreadHistory.Location = new Point(15, 310);
+                txtThreadHistory.Height = 237;
+            }
+        }
+
+        private void DisplayCRDetails(int ticketId)
+        {
+            string query = "SELECT risk_score, cab_approved, maintenance_window_start, maintenance_window_end FROM change_requests WHERE ticket_id = @ticketId";
+            var dt = _db.ExecuteQuery(query, new MySqlParameter[] { new MySqlParameter("@ticketId", ticketId) });
+
+            if (dt.Rows.Count > 0)
+            {
+                var row = dt.Rows[0];
+                string risk = row["risk_score"].ToString();
+                bool approved = Convert.ToBoolean(row["cab_approved"]);
+                
+                lblRisk.Text = $"Risk: {risk}";
+                if (risk == "High") lblRisk.ForeColor = Color.OrangeRed;
+                else if (risk == "Medium") lblRisk.ForeColor = Color.Yellow;
+                else lblRisk.ForeColor = Color.LightGreen;
+
+                lblCAB.Text = $"CAB: {(approved ? "Approved ✅" : "Pending ⏳")}";
+                lblCAB.ForeColor = approved ? Color.LightGreen : Color.Orange;
+                btnCABApprove.Enabled = !approved;
+
+                if (row["maintenance_window_start"] != DBNull.Value)
+                {
+                    DateTime start = Convert.ToDateTime(row["maintenance_window_start"]);
+                    DateTime end = Convert.ToDateTime(row["maintenance_window_end"]);
+                    lblWindow.Text = $"Window: {start:MM-dd HH:mm} to {end:MM-dd HH:mm}";
+                    lblWindow.ForeColor = Color.White;
+                }
+                else
+                {
+                    lblWindow.Text = "Window: None scheduled";
+                    lblWindow.ForeColor = Color.Silver;
+                }
+            }
+            else
+            {
+                string insertQuery = "INSERT INTO change_requests (ticket_id, risk_score) VALUES (@ticketId, 'Low')";
+                try
+                {
+                    _db.ExecuteNonQuery(insertQuery, new MySqlParameter[] { new MySqlParameter("@ticketId", ticketId) });
+                    DisplayCRDetails(ticketId);
+                }
+                catch { }
+            }
+        }
+
+        private void BtnAssessRisk_Click(object sender, EventArgs e)
+        {
+            if (_selectedTicketId == -1) return;
+
+            // Q1
+            string q1 = PromptDialog.ShowDialog("Is this change on Production (Type: PROD) or Staging/Dev (Type: STG)?", "Risk Profiler - Step 1/3");
+            if (string.IsNullOrEmpty(q1)) return;
+            int score = q1.ToUpper().Contains("PROD") ? 3 : 1;
+
+            // Q2
+            string q2 = PromptDialog.ShowDialog("What is the scope of disruption? (Type: FULL for outage, MINOR for lag)", "Risk Profiler - Step 2/3");
+            if (string.IsNullOrEmpty(q2)) return;
+            score += q2.ToUpper().Contains("FULL") ? 3 : 1;
+
+            // Q3
+            string q3 = PromptDialog.ShowDialog("Is there an approved rollback plan? (Type: YES or NO)", "Risk Profiler - Step 3/3");
+            if (string.IsNullOrEmpty(q3)) return;
+            score += q3.ToUpper().Contains("NO") ? 3 : 1;
+
+            string risk = "Low";
+            if (score >= 8) risk = "High";
+            else if (score >= 5) risk = "Medium";
+
+            string query = "UPDATE change_requests SET risk_score = @risk WHERE ticket_id = @ticketId";
+            _db.ExecuteNonQuery(query, new MySqlParameter[] {
+                new MySqlParameter("@risk", risk),
+                new MySqlParameter("@ticketId", _selectedTicketId)
+            });
+
+            LogAuditTrail(_selectedTicketId, "Assess Risk", $"Risk assessed as {risk} (Score: {score}/9)");
+            DisplayCRDetails(_selectedTicketId);
+        }
+
+        private void BtnCABApprove_Click(object sender, EventArgs e)
+        {
+            if (_selectedTicketId == -1) return;
+
+            if (_userRole != "Admin" && _userRole != "Manager")
+            {
+                MessageBox.Show("Only CAB Board members (Admin/Manager) can approve Change Requests.", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string query = "UPDATE change_requests SET cab_approved = 1 WHERE ticket_id = @ticketId";
+            _db.ExecuteNonQuery(query, new MySqlParameter[] { new MySqlParameter("@ticketId", _selectedTicketId) });
+
+            LogAuditTrail(_selectedTicketId, "CAB Approve", $"CAB Change Request approved by {_username}");
+            DisplayCRDetails(_selectedTicketId);
+        }
+
+        private void BtnScheduleWindow_Click(object sender, EventArgs e)
+        {
+            if (_selectedTicketId == -1) return;
+
+            string startStr = PromptDialog.ShowDialog("Enter Maintenance Window Start (YYYY-MM-DD HH:MM):", "Schedule Maintenance");
+            if (string.IsNullOrEmpty(startStr)) return;
+
+            if (!DateTime.TryParse(startStr, out DateTime start))
+            {
+                MessageBox.Show("Invalid date format. Use YYYY-MM-DD HH:MM.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string durationStr = PromptDialog.ShowDialog("Enter Duration (in hours):", "Schedule Maintenance");
+            if (string.IsNullOrEmpty(durationStr)) return;
+
+            if (!double.TryParse(durationStr, out double hours) || hours <= 0)
+            {
+                MessageBox.Show("Invalid duration. Enter a positive number.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            DateTime end = start.AddHours(hours);
+
+            string query = "UPDATE change_requests SET maintenance_window_start = @start, maintenance_window_end = @end WHERE ticket_id = @ticketId";
+            _db.ExecuteNonQuery(query, new MySqlParameter[] {
+                new MySqlParameter("@start", start),
+                new MySqlParameter("@end", end),
+                new MySqlParameter("@ticketId", _selectedTicketId)
+            });
+
+            LogAuditTrail(_selectedTicketId, "Schedule CR", $"Maintenance window scheduled: {start:yyyy-MM-dd HH:mm} to {end:yyyy-MM-dd HH:mm}");
+            DisplayCRDetails(_selectedTicketId);
+        }
+    }
+
+    /// <summary>
+    /// Premium form for submitting new tickets with keyword auto-triage.
+    /// </summary>
+    public class NewTicketDialog : Form
+    {
+        private TextBox txtTitle;
+        private RichTextBox txtDescription;
+        private ComboBox cmbPriority;
+        private Button btnSubmit;
+        private Button btnCancel;
+        private Label lblTitle;
+        private Label lblDescription;
+        private Label lblPriority;
+        private Label lblHeader;
+
+        public string TicketTitle { get; private set; }
+        public string TicketDescription { get; private set; }
+        public string TicketPriority { get; private set; }
+
+        public NewTicketDialog()
+        {
+            InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            this.Text = "Report Device Issue / Create Ticket";
+            this.Size = new Size(500, 420);
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.BackColor = Color.FromArgb(28, 32, 40);
+
+            lblHeader = new Label
+            {
+                Text = "Report a Device Issue",
+                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(41, 128, 185),
+                Dock = DockStyle.Top,
+                Height = 50,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+
+            lblTitle = new Label
+            {
+                Text = "Issue Title:",
+                ForeColor = Color.FromArgb(200, 207, 214),
+                Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
+                Location = new Point(20, 70),
+                Width = 450,
+                Height = 20
+            };
+            txtTitle = new TextBox
+            {
+                Location = new Point(20, 95),
+                Width = 445,
+                Font = new Font("Segoe UI", 10F),
+                BackColor = Color.FromArgb(37, 43, 54),
+                ForeColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+
+            lblPriority = new Label
+            {
+                Text = "Priority:",
+                ForeColor = Color.FromArgb(200, 207, 214),
+                Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
+                Location = new Point(20, 135),
+                Width = 450,
+                Height = 20
+            };
+            cmbPriority = new ComboBox
+            {
+                Location = new Point(20, 160),
+                Width = 200,
+                Font = new Font("Segoe UI", 10F),
+                BackColor = Color.FromArgb(37, 43, 54),
+                ForeColor = Color.White,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            cmbPriority.Items.AddRange(new object[] { "P1", "P2", "P3", "P4" });
+            cmbPriority.SelectedIndex = 2;
+
+            lblDescription = new Label
+            {
+                Text = "Description & Details:",
+                ForeColor = Color.FromArgb(200, 207, 214),
+                Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
+                Location = new Point(20, 200),
+                Width = 450,
+                Height = 20
+            };
+            txtDescription = new RichTextBox
+            {
+                Location = new Point(20, 225),
+                Width = 445,
+                Height = 100,
+                Font = new Font("Segoe UI", 10F),
+                BackColor = Color.FromArgb(37, 43, 54),
+                ForeColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+
+            btnSubmit = new Button
+            {
+                Text = "Submit Ticket",
+                DialogResult = DialogResult.OK,
+                Location = new Point(245, 340),
+                Width = 105,
+                Height = 32,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                BackColor = Color.FromArgb(46, 204, 113),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnSubmit.FlatAppearance.BorderSize = 0;
+            btnSubmit.Click += (s, e) => {
+                if (string.IsNullOrWhiteSpace(txtTitle.Text))
+                {
+                    MessageBox.Show("Please enter a title for the issue.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    this.DialogResult = DialogResult.None;
+                    return;
+                }
+                TicketTitle = txtTitle.Text.Trim();
+                TicketDescription = txtDescription.Text.Trim();
+                TicketPriority = cmbPriority.SelectedItem.ToString();
+                this.Close();
+            };
+
+            btnCancel = new Button
+            {
+                Text = "Cancel",
+                DialogResult = DialogResult.Cancel,
+                Location = new Point(360, 340),
+                Width = 105,
+                Height = 32,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                BackColor = Color.FromArgb(231, 76, 60),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnCancel.FlatAppearance.BorderSize = 0;
+            btnCancel.Click += (s, e) => { this.Close(); };
+
+            this.Controls.Add(lblHeader);
+            this.Controls.Add(lblTitle);
+            this.Controls.Add(txtTitle);
+            this.Controls.Add(lblPriority);
+            this.Controls.Add(cmbPriority);
+            this.Controls.Add(lblDescription);
+            this.Controls.Add(txtDescription);
+            this.Controls.Add(btnSubmit);
+            this.Controls.Add(btnCancel);
+            this.AcceptButton = btnSubmit;
+            this.CancelButton = btnCancel;
+        }
+    }
+
+    /// <summary>
+    /// Premium Toast Notification panel for active user assignment notifications.
+    /// </summary>
+    public class ToastNotification : Form
+    {
+        private Timer closeTimer;
+        private Label lblBell;
+        private Label lblTitle;
+        private Label lblMessage;
+
+        protected override bool ShowWithoutActivation
+        {
+            get { return true; }
+        }
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams baseParams = base.CreateParams;
+                baseParams.ExStyle |= 0x08000000; // WS_EX_NOACTIVATE
+                return baseParams;
+            }
+        }
+
+        public ToastNotification(int ticketId, string ticketTitle, string type)
+        {
+            this.Size = new Size(320, 90);
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.ShowInTaskbar = false;
+            this.TopMost = true;
+            this.BackColor = Color.FromArgb(37, 43, 54);
+
+            Panel accentBorder = toPanelBorder();
+            this.Controls.Add(accentBorder);
+
+            lblBell = new Label
+            {
+                Text = "🔔",
+                Font = new Font("Segoe UI", 16F),
+                ForeColor = Color.Gold,
+                Location = new Point(12, 12),
+                Size = new Size(35, 35),
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            this.Controls.Add(lblBell);
+
+            lblTitle = new Label
+            {
+                Text = $"New Ticket Assigned ({type})",
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                ForeColor = Color.White,
+                Location = new Point(50, 12),
+                Size = new Size(260, 20)
+            };
+            this.Controls.Add(lblTitle);
+
+            lblMessage = new Label
+            {
+                Text = $"[{ticketId}] {ticketTitle}",
+                Font = new Font("Segoe UI", 9F),
+                ForeColor = Color.FromArgb(200, 207, 214),
+                Location = new Point(50, 34),
+                Size = new Size(260, 45)
+            };
+            this.Controls.Add(lblMessage);
+
+            Rectangle workingArea = Screen.PrimaryScreen.WorkingArea;
+            this.Location = new Point(workingArea.Right - this.Width - 10, workingArea.Bottom - this.Height - 10);
+
+            closeTimer = new Timer();
+            closeTimer.Interval = 4000;
+            closeTimer.Tick += (s, e) => {
+                closeTimer.Stop();
+                this.Close();
+            };
+            closeTimer.Start();
+
+            this.MouseEnter += (s, e) => closeTimer.Stop();
+            this.MouseLeave += (s, e) => closeTimer.Start();
+        }
+
+        private Panel toPanelBorder()
+        {
+            return new Panel
+            {
+                BackColor = Color.FromArgb(41, 128, 185),
+                Dock = DockStyle.Left,
+                Width = 6
+            };
         }
     }
 

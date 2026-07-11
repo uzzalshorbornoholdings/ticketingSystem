@@ -1,0 +1,11 @@
+# Visual Studio / MSBuild files
+.vs/
+[Bb]in/
+[Oo]bj/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet Packages
+packages/

@@ -9,6 +9,7 @@ namespace BitswardITSM.Core
         private System.Windows.Forms.Button btnNavChanges;
         private System.Windows.Forms.Button btnNavAdmin;
         private System.Windows.Forms.Button btnNavLogout;
+        private System.Windows.Forms.Button btnNewTicket;
         
         private System.Windows.Forms.Panel panelTopHeader;
         private System.Windows.Forms.Label lblHeaderTitle;
@@ -60,6 +61,7 @@ namespace BitswardITSM.Core
             this.btnNavChanges = new System.Windows.Forms.Button();
             this.btnNavAdmin = new System.Windows.Forms.Button();
             this.btnNavLogout = new System.Windows.Forms.Button();
+            this.btnNewTicket = new System.Windows.Forms.Button();
             this.panelTopHeader = new System.Windows.Forms.Panel();
             this.lblHeaderTitle = new System.Windows.Forms.Label();
             this.lblUserContext = new System.Windows.Forms.Label();
@@ -111,6 +113,7 @@ namespace BitswardITSM.Core
             this.panelSidebar.Controls.Add(this.btnNavTasks);
             this.panelSidebar.Controls.Add(this.btnNavChanges);
             this.panelSidebar.Controls.Add(this.btnNavAdmin);
+            this.panelSidebar.Controls.Add(this.btnNewTicket);
             this.panelSidebar.Controls.Add(this.btnNavLogout);
             this.panelSidebar.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelSidebar.Location = new System.Drawing.Point(0, 60);
@@ -178,6 +181,22 @@ namespace BitswardITSM.Core
             this.btnNavAdmin.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnNavAdmin.UseVisualStyleBackColor = true;
             this.btnNavAdmin.Click += new System.EventHandler(this.BtnNavAdmin_Click);
+            // 
+            // btnNewTicket
+            // 
+            this.btnNewTicket.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(204)))), ((int)(((byte)(113)))));
+            this.btnNewTicket.FlatAppearance.BorderSize = 0;
+            this.btnNewTicket.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNewTicket.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnNewTicket.ForeColor = System.Drawing.Color.White;
+            this.btnNewTicket.Location = new System.Drawing.Point(10, 260);
+            this.btnNewTicket.Name = "btnNewTicket";
+            this.btnNewTicket.Size = new System.Drawing.Size(180, 45);
+            this.btnNewTicket.TabIndex = 5;
+            this.btnNewTicket.Text = "➕ Report Issue";
+            this.btnNewTicket.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnNewTicket.UseVisualStyleBackColor = false;
+            this.btnNewTicket.Click += new System.EventHandler(this.BtnNewTicket_Click);
             // 
             // btnNavLogout
             // 
