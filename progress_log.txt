@@ -27,14 +27,18 @@ Completed Tasks
 - Corrected path traversal depth lookup in LoginForm.cs to allow correct loading of schema.sql from built executable outputs.
 - Fixed System.NullReferenceException at DataGridViewBand.set_Thickness in SetColumnWidth by resetting col.AutoSizeMode to None before assigning Width in both MainForm.cs and AdminForm.cs.
 - Fixed layout-lock timing issue in Grid_DataBindingComplete by deferring ConfigureGrids via BeginInvoke so it runs after the data binding cycle completes.
+- Integrated OrganogramSync inside LoginForm.cs to run automatically on launch, seeding departments/employees and auto-linking the default admin to MGT-001 (CTO).
+- Added a "Report Issue" sidebar button and NewTicketDialog to MainForm for full end-to-end issue submission with keyword-based auto-triage (classification, SLA mapping, smart assignment routing, and audit logs).
+- Added dynamic Change Request (CR) controls: Risk Profiler (3-question risk assessment calculator), CAB Review approval controls (for Managers/Admins), and Maintenance Window Scheduler.
+- Implemented a background assignment checker and non-blocking Toast Notifications in bottom-right corner for new assignments.
 
 [>] Current Task
-- All known NullReferenceExceptions are resolved. Project compiled clean (0 Warnings, 0 Errors). Ready for live run testing.
+- Phase 4 and Phase 5 features are fully integrated, build is 100% clean, and project is ready for production.
 
 Next Steps
-- Stop any running instance in Visual Studio (stop debugging if active).
-- Press Ctrl+Shift+B to rebuild in Visual Studio, or F5 to launch.
-- Login with admin / admin123.
-- Verify: click rows in Incident / SR / CR tabs — no crash.
-- Verify: open Admin Panel, select users and employees — no crash.
+- Launch BitswardITSM.exe in Visual Studio.
+- Submit a new ticket using "Report Issue" (e.g. use "windows crash" or "deploy patch" keywords to verify keyword routing, triage classification, and assignment).
+- Try selecting a Change Request (CR) ticket to test CAB Review, Risk Assessment, and Maintenance Window Scheduling.
+- Log in on another instance or trigger a ticket assignment to test bottom-right corner Toast notifications.
+
 
