@@ -563,7 +563,16 @@ namespace BitswardITSM.Core
 
         private void BtnNavTasks_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Tasks List navigation clicked. Tasks are managed directly from the Ticket details splits panel.", "System Operations");
+            _lockTimer.Stop();
+            var tasksForm = new TasksForm(_db);
+            tasksForm.ShowDialog();
+            _lockTimer.Start();
+        }
+
+        private void BtnNavAudit_Click(object sender, EventArgs e)
+        {
+            var auditForm = new AuditLogForm(_db);
+            auditForm.ShowDialog();
         }
 
         private void BtnNavChanges_Click(object sender, EventArgs e)
@@ -697,6 +706,11 @@ namespace BitswardITSM.Core
         private Button btnCABApprove;
         private Button btnSchedule;
 
+        private Label lblPIRStatus;
+        private Button btnPIRSuccess;
+        private Button btnPIRRollback;
+        private Button btnViewPIR;
+
         private void InitializeCRPanel()
         {
             if (panelCRControls != null) return;
@@ -705,8 +719,8 @@ namespace BitswardITSM.Core
             {
                 Location = new Point(15, 275),
                 Width = 413,
-                Height = 85,
-                BackColor = Color.FromArgb(44, 62, 80), // Sleek blue slate
+                Height = 130,
+                BackColor = Color.FromArgb(44, 62, 80),
                 Visible = false
             };
 
@@ -739,7 +753,7 @@ namespace BitswardITSM.Core
                 BackColor = Color.FromArgb(52, 73, 94),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Location = new Point(8, 48),
+                Location = new Point(8, 44),
                 Width = 85,
                 Height = 24
             };
@@ -765,7 +779,7 @@ namespace BitswardITSM.Core
                 BackColor = Color.FromArgb(39, 174, 96),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Location = new Point(135, 48),
+                Location = new Point(135, 44),
                 Width = 95,
                 Height = 24
             };
@@ -791,13 +805,81 @@ namespace BitswardITSM.Core
                 BackColor = Color.FromArgb(155, 89, 182),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Location = new Point(255, 48),
+                Location = new Point(255, 44),
                 Width = 110,
                 Height = 24
             };
             btnSchedule.FlatAppearance.BorderSize = 0;
             btnSchedule.Click += BtnScheduleWindow_Click;
             panelCRControls.Controls.Add(btnSchedule);
+
+            // PIR Separator line label
+            var lblPIRHeader = new Label
+            {
+                Text = "🔍 POST-IMPLEMENTATION REVIEW (PIR)",
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(189, 195, 199),
+                Location = new Point(8, 77),
+                Width = 300,
+                Height = 14
+            };
+            panelCRControls.Controls.Add(lblPIRHeader);
+
+            lblPIRStatus = new Label
+            {
+                Text = "PIR: Pending",
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
+                ForeColor = Color.Silver,
+                Location = new Point(318, 77),
+                Width = 90,
+                Height = 14
+            };
+            panelCRControls.Controls.Add(lblPIRStatus);
+
+            btnPIRSuccess = new Button
+            {
+                Text = "✓ PIR Success",
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                BackColor = Color.FromArgb(39, 174, 96),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(8, 96),
+                Width = 100,
+                Height = 24
+            };
+            btnPIRSuccess.FlatAppearance.BorderSize = 0;
+            btnPIRSuccess.Click += BtnPIRSuccess_Click;
+            panelCRControls.Controls.Add(btnPIRSuccess);
+
+            btnPIRRollback = new Button
+            {
+                Text = "↩ PIR Rollback",
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                BackColor = Color.FromArgb(192, 57, 43),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(115, 96),
+                Width = 105,
+                Height = 24
+            };
+            btnPIRRollback.FlatAppearance.BorderSize = 0;
+            btnPIRRollback.Click += BtnPIRRollback_Click;
+            panelCRControls.Controls.Add(btnPIRRollback);
+
+            btnViewPIR = new Button
+            {
+                Text = "📄 PIR Notes",
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                BackColor = Color.FromArgb(52, 73, 94),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(226, 96),
+                Width = 100,
+                Height = 24
+            };
+            btnViewPIR.FlatAppearance.BorderSize = 0;
+            btnViewPIR.Click += BtnViewPIR_Click;
+            panelCRControls.Controls.Add(btnViewPIR);
 
             this.panelTicketDetails.Controls.Add(panelCRControls);
         }
@@ -809,8 +891,8 @@ namespace BitswardITSM.Core
             if (isCR)
             {
                 panelCRControls.Visible = true;
-                txtThreadHistory.Location = new Point(15, 370);
-                txtThreadHistory.Height = 177;
+                txtThreadHistory.Location = new Point(15, 415);
+                txtThreadHistory.Height = 132;
             }
             else
             {
@@ -852,6 +934,14 @@ namespace BitswardITSM.Core
                     lblWindow.Text = "Window: None scheduled";
                     lblWindow.ForeColor = Color.Silver;
                 }
+
+                // PIR Status display
+                string pirStatus = row.Table.Columns.Contains("pir_status") && row["pir_status"] != DBNull.Value
+                    ? row["pir_status"].ToString() : "Pending";
+                lblPIRStatus.Text = $"PIR: {pirStatus}";
+                if (pirStatus == "Success") { lblPIRStatus.ForeColor = Color.LightGreen; btnPIRSuccess.Enabled = false; btnPIRRollback.Enabled = false; }
+                else if (pirStatus == "Rollback") { lblPIRStatus.ForeColor = Color.OrangeRed; btnPIRSuccess.Enabled = false; btnPIRRollback.Enabled = false; }
+                else { lblPIRStatus.ForeColor = Color.Silver; btnPIRSuccess.Enabled = true; btnPIRRollback.Enabled = true; }
             }
             else
             {
@@ -949,7 +1039,63 @@ namespace BitswardITSM.Core
             LogAuditTrail(_selectedTicketId, "Schedule CR", $"Maintenance window scheduled: {start:yyyy-MM-dd HH:mm} to {end:yyyy-MM-dd HH:mm}");
             DisplayCRDetails(_selectedTicketId);
         }
-    }
+
+        private void BtnPIRSuccess_Click(object sender, EventArgs e)
+        {
+            if (_selectedTicketId == -1) return;
+            string notes = PromptDialog.ShowDialog("Enter PIR Success summary notes (optional):", "PIR — Post-Implementation Review");
+            UpdatePIRStatus("Success", notes);
+        }
+
+        private void BtnPIRRollback_Click(object sender, EventArgs e)
+        {
+            if (_selectedTicketId == -1) return;
+            string notes = PromptDialog.ShowDialog("Enter Rollback reason and steps taken:", "PIR — Rollback Triggered");
+            if (string.IsNullOrWhiteSpace(notes))
+            {
+                MessageBox.Show("Rollback notes are required to document what went wrong.", "Notes Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            UpdatePIRStatus("Rollback", notes);
+        }
+
+        private void UpdatePIRStatus(string status, string notes)
+        {
+            try
+            {
+                string query = "UPDATE change_requests SET pir_status = @status, pir_notes = @notes WHERE ticket_id = @ticketId";
+                _db.ExecuteNonQuery(query, new MySqlParameter[] {
+                    new MySqlParameter("@status", status),
+                    new MySqlParameter("@notes", string.IsNullOrEmpty(notes) ? (object)DBNull.Value : notes),
+                    new MySqlParameter("@ticketId", _selectedTicketId)
+                });
+                LogAuditTrail(_selectedTicketId, $"PIR {status}", notes ?? "No notes provided");
+                DisplayCRDetails(_selectedTicketId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to update PIR status:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnViewPIR_Click(object sender, EventArgs e)
+        {
+            if (_selectedTicketId == -1) return;
+            try
+            {
+                string query = "SELECT pir_status, pir_notes FROM change_requests WHERE ticket_id = @ticketId";
+                var dt = _db.ExecuteQuery(query, new MySqlParameter[] { new MySqlParameter("@ticketId", _selectedTicketId) });
+                if (dt.Rows.Count == 0) { MessageBox.Show("No PIR record found.", "PIR Notes"); return; }
+                var row = dt.Rows[0];
+                string pirStatus = row["pir_status"] != DBNull.Value ? row["pir_status"].ToString() : "Pending";
+                string pirNotes = row["pir_notes"] != DBNull.Value ? row["pir_notes"].ToString() : "(No notes recorded)";
+                MessageBox.Show($"PIR Status: {pirStatus}\n\nNotes:\n{pirNotes}", $"PIR Report — Ticket #{_selectedTicketId}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load PIR notes:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
     /// <summary>
     /// Premium form for submitting new tickets with keyword auto-triage.

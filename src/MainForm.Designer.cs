@@ -7,6 +7,7 @@ namespace BitswardITSM.Core
         private System.Windows.Forms.Button btnNavTickets;
         private System.Windows.Forms.Button btnNavTasks;
         private System.Windows.Forms.Button btnNavChanges;
+        private System.Windows.Forms.Button btnNavAudit;
         private System.Windows.Forms.Button btnNavAdmin;
         private System.Windows.Forms.Button btnNavLogout;
         private System.Windows.Forms.Button btnNewTicket;
@@ -59,6 +60,7 @@ namespace BitswardITSM.Core
             this.btnNavTickets = new System.Windows.Forms.Button();
             this.btnNavTasks = new System.Windows.Forms.Button();
             this.btnNavChanges = new System.Windows.Forms.Button();
+            this.btnNavAudit = new System.Windows.Forms.Button();
             this.btnNavAdmin = new System.Windows.Forms.Button();
             this.btnNavLogout = new System.Windows.Forms.Button();
             this.btnNewTicket = new System.Windows.Forms.Button();
@@ -112,6 +114,7 @@ namespace BitswardITSM.Core
             this.panelSidebar.Controls.Add(this.btnNavTickets);
             this.panelSidebar.Controls.Add(this.btnNavTasks);
             this.panelSidebar.Controls.Add(this.btnNavChanges);
+            this.panelSidebar.Controls.Add(this.btnNavAudit);
             this.panelSidebar.Controls.Add(this.btnNavAdmin);
             this.panelSidebar.Controls.Add(this.btnNewTicket);
             this.panelSidebar.Controls.Add(this.btnNavLogout);
@@ -167,13 +170,28 @@ namespace BitswardITSM.Core
             this.btnNavChanges.UseVisualStyleBackColor = true;
             this.btnNavChanges.Click += new System.EventHandler(this.BtnNavChanges_Click);
             // 
+            // btnNavAudit
+            // 
+            this.btnNavAudit.FlatAppearance.BorderSize = 0;
+            this.btnNavAudit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNavAudit.Font = new System.Drawing.Font("Segoe UI Semibold", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnNavAudit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(207)))), ((int)(((byte)(214)))));
+            this.btnNavAudit.Location = new System.Drawing.Point(10, 200);
+            this.btnNavAudit.Name = "btnNavAudit";
+            this.btnNavAudit.Size = new System.Drawing.Size(180, 45);
+            this.btnNavAudit.TabIndex = 6;
+            this.btnNavAudit.Text = "📜 Audit Logs";
+            this.btnNavAudit.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnNavAudit.UseVisualStyleBackColor = true;
+            this.btnNavAudit.Click += new System.EventHandler(this.BtnNavAudit_Click);
+            // 
             // btnNavAdmin
             // 
             this.btnNavAdmin.FlatAppearance.BorderSize = 0;
             this.btnNavAdmin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavAdmin.Font = new System.Drawing.Font("Segoe UI Semibold", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnNavAdmin.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(207)))), ((int)(((byte)(214)))));
-            this.btnNavAdmin.Location = new System.Drawing.Point(10, 200);
+            this.btnNavAdmin.Location = new System.Drawing.Point(10, 250);
             this.btnNavAdmin.Name = "btnNavAdmin";
             this.btnNavAdmin.Size = new System.Drawing.Size(180, 45);
             this.btnNavAdmin.TabIndex = 3;
@@ -189,7 +207,7 @@ namespace BitswardITSM.Core
             this.btnNewTicket.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNewTicket.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnNewTicket.ForeColor = System.Drawing.Color.White;
-            this.btnNewTicket.Location = new System.Drawing.Point(10, 260);
+            this.btnNewTicket.Location = new System.Drawing.Point(10, 305);
             this.btnNewTicket.Name = "btnNewTicket";
             this.btnNewTicket.Size = new System.Drawing.Size(180, 45);
             this.btnNewTicket.TabIndex = 5;
