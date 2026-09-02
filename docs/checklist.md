@@ -178,7 +178,7 @@ This document tracks all features, modules, architectural layers, and roadmap ca
   - [x] Dual action: `✓ Select Assignee` and `🔄 Auto-Assign (Triage)` reset option.
 - [x] **NewTicketDialog UI Integration (`src/MainForm.cs`)**:
   - [x] `[👤 Assign...]` button opening smart search modal for all user roles (`Admin`, `Manager`, `Agent`, `User`).
-  - [x] `[🔍 Smart Search]` companion button for quick access.
+  - [x] Smooth, uncluttered single-button layout aligning `[👤 Assign...]` with the assignee status label.
   - [x] Dynamic assignee status label (`Auto-Assign (Smart 3-Tier Routing)` or `👤 Name (@user - Role)` in green).
   - [x] `[✖]` reset button to quickly revert manual assignment back to 3-tier routing.
 - [x] **Backend & Audit Trail Alignment (`src/MainForm.cs`)**:

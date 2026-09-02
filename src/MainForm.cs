@@ -1262,7 +1262,6 @@ namespace BitswardITSM.Core
         private Label lblAttachmentSummary;
         private Label lblAssignHeader;
         private Button btnAssign;
-        private Button btnSmartSearch;
         private Label lblSelectedAssignee;
         private Button btnClearAssignee;
         private Button btnSubmit;
@@ -1491,7 +1490,7 @@ namespace BitswardITSM.Core
             {
                 Text = "👤 Assign...",
                 Location = new Point(20, 396),
-                Width = 95,
+                Width = 110,
                 Height = 28,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 BackColor = Color.FromArgb(41, 128, 185),
@@ -1501,27 +1500,13 @@ namespace BitswardITSM.Core
             btnAssign.FlatAppearance.BorderSize = 0;
             btnAssign.Click += (s, e) => OpenSearchDialog();
 
-            btnSmartSearch = new Button
-            {
-                Text = "🔍 Smart Search",
-                Location = new Point(122, 396),
-                Width = 125,
-                Height = 28,
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                BackColor = Color.FromArgb(142, 68, 173),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-            btnSmartSearch.FlatAppearance.BorderSize = 0;
-            btnSmartSearch.Click += (s, e) => OpenSearchDialog();
-
             lblSelectedAssignee = new Label
             {
                 Text = "Auto-Assign (Smart 3-Tier Routing)",
                 Font = new Font("Segoe UI", 9F, FontStyle.Italic),
                 ForeColor = Color.FromArgb(160, 175, 190),
-                Location = new Point(255, 401),
-                Width = 190,
+                Location = new Point(140, 401),
+                Width = 300,
                 Height = 20
             };
 
@@ -1599,7 +1584,6 @@ namespace BitswardITSM.Core
             this.Controls.Add(lblAttachmentSummary);
             this.Controls.Add(lblAssignHeader);
             this.Controls.Add(btnAssign);
-            this.Controls.Add(btnSmartSearch);
             this.Controls.Add(lblSelectedAssignee);
             this.Controls.Add(btnClearAssignee);
             this.Controls.Add(btnSubmit);
