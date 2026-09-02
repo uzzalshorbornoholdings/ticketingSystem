@@ -13,6 +13,7 @@ namespace BitswardITSM.Core
     {
         private readonly DatabaseManager _db;
         private readonly string _initialSelectedEmployeeId;
+        private readonly ToolTip _toolTip = new ToolTip();
         private DataTable _usersTable;
         private DataView _usersView;
 
@@ -209,12 +210,14 @@ namespace BitswardITSM.Core
 
                 lblSelectedInfo.Text = $"Selected: {name} (@{user} — {role}, {dept} | {empId})";
                 lblSelectedInfo.ForeColor = Color.FromArgb(46, 204, 113);
+                _toolTip.SetToolTip(lblSelectedInfo, lblSelectedInfo.Text);
                 btnSelect.Enabled = true;
             }
             else
             {
                 lblSelectedInfo.Text = "Selected: Auto-Assign (Smart 3-Tier Routing)";
                 lblSelectedInfo.ForeColor = Color.FromArgb(189, 195, 199);
+                _toolTip.SetToolTip(lblSelectedInfo, lblSelectedInfo.Text);
                 btnSelect.Enabled = false;
             }
         }

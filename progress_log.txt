@@ -49,9 +49,10 @@ Completed Tasks
 - [Phase 7] Removed redundant companion "Smart Search" button for a clean single-button layout.
 - [Phase 7] Updated BtnNewTicket_Click in MainForm.cs to support direct manual assignment to selected user with status Assigned and audit logging, with fallback to smart 3-tier triage.
 - [Phase 7] Registered AssigneeSearchDialog in BitswardITSM.csproj and verified 0 warnings, 0 errors build.
+- [Phase 7] Fixed text overlap in AssigneeSearchDialog by restructuring panelBottom into a 2-tier layout: dedicated full-width top row for lblSelectedInfo with AutoEllipsis & ToolTip, and bottom row for action buttons.
 
 [>] Current Task
-- Phase 7 (Manual Assignment & Smart User Search) complete with clean single-button UI. All Phases 1-7 done.
+- Phase 7 (Manual Assignment & Smart User Search) complete with clean single-button UI and bug-free search dialog layout. All Phases 1-7 done.
 
 Next Steps
 - Launch BitswardITSM.exe in Visual Studio (or run `bin\Debug\BitswardITSM.exe`).

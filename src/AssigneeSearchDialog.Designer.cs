@@ -225,19 +225,21 @@ namespace BitswardITSM.Core
             this.panelBottom.Controls.Add(this.btnClear);
             this.panelBottom.Controls.Add(this.btnSelect);
             this.panelBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelBottom.Location = new System.Drawing.Point(0, 436);
+            this.panelBottom.Location = new System.Drawing.Point(0, 424);
             this.panelBottom.Name = "panelBottom";
-            this.panelBottom.Size = new System.Drawing.Size(764, 52);
+            this.panelBottom.Size = new System.Drawing.Size(764, 76);
             this.panelBottom.TabIndex = 3;
             // 
             // lblSelectedInfo
             // 
-            this.lblSelectedInfo.AutoSize = true;
+            this.lblSelectedInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblSelectedInfo.AutoEllipsis = true;
             this.lblSelectedInfo.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSelectedInfo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(240)))), ((int)(((byte)(241)))));
-            this.lblSelectedInfo.Location = new System.Drawing.Point(14, 16);
+            this.lblSelectedInfo.Location = new System.Drawing.Point(14, 10);
             this.lblSelectedInfo.Name = "lblSelectedInfo";
-            this.lblSelectedInfo.Size = new System.Drawing.Size(182, 17);
+            this.lblSelectedInfo.Size = new System.Drawing.Size(736, 20);
             this.lblSelectedInfo.TabIndex = 0;
             this.lblSelectedInfo.Text = "Selected: Auto-Assign (Triage)";
             // 
@@ -250,9 +252,9 @@ namespace BitswardITSM.Core
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCancel.ForeColor = System.Drawing.Color.White;
-            this.btnCancel.Location = new System.Drawing.Point(667, 10);
+            this.btnCancel.Location = new System.Drawing.Point(667, 36);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(85, 32);
+            this.btnCancel.Size = new System.Drawing.Size(85, 30);
             this.btnCancel.TabIndex = 3;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = false;
@@ -266,9 +268,9 @@ namespace BitswardITSM.Core
             this.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClear.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnClear.ForeColor = System.Drawing.Color.White;
-            this.btnClear.Location = new System.Drawing.Point(515, 10);
+            this.btnClear.Location = new System.Drawing.Point(515, 36);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(146, 32);
+            this.btnClear.Size = new System.Drawing.Size(146, 30);
             this.btnClear.TabIndex = 2;
             this.btnClear.Text = "🔄 Auto-Assign (Triage)";
             this.btnClear.UseVisualStyleBackColor = false;
@@ -282,9 +284,9 @@ namespace BitswardITSM.Core
             this.btnSelect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSelect.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSelect.ForeColor = System.Drawing.Color.White;
-            this.btnSelect.Location = new System.Drawing.Point(365, 10);
+            this.btnSelect.Location = new System.Drawing.Point(365, 36);
             this.btnSelect.Name = "btnSelect";
-            this.btnSelect.Size = new System.Drawing.Size(144, 32);
+            this.btnSelect.Size = new System.Drawing.Size(144, 30);
             this.btnSelect.TabIndex = 1;
             this.btnSelect.Text = "✓ Select Assignee";
             this.btnSelect.UseVisualStyleBackColor = false;
@@ -297,7 +299,7 @@ namespace BitswardITSM.Core
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(764, 488);
+            this.ClientSize = new System.Drawing.Size(780, 510);
             this.Controls.Add(this.gridUsers);
             this.Controls.Add(this.panelBottom);
             this.Controls.Add(this.panelSearch);
