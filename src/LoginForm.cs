@@ -43,6 +43,17 @@ namespace BitswardITSM.Core
                 if (System.IO.File.Exists(schemaPath))
                     _dbManager.InitializeDatabase(schemaPath);
 
+                // Step 1.2: Ensure backward-compatible column migration for PIR fields
+                try
+                {
+                    var dtPir = _dbManager.ExecuteQuery("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='bitsward_tickets' AND TABLE_NAME='change_requests' AND COLUMN_NAME='pir_status'");
+                    if (dtPir.Rows.Count == 0)
+                    {
+                        _dbManager.ExecuteNonQuery("ALTER TABLE change_requests ADD COLUMN pir_status VARCHAR(50) DEFAULT 'Pending', ADD COLUMN pir_notes TEXT NULL;");
+                    }
+                }
+                catch { }
+
                 // Step 1.5: Auto-sync organogram before seeding default admin
                 string csvPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\..\org\organogram.csv"));
                 if (!System.IO.File.Exists(csvPath))

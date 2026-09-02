@@ -31,14 +31,21 @@ Completed Tasks
 - Added a "Report Issue" sidebar button and NewTicketDialog to MainForm for full end-to-end issue submission with keyword-based auto-triage (classification, SLA mapping, smart assignment routing, and audit logs).
 - Added dynamic Change Request (CR) controls: Risk Profiler (3-question risk assessment calculator), CAB Review approval controls (for Managers/Admins), and Maintenance Window Scheduler.
 - Implemented a background assignment checker and non-blocking Toast Notifications in bottom-right corner for new assignments.
+- Implemented Task Manager Form (TasksForm.cs / TasksForm.Designer.cs) allowing viewing all tasks or tasks filtered by ticket, with task status dropdown updating and audit logging.
+- Implemented Audit Log Viewer (AuditLogForm.cs / AuditLogForm.Designer.cs) accessible via sidebar "📜 Audit Logs" to view full action history with employee/role joins.
+- Implemented Post-Implementation Review (PIR) and Rollback Engine for Change Requests (CR) in MainForm.cs with success criteria verification, structured rollback trigger, and PIR note modal viewer.
+- Added backward-compatible schema migration in LoginForm.cs and updated docs/schema.sql for pir_status and pir_notes fields.
+- Fixed BitswardITSM.csproj compile items and resolved MainForm class termination boundaries to achieve 0 warnings and 0 errors.
 
 [>] Current Task
-- Phase 4 and Phase 5 features are fully integrated, build is 100% clean, and project is ready for production.
+- Completed all Phase 1-5 requirements, resolved all compilation errors, and verified 100% clean build.
 
 Next Steps
-- Launch BitswardITSM.exe in Visual Studio.
-- Submit a new ticket using "Report Issue" (e.g. use "windows crash" or "deploy patch" keywords to verify keyword routing, triage classification, and assignment).
-- Try selecting a Change Request (CR) ticket to test CAB Review, Risk Assessment, and Maintenance Window Scheduling.
-- Log in on another instance or trigger a ticket assignment to test bottom-right corner Toast notifications.
+- Launch BitswardITSM.exe in Visual Studio (or run `bin\Debug\BitswardITSM.exe`).
+- Test login with admin/admin123 (auto-seeded).
+- Submit new tickets using "Report Issue" to verify auto-triage (INC, SR, CR) and SLA computation.
+- Test Task Manager via sidebar "📋 Tasks List" and sub-task splitting.
+- Test Change Request (CR) CAB approval, Risk Profiler, Maintenance Window, and PIR Success/Rollback workflows.
+- View real-time activity in "📜 Audit Logs".
 
 

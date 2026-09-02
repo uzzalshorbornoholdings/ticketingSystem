@@ -25,8 +25,8 @@ The database schema defines nine tables to map the industry standard ticket work
 - tasks: Standalone/ticket-referenced sub-tasks that block ticket closure until complete.
   - Columns: id (INT AUTO_INCREMENT PK), ticket_id (INT FK), title (VARCHAR), status (VARCHAR), created_at (DATETIME)
 
-- change_requests: Metadata specific to change advisory board (CAB) reviews and windows.
-  - Columns: id (INT AUTO_INCREMENT PK), ticket_id (INT FK UNIQUE), risk_score (VARCHAR), cab_approved (TINYINT), maintenance_window_start (DATETIME), maintenance_window_end (DATETIME)
+- change_requests: Metadata specific to change advisory board (CAB) reviews, maintenance windows, and PIR.
+  - Columns: id (INT AUTO_INCREMENT PK), ticket_id (INT FK UNIQUE), risk_score (VARCHAR), cab_approved (TINYINT), maintenance_window_start (DATETIME), maintenance_window_end (DATETIME), pir_status (VARCHAR), pir_notes (TEXT)
 
 - audit_logs: Logging mechanism tracking state changes, status overrides, and user assignments.
   - Columns: id (INT AUTO_INCREMENT PK), ticket_id (INT FK), employee_id (VARCHAR FK), action (VARCHAR), details (TEXT), created_at (DATETIME)

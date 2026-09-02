@@ -76,6 +76,8 @@ CREATE TABLE IF NOT EXISTS change_requests (
     cab_approved TINYINT(1) DEFAULT 0,
     maintenance_window_start DATETIME NULL,
     maintenance_window_end DATETIME NULL,
+    pir_status VARCHAR(50) DEFAULT 'Pending',
+    pir_notes TEXT NULL,
     FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 

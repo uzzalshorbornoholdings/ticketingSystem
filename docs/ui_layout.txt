@@ -49,11 +49,14 @@ SLA Warning:    #FFEF A6 bg / Brown fg
     - Assignee / Lock status indicator (yellow warning banner)
     - [Claim Ticket] button: assigns ticket to logged-in user
     - [Status dropdown + Update Status] button
-    - Dynamic CAB Review & Risk Profiler (visible only for CR tickets):
+    - Dynamic CAB Review, Risk Profiler & PIR Panel (visible only for CR tickets):
       - Shows current assessed Risk Level and CAB status (Pending/Approved)
       - [Assess Risk]: Prompts a 3-step questionnaire to calculate & update risk score
       - [Approve (CAB)]: Allows Manager/Admin to approve changes (updates CAB status)
       - [Schedule Window]: Schedules start/end datetime maintenance window slots
+      - [✓ PIR Success]: Records post-implementation verification success notes
+      - [↩ PIR Rollback]: Prompts rollback reason and triggers structured rollback status
+      - [📄 PIR Notes]: Displays recorded PIR notes and status
     - Thread history (RichTextBox, read-only, scrollable)
     - Thread input + [Post Comment] button
     - [Split Task] button: creates sub-task via dialog prompt
@@ -64,7 +67,21 @@ SLA Warning:    #FFEF A6 bg / Brown fg
 - On tab switch: releases current lock, clears detail panel
 
 
-3. AdminForm.cs (Modal Dialog, opened from MainForm sidebar)
+3. TasksForm.cs (Task Manager)
+------------------------------
+- Size: 820 x 540
+- Displays all tasks or tasks filtered by ticket ID
+- DataGridView with ID, Status, TicketID, Title, CreatedAt
+- Status dropdown ("Pending", "In Progress", "Done", "Cancelled") + [Update Status] button
+
+4. AuditLogForm.cs (Audit Trail Viewer)
+---------------------------------------
+- Size: 960 x 580
+- Displays full audit history: LogID, TicketID, Employee, Role, Action, Details, Timestamp
+- Accessible from sidebar ("📜 Audit Logs") and filtered views
+- Refresh button and live count display
+
+5. AdminForm.cs (Modal Dialog, opened from MainForm sidebar)
 --------------------------------------------------------------
 - Size: 784 x 561
 - Blue header: "ITSM Administration Console" + status text (green confirmation)

@@ -1096,6 +1096,7 @@ namespace BitswardITSM.Core
                 MessageBox.Show($"Failed to load PIR notes:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+    }
 
     /// <summary>
     /// Premium form for submitting new tickets with keyword auto-triage.
