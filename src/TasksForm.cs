@@ -157,6 +157,19 @@ namespace BitswardITSM.Core
                     new MySqlParameter("@id", _selectedTaskId)
                 });
 
+                // Record audit log for task status update
+                try
+                {
+                    object tIdObj = _db.ExecuteScalar("SELECT ticket_id FROM tasks WHERE id = @id", new MySqlParameter[] { new MySqlParameter("@id", _selectedTaskId) });
+                    int parentTicketId = (tIdObj != null && tIdObj != DBNull.Value) ? Convert.ToInt32(tIdObj) : 0;
+                    string auditSql = "INSERT INTO audit_logs (ticket_id, employee_id, action, details) VALUES (@ticketId, 'System', 'Update Sub-Task', @details)";
+                    _db.ExecuteNonQuery(auditSql, new MySqlParameter[] {
+                        new MySqlParameter("@ticketId", parentTicketId > 0 ? (object)parentTicketId : DBNull.Value),
+                        new MySqlParameter("@details", $"Sub-task #{_selectedTaskId} status changed to '{newStatus}'")
+                    });
+                }
+                catch { }
+
                 lblCount.ForeColor = Color.LightGreen;
                 lblCount.Text = $"✅ Task #{_selectedTaskId} updated to '{newStatus}'";
                 LoadTasks();

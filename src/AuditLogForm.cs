@@ -41,13 +41,16 @@ namespace BitswardITSM.Core
                 if (_filterTicketId != -1)
                 {
                     query = @"
-                        SELECT a.id AS LogID, a.ticket_id AS TicketID, 
-                               e.name AS Employee, u.role AS Role,
-                               a.action AS Action, a.details AS Details,
+                        SELECT a.id AS LogID, 
+                               COALESCE(a.ticket_id, 0) AS TicketID, 
+                               COALESCE(e.name, u.username, a.employee_id, 'System') AS Employee, 
+                               COALESCE(u.role, 'User') AS Role,
+                               a.action AS Action, 
+                               COALESCE(a.details, '') AS Details,
                                a.created_at AS Timestamp
                         FROM audit_logs a
-                        LEFT JOIN employees e ON a.employee_id = e.id
-                        LEFT JOIN users u ON u.employee_id = a.employee_id
+                        LEFT JOIN users u ON (a.employee_id = u.employee_id OR a.employee_id = u.username)
+                        LEFT JOIN employees e ON (a.employee_id = e.id OR u.employee_id = e.id)
                         WHERE a.ticket_id = @ticketId
                         ORDER BY a.created_at DESC";
                     parameters = new MySqlParameter[] { new MySqlParameter("@ticketId", _filterTicketId) };
@@ -55,15 +58,18 @@ namespace BitswardITSM.Core
                 else
                 {
                     query = @"
-                        SELECT a.id AS LogID, a.ticket_id AS TicketID,
-                               e.name AS Employee, u.role AS Role,
-                               a.action AS Action, a.details AS Details,
+                        SELECT a.id AS LogID, 
+                               COALESCE(a.ticket_id, 0) AS TicketID,
+                               COALESCE(e.name, u.username, a.employee_id, 'System') AS Employee, 
+                               COALESCE(u.role, 'User') AS Role,
+                               a.action AS Action, 
+                               COALESCE(a.details, '') AS Details,
                                a.created_at AS Timestamp
                         FROM audit_logs a
-                        LEFT JOIN employees e ON a.employee_id = e.id
-                        LEFT JOIN users u ON u.employee_id = a.employee_id
+                        LEFT JOIN users u ON (a.employee_id = u.employee_id OR a.employee_id = u.username)
+                        LEFT JOIN employees e ON (a.employee_id = e.id OR u.employee_id = e.id)
                         ORDER BY a.created_at DESC
-                        LIMIT 500";
+                        LIMIT 1000";
                     parameters = new MySqlParameter[0];
                 }
 
@@ -121,6 +127,84 @@ namespace BitswardITSM.Core
             LoadLogs();
         }
 
+        private void BtnExportLogs_Click(object sender, EventArgs e)
+        {
+            var dt = gridLogs.DataSource as DataTable;
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                MessageBox.Show("No audit log data to export.", "No Data", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (var sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "CSV Files (*.csv)|*.csv|Excel Spreadsheet (*.xls)|*.xls";
+                sfd.FileName = $"Audit_Logs_Export_{DateTime.Now:yyyyMMdd_HHmmss}";
+                sfd.Title = "Export Audit Logs";
+
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        string ext = System.IO.Path.GetExtension(sfd.FileName).ToLower();
+                        if (ext == ".xls")
+                        {
+                            // Simple XML Spreadsheet export for audit logs
+                            var sb = new System.Text.StringBuilder();
+                            sb.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                            sb.AppendLine("<?mso-application progid=\"Excel.Sheet\"?>");
+                            sb.AppendLine("<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\"");
+                            sb.AppendLine(" xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\">");
+                            sb.AppendLine("  <Styles>");
+                            sb.AppendLine("    <Style ss:ID=\"Default\"><Font ss:FontName=\"Segoe UI\" ss:Size=\"10\"/></Style>");
+                            sb.AppendLine("    <Style ss:ID=\"Header\"><Font ss:FontName=\"Segoe UI\" ss:Size=\"10\" ss:Bold=\"1\" ss:Color=\"#FFFFFF\"/><Interior ss:Color=\"#34495E\" ss:Pattern=\"Solid\"/></Style>");
+                            sb.AppendLine("  </Styles>");
+                            sb.AppendLine("  <Worksheet ss:Name=\"Audit Logs\">");
+                            sb.AppendLine("    <Table>");
+
+                            // Headers
+                            sb.AppendLine("      <Row>");
+                            foreach (DataColumn col in dt.Columns)
+                            {
+                                sb.AppendLine($"        <Cell ss:StyleID=\"Header\"><Data ss:Type=\"String\">{EscapeXml(col.ColumnName)}</Data></Cell>");
+                            }
+                            sb.AppendLine("      </Row>");
+
+                            // Data
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                sb.AppendLine("      <Row>");
+                                foreach (DataColumn col in dt.Columns)
+                                {
+                                    object val = row[col];
+                                    string strVal = val == System.DBNull.Value ? "" : (val is DateTime dtv ? dtv.ToString("yyyy-MM-dd HH:mm:ss") : val.ToString());
+                                    sb.AppendLine($"        <Cell><Data ss:Type=\"String\">{EscapeXml(strVal)}</Data></Cell>");
+                                }
+                                sb.AppendLine("      </Row>");
+                            }
+
+                            sb.AppendLine("    </Table>");
+                            sb.AppendLine("  </Worksheet>");
+                            sb.AppendLine("</Workbook>");
+
+                            System.IO.File.WriteAllText(sfd.FileName, sb.ToString(), System.Text.Encoding.UTF8);
+                        }
+                        else
+                        {
+                            ExcelReportExporter.ExportToCsv(dt, sfd.FileName);
+                        }
+
+                        lblCount.Text = $"Exported {dt.Rows.Count} logs to {System.IO.Path.GetFileName(sfd.FileName)}";
+                        MessageBox.Show($"Audit logs exported successfully!\n\nFile: {sfd.FileName}", "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to export audit logs:\n{ex.Message}", "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
         private void BtnClose_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -153,6 +237,16 @@ namespace BitswardITSM.Core
                     return col;
             }
             return null;
+        }
+
+        private static string EscapeXml(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return "";
+            return value.Replace("&", "&amp;")
+                        .Replace("<", "&lt;")
+                        .Replace(">", "&gt;")
+                        .Replace("\"", "&quot;")
+                        .Replace("'", "&apos;");
         }
     }
 }

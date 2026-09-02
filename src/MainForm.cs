@@ -436,15 +436,18 @@ namespace BitswardITSM.Core
 
         private void BtnSendThread_Click(object sender, EventArgs e)
         {
-            if (_selectedTicketId == -1 || string.IsNullOrEmpty(_employeeId) || string.IsNullOrWhiteSpace(txtThreadInput.Text)) return;
+            if (_selectedTicketId == -1 || string.IsNullOrWhiteSpace(txtThreadInput.Text)) return;
 
+            string actorEmpId = !string.IsNullOrEmpty(_employeeId) ? _employeeId : "MGT-001";
             string msg = txtThreadInput.Text.Trim();
             string query = "INSERT INTO ticket_threads (ticket_id, employee_id, message) VALUES (@ticketId, @empId, @msg)";
             _db.ExecuteNonQuery(query, new MySqlParameter[] {
                 new MySqlParameter("@ticketId", _selectedTicketId),
-                new MySqlParameter("@empId", _employeeId),
+                new MySqlParameter("@empId", actorEmpId),
                 new MySqlParameter("@msg", msg)
             });
+
+            LogAuditTrail(_selectedTicketId, "Post Comment", $"Comment posted by {_username}: \"{(msg.Length > 60 ? msg.Substring(0, 57) + "..." : msg)}\"");
 
             txtThreadInput.Clear();
             LoadThreadHistory(_selectedTicketId);
@@ -470,15 +473,25 @@ namespace BitswardITSM.Core
 
         private void LogAuditTrail(int ticketId, string action, string details)
         {
-            if (string.IsNullOrEmpty(_employeeId)) return;
+            try
+            {
+                // Resolve actor: employee ID if available, otherwise fallback to username or 'System'
+                string actor = !string.IsNullOrEmpty(_employeeId) 
+                    ? _employeeId 
+                    : (!string.IsNullOrEmpty(_username) ? _username : "System");
 
-            string query = "INSERT INTO audit_logs (ticket_id, employee_id, action, details) VALUES (@ticketId, @empId, @action, @details)";
-            _db.ExecuteNonQuery(query, new MySqlParameter[] {
-                new MySqlParameter("@ticketId", ticketId),
-                new MySqlParameter("@empId", _employeeId),
-                new MySqlParameter("@action", action),
-                new MySqlParameter("@details", details)
-            });
+                string query = "INSERT INTO audit_logs (ticket_id, employee_id, action, details) VALUES (@ticketId, @empId, @action, @details)";
+                _db.ExecuteNonQuery(query, new MySqlParameter[] {
+                    new MySqlParameter("@ticketId", ticketId > 0 ? (object)ticketId : DBNull.Value),
+                    new MySqlParameter("@empId", actor),
+                    new MySqlParameter("@action", action ?? "Action"),
+                    new MySqlParameter("@details", details ?? "")
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Audit Log Error] {ex.Message}");
+            }
         }
 
         private void Grid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -693,6 +706,12 @@ namespace BitswardITSM.Core
             auditForm.ShowDialog();
         }
 
+        private void BtnNavReports_Click(object sender, EventArgs e)
+        {
+            var reportsForm = new ReportsForm(_db);
+            reportsForm.ShowDialog();
+        }
+
         private void BtnNavChanges_Click(object sender, EventArgs e)
         {
             tabControlQueues.SelectedIndex = 2; // Jump to Change Requests tab
@@ -719,14 +738,23 @@ namespace BitswardITSM.Core
 
         private void BtnNewTicket_Click(object sender, EventArgs e)
         {
-            using (var dlg = new NewTicketDialog(_db))
+            // Default ticket category to current active queue tab (INC, SR, or CR)
+            string defaultType = "INC";
+            if (tabControlQueues.SelectedIndex == 1) defaultType = "SR";
+            else if (tabControlQueues.SelectedIndex == 2) defaultType = "CR";
+
+            using (var dlg = new NewTicketDialog(_db, defaultType))
             {
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
-                        // 1. Triage and classify ticket type based on keywords
-                        string ticketType = _triageEngine.ClassifyTicket(dlg.TicketTitle, dlg.TicketDescription);
+                        // 1. Resolve ticket type from user selection dropdown (with keyword auto-triage fallback)
+                        string ticketType = dlg.TicketType;
+                        if (string.IsNullOrEmpty(ticketType) || ticketType == "AUTO")
+                        {
+                            ticketType = _triageEngine.ClassifyTicket(dlg.TicketTitle, dlg.TicketDescription);
+                        }
 
                         // 2. Resolve SLA configuration and deadline
                         var slaConfig = _slaEngine.GetSlaConfig(dlg.TicketPriority);
@@ -782,13 +810,13 @@ namespace BitswardITSM.Core
                                     new MySqlParameter("@empId", assignedTo),
                                     new MySqlParameter("@ticketId", ticketId)
                                 });
-                                LogAuditTrail(ticketId, "Create Ticket", $"Ticket created and triaged as {ticketType} for {targetDept}. Assigned manually to {dlg.SelectedAssigneeDisplayName} ({assignedTo})");
+                                LogAuditTrail(ticketId, "Create Ticket", $"Ticket created as {ticketType} for {targetDept}. Assigned manually to {dlg.SelectedAssigneeDisplayName} ({assignedTo})");
                             }
                             else
                             {
                                 // Run the Smart 3-tier Assignment Engine fallback
                                 assignedTo = _triageEngine.AssignTicket(ticketId, _employeeId, targetDept);
-                                LogAuditTrail(ticketId, "Create Ticket", $"Ticket created and triaged as {ticketType} for {targetDept}. Assigned to {assignedTo}");
+                                LogAuditTrail(ticketId, "Create Ticket", $"Ticket created as {ticketType} for {targetDept}. Assigned to {assignedTo}");
                             }
                             
                             // Check if this was a Change Request to add change_requests row
@@ -799,10 +827,11 @@ namespace BitswardITSM.Core
                             }
                         }
 
+                        string typeFriendlyName = ticketType == "INC" ? "Incident" : (ticketType == "SR" ? "Service Request" : "Change Request");
                         string successMsg = !string.IsNullOrEmpty(dlg.SelectedAssigneeDisplayName)
-                            ? $"Ticket successfully submitted and assigned to {dlg.SelectedAssigneeDisplayName}!"
-                            : "Ticket successfully submitted and assigned to the correct IT staff!";
-                        MessageBox.Show(successMsg, "Ticket Created", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            ? $"{typeFriendlyName} successfully submitted and assigned to {dlg.SelectedAssigneeDisplayName}!"
+                            : $"{typeFriendlyName} successfully submitted and assigned to the correct IT staff!";
+                        MessageBox.Show(successMsg, $"{typeFriendlyName} Created", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         
                         // Reload lists and select the appropriate tab
                         LoadQueueData();
@@ -1249,7 +1278,7 @@ namespace BitswardITSM.Core
     }
 
     /// <summary>
-    /// Premium form for submitting new tickets with keyword auto-triage.
+    /// Premium form for submitting new tickets with keyword auto-triage and type category selection.
     /// </summary>
     public class NewTicketDialog : Form
     {
@@ -1257,6 +1286,7 @@ namespace BitswardITSM.Core
         private TextBox txtTitle;
         private RichTextBox txtDescription;
         private ComboBox cmbPriority;
+        private ComboBox cmbTicketType;
         private Button btnAttachFile;
         private Button btnPasteScreenshot;
         private Label lblAttachmentSummary;
@@ -1267,6 +1297,7 @@ namespace BitswardITSM.Core
         private Button btnSubmit;
         private Button btnCancel;
         private Label lblTitle;
+        private Label lblTicketType;
         private Label lblDescription;
         private Label lblPriority;
         private Label lblHeader;
@@ -1274,24 +1305,29 @@ namespace BitswardITSM.Core
         public string TicketTitle { get; private set; }
         public string TicketDescription { get; private set; }
         public string TicketPriority { get; private set; }
+        public string TicketType { get; private set; }
         public List<string> PendingFilePaths { get; } = new List<string>();
         public List<Image> PendingScreenshots { get; } = new List<Image>();
         public string SelectedAssigneeEmployeeId { get; private set; }
         public string SelectedAssigneeDisplayName { get; private set; }
 
-        public NewTicketDialog() : this(null)
+        public NewTicketDialog() : this(null, "INC")
         {
         }
 
-        public NewTicketDialog(DatabaseManager db)
+        public NewTicketDialog(DatabaseManager db) : this(db, "INC")
+        {
+        }
+
+        public NewTicketDialog(DatabaseManager db, string defaultType)
         {
             _db = db;
-            InitializeComponent();
+            InitializeComponent(defaultType ?? "INC");
         }
 
-        private void InitializeComponent()
+        private void InitializeComponent(string defaultType)
         {
-            this.Text = "Report Device Issue / Create Ticket";
+            this.Text = "Report Issue / Create Ticket";
             this.Size = new Size(520, 565);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterParent;
@@ -1301,7 +1337,7 @@ namespace BitswardITSM.Core
 
             lblHeader = new Label
             {
-                Text = "Report a Device Issue",
+                Text = "Report an Issue / Ticket",
                 Font = new Font("Segoe UI", 14F, FontStyle.Bold),
                 ForeColor = Color.White,
                 BackColor = Color.FromArgb(41, 128, 185),
@@ -1315,13 +1351,13 @@ namespace BitswardITSM.Core
                 Text = "Issue Title:",
                 ForeColor = Color.FromArgb(200, 207, 214),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
-                Location = new Point(20, 70),
+                Location = new Point(20, 68),
                 Width = 465,
                 Height = 20
             };
             txtTitle = new TextBox
             {
-                Location = new Point(20, 95),
+                Location = new Point(20, 91),
                 Width = 465,
                 Font = new Font("Segoe UI", 10F),
                 BackColor = Color.FromArgb(37, 43, 54),
@@ -1329,20 +1365,51 @@ namespace BitswardITSM.Core
                 BorderStyle = BorderStyle.FixedSingle
             };
 
+            lblTicketType = new Label
+            {
+                Text = "Category / Type:",
+                ForeColor = Color.FromArgb(200, 207, 214),
+                Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
+                Location = new Point(20, 128),
+                Width = 230,
+                Height = 20
+            };
+            cmbTicketType = new ComboBox
+            {
+                Location = new Point(20, 151),
+                Width = 230,
+                Font = new Font("Segoe UI", 9.5F),
+                BackColor = Color.FromArgb(37, 43, 54),
+                ForeColor = Color.White,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            cmbTicketType.Items.AddRange(new object[] {
+                "‼️ Incident (INC)",
+                "🙋 Service Request (SR)",
+                "⚙️ Change Request (CR)",
+                "🤖 Auto-Detect (Smart Triage)"
+            });
+
+            // Set default selection based on caller request or current tab
+            if (defaultType == "SR") cmbTicketType.SelectedIndex = 1;
+            else if (defaultType == "CR") cmbTicketType.SelectedIndex = 2;
+            else if (defaultType == "AUTO") cmbTicketType.SelectedIndex = 3;
+            else cmbTicketType.SelectedIndex = 0; // Incident (INC)
+
             lblPriority = new Label
             {
                 Text = "Priority:",
                 ForeColor = Color.FromArgb(200, 207, 214),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
-                Location = new Point(20, 135),
-                Width = 465,
+                Location = new Point(265, 128),
+                Width = 220,
                 Height = 20
             };
             cmbPriority = new ComboBox
             {
-                Location = new Point(20, 160),
-                Width = 200,
-                Font = new Font("Segoe UI", 10F),
+                Location = new Point(265, 151),
+                Width = 220,
+                Font = new Font("Segoe UI", 9.5F),
                 BackColor = Color.FromArgb(37, 43, 54),
                 ForeColor = Color.White,
                 DropDownStyle = ComboBoxStyle.DropDownList
@@ -1350,20 +1417,47 @@ namespace BitswardITSM.Core
             cmbPriority.Items.AddRange(new object[] { "P1", "P2", "P3", "P4" });
             cmbPriority.SelectedIndex = 2;
 
+            // Live visual adaptation: header updates dynamically when switching between Incident, Request, and Change
+            Action updateHeaderForType = () => {
+                string sel = cmbTicketType.SelectedItem?.ToString() ?? "";
+                if (sel.Contains("(CR)"))
+                {
+                    lblHeader.Text = "⚙️ Submit Change Request (CR)";
+                    lblHeader.BackColor = Color.FromArgb(142, 68, 173); // Rich Purple for Change Management
+                }
+                else if (sel.Contains("(SR)"))
+                {
+                    lblHeader.Text = "🙋 Submit Service Request (SR)";
+                    lblHeader.BackColor = Color.FromArgb(39, 174, 96); // Vibrant Green for Service Requests
+                }
+                else if (sel.Contains("Auto"))
+                {
+                    lblHeader.Text = "🤖 Report Issue (Smart Auto-Triage)";
+                    lblHeader.BackColor = Color.FromArgb(52, 73, 94); // Modern Slate for Auto-Triage
+                }
+                else
+                {
+                    lblHeader.Text = "‼️ Report an Incident (INC)";
+                    lblHeader.BackColor = Color.FromArgb(41, 128, 185); // Corporate Blue for Incidents
+                }
+            };
+            cmbTicketType.SelectedIndexChanged += (s, e) => updateHeaderForType();
+            updateHeaderForType();
+
             lblDescription = new Label
             {
                 Text = "Description & Details:",
                 ForeColor = Color.FromArgb(200, 207, 214),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
-                Location = new Point(20, 200),
+                Location = new Point(20, 192),
                 Width = 465,
                 Height = 20
             };
             txtDescription = new RichTextBox
             {
-                Location = new Point(20, 225),
+                Location = new Point(20, 215),
                 Width = 465,
-                Height = 95,
+                Height = 98,
                 Font = new Font("Segoe UI", 10F),
                 BackColor = Color.FromArgb(37, 43, 54),
                 ForeColor = Color.White,
@@ -1379,7 +1473,7 @@ namespace BitswardITSM.Core
             btnAttachFile = new Button
             {
                 Text = "📎 Attach File",
-                Location = new Point(20, 332),
+                Location = new Point(20, 326),
                 Width = 115,
                 Height = 28,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
@@ -1409,7 +1503,7 @@ namespace BitswardITSM.Core
             btnPasteScreenshot = new Button
             {
                 Text = "📸 Paste Screenshot",
-                Location = new Point(142, 332),
+                Location = new Point(142, 326),
                 Width = 145,
                 Height = 28,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
@@ -1440,7 +1534,7 @@ namespace BitswardITSM.Core
                 Text = "No attachments selected",
                 Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
                 ForeColor = Color.FromArgb(160, 175, 190),
-                Location = new Point(295, 337),
+                Location = new Point(295, 331),
                 Width = 190,
                 Height = 20
             };
@@ -1451,7 +1545,7 @@ namespace BitswardITSM.Core
                 Text = "Issue Assignment (Optional):",
                 ForeColor = Color.FromArgb(200, 207, 214),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
-                Location = new Point(20, 372),
+                Location = new Point(20, 366),
                 Width = 465,
                 Height = 20
             };
@@ -1489,7 +1583,7 @@ namespace BitswardITSM.Core
             btnAssign = new Button
             {
                 Text = "👤 Assign...",
-                Location = new Point(20, 396),
+                Location = new Point(20, 391),
                 Width = 110,
                 Height = 28,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
@@ -1505,7 +1599,7 @@ namespace BitswardITSM.Core
                 Text = "Auto-Assign (Smart 3-Tier Routing)",
                 Font = new Font("Segoe UI", 9F, FontStyle.Italic),
                 ForeColor = Color.FromArgb(160, 175, 190),
-                Location = new Point(140, 401),
+                Location = new Point(140, 396),
                 Width = 300,
                 Height = 20
             };
@@ -1513,7 +1607,7 @@ namespace BitswardITSM.Core
             btnClearAssignee = new Button
             {
                 Text = "✖",
-                Location = new Point(450, 397),
+                Location = new Point(450, 392),
                 Width = 35,
                 Height = 26,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
@@ -1535,7 +1629,7 @@ namespace BitswardITSM.Core
             {
                 Text = "Submit Ticket",
                 DialogResult = DialogResult.OK,
-                Location = new Point(255, 460),
+                Location = new Point(255, 455),
                 Width = 110,
                 Height = 34,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
@@ -1554,6 +1648,17 @@ namespace BitswardITSM.Core
                 TicketTitle = txtTitle.Text.Trim();
                 TicketDescription = txtDescription.Text.Trim();
                 TicketPriority = cmbPriority.SelectedItem.ToString();
+
+                string sel = cmbTicketType.SelectedItem?.ToString() ?? "";
+                if (sel.Contains("(CR)"))
+                    TicketType = "CR";
+                else if (sel.Contains("(SR)"))
+                    TicketType = "SR";
+                else if (sel.Contains("Auto"))
+                    TicketType = "AUTO";
+                else
+                    TicketType = "INC";
+
                 this.Close();
             };
 
@@ -1561,7 +1666,7 @@ namespace BitswardITSM.Core
             {
                 Text = "Cancel",
                 DialogResult = DialogResult.Cancel,
-                Location = new Point(375, 460),
+                Location = new Point(375, 455),
                 Width = 110,
                 Height = 34,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
@@ -1575,6 +1680,8 @@ namespace BitswardITSM.Core
             this.Controls.Add(lblHeader);
             this.Controls.Add(lblTitle);
             this.Controls.Add(txtTitle);
+            this.Controls.Add(lblTicketType);
+            this.Controls.Add(cmbTicketType);
             this.Controls.Add(lblPriority);
             this.Controls.Add(cmbPriority);
             this.Controls.Add(lblDescription);

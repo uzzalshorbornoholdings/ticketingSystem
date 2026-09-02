@@ -9,6 +9,7 @@ namespace BitswardITSM.Core
         private System.Windows.Forms.DataGridView gridLogs;
         private System.Windows.Forms.Panel panelBottom;
         private System.Windows.Forms.Label lblCount;
+        private System.Windows.Forms.Button btnExportLogs;
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.Button btnClose;
 
@@ -26,6 +27,7 @@ namespace BitswardITSM.Core
             this.gridLogs = new System.Windows.Forms.DataGridView();
             this.panelBottom = new System.Windows.Forms.Panel();
             this.lblCount = new System.Windows.Forms.Label();
+            this.btnExportLogs = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
 
@@ -80,6 +82,17 @@ namespace BitswardITSM.Core
             this.lblCount.Location = new System.Drawing.Point(10, 10);
             this.lblCount.Size = new System.Drawing.Size(380, 18);
             this.panelBottom.Controls.Add(this.lblCount);
+
+            this.btnExportLogs.Text = "📁 Export Logs";
+            this.btnExportLogs.Location = new System.Drawing.Point(595, 5);
+            this.btnExportLogs.Size = new System.Drawing.Size(106, 26);
+            this.btnExportLogs.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnExportLogs.BackColor = System.Drawing.Color.FromArgb(39, 174, 96);
+            this.btnExportLogs.ForeColor = System.Drawing.Color.White;
+            this.btnExportLogs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExportLogs.FlatAppearance.BorderSize = 0;
+            this.btnExportLogs.Click += new System.EventHandler(this.BtnExportLogs_Click);
+            this.panelBottom.Controls.Add(this.btnExportLogs);
 
             this.btnRefresh.Text = "🔄 Refresh";
             this.btnRefresh.Location = new System.Drawing.Point(710, 5);

@@ -303,15 +303,15 @@ namespace BitswardITSM.Core
 
         private void LogAudit(int ticketId, string employeeId, string action, string details)
         {
-            if (string.IsNullOrEmpty(employeeId)) return;
             try
             {
+                string actor = !string.IsNullOrEmpty(employeeId) ? employeeId : "System";
                 string query = "INSERT INTO audit_logs (ticket_id, employee_id, action, details) VALUES (@ticketId, @empId, @action, @details)";
                 _db.ExecuteNonQuery(query, new MySqlParameter[] {
-                    new MySqlParameter("@ticketId", ticketId),
-                    new MySqlParameter("@empId", employeeId),
-                    new MySqlParameter("@action", action),
-                    new MySqlParameter("@details", details)
+                    new MySqlParameter("@ticketId", ticketId > 0 ? (object)ticketId : DBNull.Value),
+                    new MySqlParameter("@empId", actor),
+                    new MySqlParameter("@action", action ?? "Action"),
+                    new MySqlParameter("@details", details ?? "")
                 });
             }
             catch { }

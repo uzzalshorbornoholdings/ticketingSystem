@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using MySql.Data.MySqlClient;
 
 namespace BitswardITSM.Core
 {
@@ -192,6 +193,16 @@ namespace BitswardITSM.Core
 
             if (_adminManager.UpdateUserRole(_selectedUsername, newRole, out string error))
             {
+                // Record administrative audit trail
+                try
+                {
+                    string auditSql = "INSERT INTO audit_logs (ticket_id, employee_id, action, details) VALUES (NULL, 'Admin', 'Update Role', @details)";
+                    _db.ExecuteNonQuery(auditSql, new MySqlParameter[] {
+                        new MySqlParameter("@details", $"User '{_selectedUsername}' role changed to '{newRole}'")
+                    });
+                }
+                catch { }
+
                 lblStatusMsg.ForeColor = Color.LimeGreen;
                 lblStatusMsg.Text = $"Successfully updated role for user '{_selectedUsername}' to {newRole}!";
                 LoadUserData();
@@ -229,6 +240,16 @@ namespace BitswardITSM.Core
 
             if (_adminManager.CreateUserAccount(_selectedEmployeeId, username, password, role, out string error))
             {
+                // Record administrative audit trail
+                try
+                {
+                    string auditSql = "INSERT INTO audit_logs (ticket_id, employee_id, action, details) VALUES (NULL, 'Admin', 'Create User', @details)";
+                    _db.ExecuteNonQuery(auditSql, new MySqlParameter[] {
+                        new MySqlParameter("@details", $"Created user account '{username}' with role '{role}' (Employee: {_selectedEmployeeId})")
+                    });
+                }
+                catch { }
+
                 lblStatusMsg.ForeColor = Color.LimeGreen;
                 lblStatusMsg.Text = $"Registered user account '{username}' successfully!";
                 LoadUnassociatedEmployees();

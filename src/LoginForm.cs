@@ -73,6 +73,31 @@ namespace BitswardITSM.Core
                 }
                 catch { }
 
+                // Step 1.4: Relax audit_logs table foreign key and column nullability so records are never lost
+                try
+                {
+                    string checkFkSql = @"
+                        SELECT CONSTRAINT_NAME 
+                        FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                        WHERE TABLE_SCHEMA = 'bitsward_tickets' 
+                          AND TABLE_NAME = 'audit_logs' 
+                          AND COLUMN_NAME = 'employee_id' 
+                          AND REFERENCED_TABLE_NAME IS NOT NULL;";
+                    var dtFk = _dbManager.ExecuteQuery(checkFkSql);
+                    foreach (System.Data.DataRow r in dtFk.Rows)
+                    {
+                        string constraintName = r["CONSTRAINT_NAME"].ToString();
+                        try
+                        {
+                            _dbManager.ExecuteNonQuery($"ALTER TABLE audit_logs DROP FOREIGN KEY `{constraintName}`;");
+                        }
+                        catch { }
+                    }
+                    _dbManager.ExecuteNonQuery("ALTER TABLE audit_logs MODIFY COLUMN employee_id VARCHAR(100) NULL;");
+                    _dbManager.ExecuteNonQuery("ALTER TABLE audit_logs MODIFY COLUMN ticket_id INT NULL;");
+                }
+                catch { }
+
                 // Step 1.5: Auto-sync organogram before seeding default admin
                 string csvPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\..\org\organogram.csv"));
                 if (!System.IO.File.Exists(csvPath))
@@ -90,6 +115,18 @@ namespace BitswardITSM.Core
 
                 // Step 2: Seed default admin if no users exist yet
                 _authManager.SeedDefaultAdmin();
+
+                // Step 2.5: Ensure admin account is linked to CTO employee (MGT-001)
+                try
+                {
+                    string linkAdminSql = @"
+                        UPDATE users u 
+                        JOIN employees e ON e.id = 'MGT-001' 
+                        SET u.employee_id = 'MGT-001' 
+                        WHERE u.username = 'admin' AND (u.employee_id IS NULL OR u.employee_id = '');";
+                    _dbManager.ExecuteNonQuery(linkAdminSql);
+                }
+                catch { }
             }
             catch (Exception ex)
             {

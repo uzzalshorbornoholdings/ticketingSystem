@@ -145,6 +145,15 @@
     <Compile Include="AssigneeSearchDialog.Designer.cs">
       <DependentUpon>AssigneeSearchDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="SlaReportManager.cs" />
+    <Compile Include="ExcelReportExporter.cs" />
+    <Compile Include="PdfReportExporter.cs" />
+    <Compile Include="ReportsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReportsForm.Designer.cs">
+      <DependentUpon>ReportsForm.cs</DependentUpon>
+    </Compile>
     <!-- Entry Point -->
     <Compile Include="Program.cs" />
   </ItemGroup>

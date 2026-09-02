@@ -81,16 +81,15 @@ CREATE TABLE IF NOT EXISTS change_requests (
     FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 8. Audit Logs Table
+-- 8. Audit Logs Table (Immutable activity log for all ticket & administrative actions)
 CREATE TABLE IF NOT EXISTS audit_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     ticket_id INT NULL,
-    employee_id VARCHAR(50) NOT NULL,
+    employee_id VARCHAR(100) NULL,
     action VARCHAR(100) NOT NULL,
     details TEXT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE SET NULL,
-    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- 8.5. Ticket Attachments Table (Files & Screenshots)

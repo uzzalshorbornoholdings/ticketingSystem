@@ -86,6 +86,7 @@ This document tracks all features, modules, architectural layers, and roadmap ca
 - [x] **Ticket Creation Dialog (`NewTicketDialog`)**:
   - [x] "Report Issue" action button in sidebar.
   - [x] Input prompts for Title, Priority (P1–P4), and Description.
+  - [x] Category / Type dropdown selection separating Incidents (INC), Service Requests (SR), and Change Requests (CR), with smart triage auto-detect fallback and dynamic UI header adaptation.
   - [x] End-to-end integration with auto-triage classifier, target department resolver, SLA deadline calculator, and smart assignee router.
 
 ---
@@ -122,10 +123,14 @@ This document tracks all features, modules, architectural layers, and roadmap ca
   - [x] Supports global task inspection or ticket-specific filtering.
   - [x] Interactive status updater (`Pending`, `In Progress`, `Done`, `Cancelled`).
   - [x] Live task count indicator.
-- [x] **Audit Log Viewer (`src/AuditLogForm.cs` & `AuditLogForm.Designer.cs`)**:
+- [x] **Audit Log Viewer & Activity Engine (`src/AuditLogForm.cs` & `AuditLogForm.Designer.cs`)**:
   - [x] Accessible from sidebar ("📜 Audit Logs").
+  - [x] Resilient logging architecture: relaxed constraints so logs persist even if initiated by administrator, unlinked accounts, or system routines.
+  - [x] Automatic startup schema migration in `LoginForm.cs` removing restrictive foreign key constraint and setting `employee_id VARCHAR(100) NULL`, `ticket_id INT NULL`.
+  - [x] Robust fallback hierarchy: resolves Employee Name, Username, or System context (`COALESCE(e.name, u.username, a.employee_id, 'System')`), preventing blank records.
+  - [x] Full audit lifecycle coverage: ticket creation, status transitions, manual & smart assignments, comments, sub-task splitting/updates, risk evaluations, CAB reviews, and admin account provisioning/role modifications.
   - [x] Displays complete event trail: LogID, TicketID, Employee Name, Role, Action, Details, and Timestamp.
-  - [x] Supports ticket-filtered views and real-time refresh.
+  - [x] Supports ticket-filtered views, live refresh, and direct Excel/CSV log exports.
 - [x] **Real-Time Notification System**:
   - [x] Background assignment monitor polling DB every 30 seconds.
   - [x] Custom non-blocking **Toast Notifications** (`ToastNotification`) rendered in bottom-right corner of screen.
@@ -188,6 +193,47 @@ This document tracks all features, modules, architectural layers, and roadmap ca
 
 ---
 
+## ✅ Phase 8 — PDF & Excel SLA Compliance Export (Completed)
+
+**Status:** ✅ Implemented | **Build:** 0 Warnings, 0 Errors
+
+### Deliverables:
+- [x] **SLA Report Analytics Engine (`src/SlaReportManager.cs`)**:
+  - [x] Queries and aggregates ticket data with SLA deadlines via `SlaEngine.CalculateDeadline()`.
+  - [x] Computes executive KPI metrics: Overall Compliance %, Avg Resolution Hours, Breach Count, Near-Breach Count.
+  - [x] Priority-level breakdown (P1-P4) with per-level compliance percentages and average resolution times.
+  - [x] Department-level compliance breakdown with ticket volumes and breach rates.
+  - [x] Generates detailed SLA audit table with per-ticket compliance status (Compliant/Breached/At Risk/In Progress).
+- [x] **Excel Export Engine (`src/ExcelReportExporter.cs`)**:
+  - [x] Multi-worksheet XML Spreadsheet 2003 (`.xls`) with rich formatting: colored breach highlights, styled headers, KPI scorecards.
+  - [x] Worksheet 1: Executive SLA Summary & KPIs + Priority + Department breakdown.
+  - [x] Worksheet 2: Detailed Ticket SLA Audit with color-coded compliance status cells.
+  - [x] Worksheet 3: Full Audit Trail Logs (bidirectionally joined, resolving Admin/Employee names and roles).
+  - [x] Strict culture-invariant formatting (`CultureInfo.InvariantCulture`) preventing XML decimal corruption across localized operating systems.
+  - [x] Null-safe cell handling eliminating cast exceptions on unassigned dates or durations.
+  - [x] Clean, Excel-compliant worksheet identifiers and proper XML entity escaping.
+  - [x] CSV (`.csv`) export for raw data ingestion.
+  - [x] Zero external dependencies — pure C# XML generation.
+- [x] **PDF Export Engine (`src/PdfReportExporter.cs`)**:
+  - [x] Pure C# PDF 1.4 document generator — no third-party libraries.
+  - [x] Dynamic multi-page table pagination: seamlessly renders large ticket volumes across Pages 2..N without truncation (up to 35 rows per page).
+  - [x] Dynamic total page count calculation (`Page X of Y`).
+  - [x] Strict PDF 1.4 specification compliance: exact 20-byte cross-reference (xref) offsets, font dictionaries with `/ProcSet [/PDF /Text]`, and stream byte synchronization.
+  - [x] Executive styling: Page 1 dashboard with branded header, 5 KPI scorecard boxes, priority breakdown, and department breakdown.
+  - [x] Pages 2..N: Table headers repeated on each page, alternating row fills, and color-coded SLA status badges (Green: Compliant, Red: Breached, Amber: At Risk, Blue: In Progress).
+  - [x] Professional page footers with page numbering and confidentiality disclaimer.
+- [x] **Interactive Reports Dashboard UI (`src/ReportsForm.cs` & `ReportsForm.Designer.cs`)**:
+  - [x] Dark-themed analytics dashboard with filter bar (Date Range, Department, Priority).
+  - [x] Live KPI scorecard cards: Compliance Rate, Total Volume, Avg Resolution Time, Breaches.
+  - [x] Tabbed views: Priority & Department Breakdown | Detailed Ticket SLA Audit.
+  - [x] Color-coded grid cells for compliance status visualization.
+  - [x] Export action buttons: [📄 Export PDF] [📊 Export Excel] [📑 Export CSV] [Close].
+- [x] **MainForm Sidebar Integration**: Added "📊 SLA Reports" navigation button opening `ReportsForm`.
+- [x] **AuditLogForm Export Integration**: Added "📁 Export Logs" button for direct audit log CSV/Excel export.
+- [x] **Project Registration**: All 5 new files registered in `BitswardITSM.csproj`.
+
+---
+
 ## ⏳ Future Roadmap & Extended Capabilities (Yet to be Implemented)
 
 The following items are optional extended capabilities noted in `idea.txt` for future iterations:
@@ -197,7 +243,6 @@ The following items are optional extended capabilities noted in `idea.txt` for f
 | **Customer Self-Service Web Portal** | Web Layer | A lightweight browser-based portal for external non-IT staff to submit and track requests. | Medium |
 | **SMTP / Email Notifications** | Notifications | Send external email alerts to clients/assignees on status changes and SLA warning events. | Low |
 | **Interactive Floor & Room Maps** | UI Extension | Visual campus/floor-plan mapping for physical hardware issue location tagging. | Low |
-| **PDF & Excel SLA Compliance Export** | Reporting | One-click export of audit logs, SLA breach statistics, and resolution time analytics. | Low |
 
 ---
 
@@ -209,3 +254,4 @@ The following items are optional extended capabilities noted in `idea.txt` for f
 - [ui_layout.txt](file:///d:/HOME_FILES/Documents/MD.%20Mosaddek-Al-Hameem/OOP/ticketingSystem/docs/ui_layout.txt) — UI color palette, form architecture, and component layout guide.
 - [schema.sql](file:///d:/HOME_FILES/Documents/MD.%20Mosaddek-Al-Hameem/OOP/ticketingSystem/docs/schema.sql) — Production MySQL schema script with SLA and default seeds.
 - [progress_log.txt](file:///d:/HOME_FILES/Documents/MD.%20Mosaddek-Al-Hameem/OOP/ticketingSystem/progress_log.txt) — Step-by-step state tracking log.
+
