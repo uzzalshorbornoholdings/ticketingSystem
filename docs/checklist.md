@@ -14,6 +14,7 @@ This document tracks all features, modules, architectural layers, and roadmap ca
 | **Phase 4: Lifecycle & CR Subsystems** | ✅ Complete | Soft Lock, Thread Comments, Sub-Task Splitting, CAB Review, Risk Profiler, PIR Engine |
 | **Phase 5: Alerts, Reporting & Admin** | ✅ Complete | Toast Popups, Background Checker, AuditLogForm, TasksForm, Admin Console |
 | **Phase 6: File & Screenshot Attachments** | ✅ Complete | AttachmentManager, AttachmentViewerForm, Clipboard Grab, NewTicket Attachments |
+| **Phase 7: Manual Assignment & Smart Search** | ✅ Complete | AssigneeSearchDialog, Live Keystroke Filter, Workload Preview, NewTicketDialog Integration |
 | **Future Extensions / Extended Roadmap** | ⏳ Planned | Web Customer Portal, SMTP Auto-Responder, PDF Export |
 
 ---
@@ -165,6 +166,25 @@ This document tracks all features, modules, architectural layers, and roadmap ca
   - [x] `📸 Paste Screenshot` button for clipboard capture during ticket creation.
   - [x] Live attachment counter summary label.
   - [x] Pending files/screenshots automatically saved after ticket ID is generated.
+
+---
+
+### ✅ PHASE 7: Manual Assignment & Smart User Search
+- [x] **Smart Assignee Search Dialog (`src/AssigneeSearchDialog.cs` & `.Designer.cs`)**:
+  - [x] Queries all created system users (`users` joined with `employees` and `departments`).
+  - [x] Live keystroke filtering across Full Name, Username, Role, Department, Designation, and Employee ID.
+  - [x] Displays real-time active ticket count (`ActiveTickets`) per user to visualize current workload.
+  - [x] Keyboard friendly: Enter to confirm selection, Down Arrow to navigate grid, Esc to cancel.
+  - [x] Dual action: `✓ Select Assignee` and `🔄 Auto-Assign (Triage)` reset option.
+- [x] **NewTicketDialog UI Integration (`src/MainForm.cs`)**:
+  - [x] `[👤 Assign...]` button opening smart search modal for all user roles (`Admin`, `Manager`, `Agent`, `User`).
+  - [x] `[🔍 Smart Search]` companion button for quick access.
+  - [x] Dynamic assignee status label (`Auto-Assign (Smart 3-Tier Routing)` or `👤 Name (@user - Role)` in green).
+  - [x] `[✖]` reset button to quickly revert manual assignment back to 3-tier routing.
+- [x] **Backend & Audit Trail Alignment (`src/MainForm.cs`)**:
+  - [x] When manual assignee chosen: sets `assigned_employee_id`, updates status to `Assigned`, and records manual assignment in audit log.
+  - [x] When unassigned: gracefully runs the smart 3-tier triage engine (Supervisor -> Workload Balancing -> Dept Head/CTO).
+  - [x] Notification engine integration: newly assigned user receives non-blocking toast notification.
 
 ---
 

@@ -44,18 +44,22 @@ Completed Tasks
 - [Phase 6] Extended NewTicketDialog with PendingFilePaths/PendingScreenshots lists, Attach File button, Paste Screenshot button, and summary label.
 - [Phase 6] Updated BitswardITSM.csproj with AttachmentManager.cs, AttachmentViewerForm.cs, and AttachmentViewerForm.Designer.cs compile items.
 - [Phase 6] Verified clean compilation: 0 Warning(s), 0 Error(s).
+- [Phase 7] Created AssigneeSearchDialog.cs and AssigneeSearchDialog.Designer.cs with live keystroke user search, department/role filters, active ticket load preview, and clear/auto-assign option.
+- [Phase 7] Extended NewTicketDialog in MainForm.cs with "👤 Assign..." and "🔍 Smart Search" buttons, assignee status label, and clear button.
+- [Phase 7] Updated BtnNewTicket_Click in MainForm.cs to support direct manual assignment to selected user with status Assigned and audit logging, with fallback to smart 3-tier triage.
+- [Phase 7] Registered AssigneeSearchDialog in BitswardITSM.csproj and verified 0 warnings, 0 errors build.
 
 [>] Current Task
-- Phase 6 (File & Screenshot Attachments) complete. All Phases 1-6 done.
+- Phase 7 (Manual Assignment & Smart User Search) complete. All Phases 1-7 done.
 
 Next Steps
 - Launch BitswardITSM.exe in Visual Studio (or run `bin\Debug\BitswardITSM.exe`).
 - Test login with admin/admin123 (auto-seeded).
 - Submit new tickets using "Report Issue" to verify auto-triage (INC, SR, CR) and SLA computation.
+- Test manual user assignment via "👤 Assign..." or "🔍 Smart Search" in NewTicketDialog.
 - Test Task Manager via sidebar "📋 Tasks List" and sub-task splitting.
 - Test Change Request (CR) CAB approval, Risk Profiler, Maintenance Window, and PIR Success/Rollback workflows.
 - View real-time activity in "📜 Audit Logs".
 - Test file attachments: attach a file to a ticket, paste a screenshot, use AttachmentViewer to open/save/delete.
-- Test attaching files during ticket creation via NewTicketDialog.
 
 

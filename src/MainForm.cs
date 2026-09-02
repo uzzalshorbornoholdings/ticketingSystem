@@ -719,7 +719,7 @@ namespace BitswardITSM.Core
 
         private void BtnNewTicket_Click(object sender, EventArgs e)
         {
-            using (var dlg = new NewTicketDialog())
+            using (var dlg = new NewTicketDialog(_db))
             {
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
@@ -772,11 +772,24 @@ namespace BitswardITSM.Core
                                 }
                             }
 
-                            // 5. Run the Smart 3-tier Assignment Engine
-                            string assignedTo = _triageEngine.AssignTicket(ticketId, _employeeId, targetDept);
-
-                            // 6. Log the Audit trail
-                            LogAuditTrail(ticketId, "Create Ticket", $"Ticket created and triaged as {ticketType} for {targetDept}. Assigned to {assignedTo}");
+                            // 5. Assignment: Check if manual assignee was selected from NewTicketDialog
+                            string assignedTo;
+                            if (!string.IsNullOrEmpty(dlg.SelectedAssigneeEmployeeId))
+                            {
+                                assignedTo = dlg.SelectedAssigneeEmployeeId;
+                                string assignQuery = "UPDATE tickets SET assigned_employee_id = @empId, status = 'Assigned' WHERE id = @ticketId";
+                                _db.ExecuteNonQuery(assignQuery, new MySqlParameter[] {
+                                    new MySqlParameter("@empId", assignedTo),
+                                    new MySqlParameter("@ticketId", ticketId)
+                                });
+                                LogAuditTrail(ticketId, "Create Ticket", $"Ticket created and triaged as {ticketType} for {targetDept}. Assigned manually to {dlg.SelectedAssigneeDisplayName} ({assignedTo})");
+                            }
+                            else
+                            {
+                                // Run the Smart 3-tier Assignment Engine fallback
+                                assignedTo = _triageEngine.AssignTicket(ticketId, _employeeId, targetDept);
+                                LogAuditTrail(ticketId, "Create Ticket", $"Ticket created and triaged as {ticketType} for {targetDept}. Assigned to {assignedTo}");
+                            }
                             
                             // Check if this was a Change Request to add change_requests row
                             if (ticketType == "CR")
@@ -786,7 +799,10 @@ namespace BitswardITSM.Core
                             }
                         }
 
-                        MessageBox.Show($"Ticket successfully submitted and assigned to the correct IT staff!", "Ticket Created", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        string successMsg = !string.IsNullOrEmpty(dlg.SelectedAssigneeDisplayName)
+                            ? $"Ticket successfully submitted and assigned to {dlg.SelectedAssigneeDisplayName}!"
+                            : "Ticket successfully submitted and assigned to the correct IT staff!";
+                        MessageBox.Show(successMsg, "Ticket Created", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         
                         // Reload lists and select the appropriate tab
                         LoadQueueData();
@@ -1237,12 +1253,18 @@ namespace BitswardITSM.Core
     /// </summary>
     public class NewTicketDialog : Form
     {
+        private readonly DatabaseManager _db;
         private TextBox txtTitle;
         private RichTextBox txtDescription;
         private ComboBox cmbPriority;
         private Button btnAttachFile;
         private Button btnPasteScreenshot;
         private Label lblAttachmentSummary;
+        private Label lblAssignHeader;
+        private Button btnAssign;
+        private Button btnSmartSearch;
+        private Label lblSelectedAssignee;
+        private Button btnClearAssignee;
         private Button btnSubmit;
         private Button btnCancel;
         private Label lblTitle;
@@ -1255,16 +1277,23 @@ namespace BitswardITSM.Core
         public string TicketPriority { get; private set; }
         public List<string> PendingFilePaths { get; } = new List<string>();
         public List<Image> PendingScreenshots { get; } = new List<Image>();
+        public string SelectedAssigneeEmployeeId { get; private set; }
+        public string SelectedAssigneeDisplayName { get; private set; }
 
-        public NewTicketDialog()
+        public NewTicketDialog() : this(null)
         {
+        }
+
+        public NewTicketDialog(DatabaseManager db)
+        {
+            _db = db;
             InitializeComponent();
         }
 
         private void InitializeComponent()
         {
             this.Text = "Report Device Issue / Create Ticket";
-            this.Size = new Size(500, 480);
+            this.Size = new Size(520, 565);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterParent;
             this.MaximizeBox = false;
@@ -1288,13 +1317,13 @@ namespace BitswardITSM.Core
                 ForeColor = Color.FromArgb(200, 207, 214),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
                 Location = new Point(20, 70),
-                Width = 450,
+                Width = 465,
                 Height = 20
             };
             txtTitle = new TextBox
             {
                 Location = new Point(20, 95),
-                Width = 445,
+                Width = 465,
                 Font = new Font("Segoe UI", 10F),
                 BackColor = Color.FromArgb(37, 43, 54),
                 ForeColor = Color.White,
@@ -1307,7 +1336,7 @@ namespace BitswardITSM.Core
                 ForeColor = Color.FromArgb(200, 207, 214),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
                 Location = new Point(20, 135),
-                Width = 450,
+                Width = 465,
                 Height = 20
             };
             cmbPriority = new ComboBox
@@ -1328,14 +1357,14 @@ namespace BitswardITSM.Core
                 ForeColor = Color.FromArgb(200, 207, 214),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
                 Location = new Point(20, 200),
-                Width = 450,
+                Width = 465,
                 Height = 20
             };
             txtDescription = new RichTextBox
             {
                 Location = new Point(20, 225),
-                Width = 445,
-                Height = 100,
+                Width = 465,
+                Height = 95,
                 Font = new Font("Segoe UI", 10F),
                 BackColor = Color.FromArgb(37, 43, 54),
                 ForeColor = Color.White,
@@ -1351,7 +1380,7 @@ namespace BitswardITSM.Core
             btnAttachFile = new Button
             {
                 Text = "📎 Attach File",
-                Location = new Point(20, 335),
+                Location = new Point(20, 332),
                 Width = 115,
                 Height = 28,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
@@ -1381,7 +1410,7 @@ namespace BitswardITSM.Core
             btnPasteScreenshot = new Button
             {
                 Text = "📸 Paste Screenshot",
-                Location = new Point(142, 335),
+                Location = new Point(142, 332),
                 Width = 145,
                 Height = 28,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
@@ -1412,18 +1441,118 @@ namespace BitswardITSM.Core
                 Text = "No attachments selected",
                 Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
                 ForeColor = Color.FromArgb(160, 175, 190),
-                Location = new Point(295, 340),
-                Width = 175,
+                Location = new Point(295, 337),
+                Width = 190,
                 Height = 20
+            };
+
+            // Assignment Section
+            lblAssignHeader = new Label
+            {
+                Text = "Issue Assignment (Optional):",
+                ForeColor = Color.FromArgb(200, 207, 214),
+                Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
+                Location = new Point(20, 372),
+                Width = 465,
+                Height = 20
+            };
+
+            Action OpenSearchDialog = () => {
+                if (_db == null)
+                {
+                    MessageBox.Show("Database connection is not available for user search.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                using (var searchDlg = new AssigneeSearchDialog(_db, SelectedAssigneeEmployeeId))
+                {
+                    if (searchDlg.ShowDialog(this) == DialogResult.OK)
+                    {
+                        SelectedAssigneeEmployeeId = searchDlg.SelectedEmployeeId;
+                        SelectedAssigneeDisplayName = searchDlg.SelectedDisplayName;
+
+                        if (!string.IsNullOrEmpty(SelectedAssigneeEmployeeId))
+                        {
+                            lblSelectedAssignee.Text = $"👤 {SelectedAssigneeDisplayName}";
+                            lblSelectedAssignee.ForeColor = Color.FromArgb(46, 204, 113);
+                            btnClearAssignee.Visible = true;
+                        }
+                        else
+                        {
+                            lblSelectedAssignee.Text = "Auto-Assign (Smart 3-Tier Routing)";
+                            lblSelectedAssignee.ForeColor = Color.FromArgb(160, 175, 190);
+                            btnClearAssignee.Visible = false;
+                        }
+                    }
+                }
+            };
+
+            btnAssign = new Button
+            {
+                Text = "👤 Assign...",
+                Location = new Point(20, 396),
+                Width = 95,
+                Height = 28,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = Color.FromArgb(41, 128, 185),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnAssign.FlatAppearance.BorderSize = 0;
+            btnAssign.Click += (s, e) => OpenSearchDialog();
+
+            btnSmartSearch = new Button
+            {
+                Text = "🔍 Smart Search",
+                Location = new Point(122, 396),
+                Width = 125,
+                Height = 28,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = Color.FromArgb(142, 68, 173),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnSmartSearch.FlatAppearance.BorderSize = 0;
+            btnSmartSearch.Click += (s, e) => OpenSearchDialog();
+
+            lblSelectedAssignee = new Label
+            {
+                Text = "Auto-Assign (Smart 3-Tier Routing)",
+                Font = new Font("Segoe UI", 9F, FontStyle.Italic),
+                ForeColor = Color.FromArgb(160, 175, 190),
+                Location = new Point(255, 401),
+                Width = 190,
+                Height = 20
+            };
+
+            btnClearAssignee = new Button
+            {
+                Text = "✖",
+                Location = new Point(450, 397),
+                Width = 35,
+                Height = 26,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = Color.FromArgb(231, 76, 60),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Visible = false
+            };
+            btnClearAssignee.FlatAppearance.BorderSize = 0;
+            btnClearAssignee.Click += (s, e) => {
+                SelectedAssigneeEmployeeId = null;
+                SelectedAssigneeDisplayName = null;
+                lblSelectedAssignee.Text = "Auto-Assign (Smart 3-Tier Routing)";
+                lblSelectedAssignee.ForeColor = Color.FromArgb(160, 175, 190);
+                btnClearAssignee.Visible = false;
             };
 
             btnSubmit = new Button
             {
                 Text = "Submit Ticket",
                 DialogResult = DialogResult.OK,
-                Location = new Point(245, 385),
-                Width = 105,
-                Height = 32,
+                Location = new Point(255, 460),
+                Width = 110,
+                Height = 34,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
                 BackColor = Color.FromArgb(46, 204, 113),
                 ForeColor = Color.White,
@@ -1447,9 +1576,9 @@ namespace BitswardITSM.Core
             {
                 Text = "Cancel",
                 DialogResult = DialogResult.Cancel,
-                Location = new Point(360, 385),
-                Width = 105,
-                Height = 32,
+                Location = new Point(375, 460),
+                Width = 110,
+                Height = 34,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
                 BackColor = Color.FromArgb(231, 76, 60),
                 ForeColor = Color.White,
@@ -1468,6 +1597,11 @@ namespace BitswardITSM.Core
             this.Controls.Add(btnAttachFile);
             this.Controls.Add(btnPasteScreenshot);
             this.Controls.Add(lblAttachmentSummary);
+            this.Controls.Add(lblAssignHeader);
+            this.Controls.Add(btnAssign);
+            this.Controls.Add(btnSmartSearch);
+            this.Controls.Add(lblSelectedAssignee);
+            this.Controls.Add(btnClearAssignee);
             this.Controls.Add(btnSubmit);
             this.Controls.Add(btnCancel);
             this.AcceptButton = btnSubmit;

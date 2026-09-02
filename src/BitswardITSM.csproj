@@ -139,6 +139,12 @@
     <Compile Include="AttachmentViewerForm.Designer.cs">
       <DependentUpon>AttachmentViewerForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="AssigneeSearchDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AssigneeSearchDialog.Designer.cs">
+      <DependentUpon>AssigneeSearchDialog.cs</DependentUpon>
+    </Compile>
     <!-- Entry Point -->
     <Compile Include="Program.cs" />
   </ItemGroup>
