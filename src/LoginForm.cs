@@ -54,6 +54,25 @@ namespace BitswardITSM.Core
                 }
                 catch { }
 
+                // Step 1.3: Ensure ticket_attachments table exists
+                try
+                {
+                    _dbManager.ExecuteNonQuery(@"
+                        CREATE TABLE IF NOT EXISTS ticket_attachments (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            ticket_id INT NOT NULL,
+                            employee_id VARCHAR(50) NOT NULL,
+                            file_name VARCHAR(255) NOT NULL,
+                            file_path VARCHAR(500) NOT NULL,
+                            file_size BIGINT NOT NULL,
+                            file_type VARCHAR(50) NOT NULL,
+                            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+                            FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+                        ) ENGINE=InnoDB;");
+                }
+                catch { }
+
                 // Step 1.5: Auto-sync organogram before seeding default admin
                 string csvPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(exeDir, @"..\..\..\org\organogram.csv"));
                 if (!System.IO.File.Exists(csvPath))

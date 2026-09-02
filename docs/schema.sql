@@ -93,6 +93,20 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+-- 8.5. Ticket Attachments Table (Files & Screenshots)
+CREATE TABLE IF NOT EXISTS ticket_attachments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT NOT NULL,
+    employee_id VARCHAR(50) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    file_size BIGINT NOT NULL,
+    file_type VARCHAR(50) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 -- 9. Seed SLA Data
 INSERT INTO slas (name, resolution_hours, alert_threshold_minutes) VALUES
 ('P1', 2, 30),

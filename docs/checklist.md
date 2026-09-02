@@ -13,7 +13,8 @@ This document tracks all features, modules, architectural layers, and roadmap ca
 | **Phase 3: Modern UI Implementation** | ✅ Complete | Dark-themed LoginForm, MainForm Tabbed Queues, Dynamic Detail View, AdminForm |
 | **Phase 4: Lifecycle & CR Subsystems** | ✅ Complete | Soft Lock, Thread Comments, Sub-Task Splitting, CAB Review, Risk Profiler, PIR Engine |
 | **Phase 5: Alerts, Reporting & Admin** | ✅ Complete | Toast Popups, Background Checker, AuditLogForm, TasksForm, Admin Console |
-| **Future Extensions / Extended Roadmap** | ⏳ Planned | Attachment Uploads, Web Customer Portal, SMTP Auto-Responder, PDF Export |
+| **Phase 6: File & Screenshot Attachments** | ✅ Complete | AttachmentManager, AttachmentViewerForm, Clipboard Grab, NewTicket Attachments |
+| **Future Extensions / Extended Roadmap** | ⏳ Planned | Web Customer Portal, SMTP Auto-Responder, PDF Export |
 
 ---
 
@@ -136,13 +137,43 @@ This document tracks all features, modules, architectural layers, and roadmap ca
 
 ---
 
+### ✅ PHASE 6: File & Screenshot Attachments
+- [x] **Database Schema (`ticket_attachments` table)**:
+  - [x] Auto-incrementing ID, ticket FK, employee FK, file metadata (name, path, size, type), timestamp.
+  - [x] `ON DELETE CASCADE` foreign keys for both `tickets` and `employees`.
+  - [x] Safe auto-migration in `LoginForm.cs` on startup.
+- [x] **Attachment Manager (`src/AttachmentManager.cs`)**:
+  - [x] Physical file copy to `attachments/` directory with unique naming (`att_{ticketId}_{timestamp}_{guid}{ext}`).
+  - [x] Clipboard image capture via `Clipboard.GetImage()` saved as lossless PNG screenshots.
+  - [x] Attachment metadata CRUD: `GetAttachments()`, `GetAttachmentCount()`, `DeleteAttachment()`.
+  - [x] File launching via `Process.Start()` and human-readable file size formatting.
+- [x] **Attachment Viewer Form (`src/AttachmentViewerForm.cs` & `.Designer.cs`)**:
+  - [x] Modal dialog listing all attachments in styled data grid with image preview panel.
+  - [x] **Open**: Launch attachment in default system application.
+  - [x] **Save As**: Export selected attachment to user-chosen location.
+  - [x] **Add File**: Multi-select file browser for bulk uploads.
+  - [x] **Paste Screenshot**: Clipboard image grab with user-friendly tips.
+  - [x] **Delete**: Confirmation dialog with physical file + DB record cleanup.
+  - [x] `AttachmentsChanged` event for real-time counter updates in MainForm.
+- [x] **MainForm Integration**:
+  - [x] `📎 Attachments (N)` counter button in ticket detail panel with dynamic highlight.
+  - [x] Quick-attach `📎` button at bottom bar for inline file uploads with thread logging.
+  - [x] Quick-screenshot `📸` button at bottom bar for one-click clipboard paste.
+  - [x] Thread history entries auto-logged on each upload (`[📎 Attached file: ...]`, `[📸 Attached screenshot: ...]`).
+- [x] **NewTicketDialog Attachment Support**:
+  - [x] `📎 Attach File` button allowing multi-file selection before ticket submission.
+  - [x] `📸 Paste Screenshot` button for clipboard capture during ticket creation.
+  - [x] Live attachment counter summary label.
+  - [x] Pending files/screenshots automatically saved after ticket ID is generated.
+
+---
+
 ## ⏳ Future Roadmap & Extended Capabilities (Yet to be Implemented)
 
 The following items are optional extended capabilities noted in `idea.txt` for future iterations:
 
 | Feature | Category | Description | Priority |
 | :--- | :--- | :--- | :---: |
-| **File & Screenshot Attachments** | Enhancement | Add capability to upload/view log files and image attachments in ticket threads. | Medium |
 | **Customer Self-Service Web Portal** | Web Layer | A lightweight browser-based portal for external non-IT staff to submit and track requests. | Medium |
 | **SMTP / Email Notifications** | Notifications | Send external email alerts to clients/assignees on status changes and SLA warning events. | Low |
 | **Interactive Floor & Room Maps** | UI Extension | Visual campus/floor-plan mapping for physical hardware issue location tagging. | Low |

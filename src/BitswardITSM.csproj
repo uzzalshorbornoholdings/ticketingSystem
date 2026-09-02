@@ -132,6 +132,13 @@
     <Compile Include="TasksForm.Designer.cs">
       <DependentUpon>TasksForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="AttachmentManager.cs" />
+    <Compile Include="AttachmentViewerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AttachmentViewerForm.Designer.cs">
+      <DependentUpon>AttachmentViewerForm.cs</DependentUpon>
+    </Compile>
     <!-- Entry Point -->
     <Compile Include="Program.cs" />
   </ItemGroup>

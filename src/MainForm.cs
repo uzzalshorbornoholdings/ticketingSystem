@@ -15,6 +15,7 @@ namespace BitswardITSM.Core
         private readonly DatabaseManager _db;
         private readonly SlaEngine _slaEngine;
         private readonly TriageEngine _triageEngine;
+        private readonly AttachmentManager _attachmentManager;
 
         private int _selectedTicketId = -1;
         private string _selectedTicketType = null;
@@ -30,6 +31,7 @@ namespace BitswardITSM.Core
             _db = db;
             _slaEngine = new SlaEngine(_db);
             _triageEngine = new TriageEngine(_db);
+            _attachmentManager = new AttachmentManager(_db);
 
             // Configure state check timer for ticket soft lock refresh
             _lockTimer = new Timer();
@@ -331,6 +333,7 @@ namespace BitswardITSM.Core
              }
  
              LoadThreadHistory(ticketId);
+             UpdateAttachmentCounter(ticketId);
         }
 
         private void AcquireSoftLock(int ticketId)
@@ -366,6 +369,9 @@ namespace BitswardITSM.Core
             btnChangeStatus.Enabled = enabled;
             btnSendThread.Enabled = enabled;
             btnCreateSubTask.Enabled = enabled;
+            btnAttachFile.Enabled = enabled;
+            btnPasteScreenshot.Enabled = enabled;
+            btnViewAttachments.Enabled = enabled;
         }
 
         private void LoadThreadHistory(int ticketId)
@@ -555,8 +561,120 @@ namespace BitswardITSM.Core
             lblDetailAssignee.Text = "Assignee: -";
             lblLockIndicator.Text = string.Empty;
             txtThreadHistory.Clear();
+            btnViewAttachments.Text = "📎 Attachments (0)";
+            btnViewAttachments.BackColor = Color.FromArgb(52, 73, 94);
             ToggleActionButtons(false);
             ConfigureCRPanel(false);
+        }
+
+        private void UpdateAttachmentCounter(int ticketId)
+        {
+            if (ticketId <= 0) return;
+            try
+            {
+                int count = _attachmentManager.GetAttachmentCount(ticketId);
+                btnViewAttachments.Text = $"📎 Attachments ({count})";
+                btnViewAttachments.BackColor = count > 0 ? Color.FromArgb(41, 128, 185) : Color.FromArgb(52, 73, 94);
+            }
+            catch { }
+        }
+
+        private void BtnViewAttachments_Click(object sender, EventArgs e)
+        {
+            if (_selectedTicketId == -1) return;
+
+            var viewer = new AttachmentViewerForm(_db, _attachmentManager, _selectedTicketId, lblDetailTitle.Text, _employeeId, _userRole);
+            viewer.AttachmentsChanged += (s, args) =>
+            {
+                UpdateAttachmentCounter(_selectedTicketId);
+                LoadThreadHistory(_selectedTicketId);
+            };
+            viewer.ShowDialog();
+            UpdateAttachmentCounter(_selectedTicketId);
+        }
+
+        private void BtnAttachFile_Click(object sender, EventArgs e)
+        {
+            if (_selectedTicketId == -1) return;
+
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Title = "Select File to Attach";
+                ofd.Filter = "All Files (*.*)|*.*|Images (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|Logs & Text (*.txt;*.log)|*.txt;*.log|Documents (*.pdf;*.docx;*.xlsx)|*.pdf;*.docx;*.xlsx";
+                ofd.Multiselect = true;
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    int uploaded = 0;
+                    foreach (string file in ofd.FileNames)
+                    {
+                        if (_attachmentManager.SaveFileAttachment(_selectedTicketId, _employeeId, file, out int _, out string savedName, out string error))
+                        {
+                            uploaded++;
+                            string fileMsg = $"[📎 Attached file: {savedName} ({AttachmentManager.FormatFileSize(new System.IO.FileInfo(file).Length)})]";
+                            _db.ExecuteNonQuery("INSERT INTO ticket_threads (ticket_id, employee_id, message) VALUES (@ticketId, @empId, @msg)", new MySqlParameter[] {
+                                new MySqlParameter("@ticketId", _selectedTicketId),
+                                new MySqlParameter("@empId", _employeeId),
+                                new MySqlParameter("@msg", fileMsg)
+                            });
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Failed to upload {System.IO.Path.GetFileName(file)}:\n{error}", "Upload Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                    }
+
+                    if (uploaded > 0)
+                    {
+                        UpdateAttachmentCounter(_selectedTicketId);
+                        LoadThreadHistory(_selectedTicketId);
+                        MessageBox.Show($"{uploaded} file(s) successfully attached to Ticket #{_selectedTicketId}!", "Attachment Uploaded", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            }
+        }
+
+        private void BtnPasteScreenshot_Click(object sender, EventArgs e)
+        {
+            if (_selectedTicketId == -1) return;
+
+            if (!Clipboard.ContainsImage())
+            {
+                MessageBox.Show("No screenshot image detected in the clipboard.\n\nTip: Press [Win + Shift + S] or [PrtScn] to capture your screen, then click here to paste it directly!",
+                                "Clipboard Empty", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                Image clipImg = Clipboard.GetImage();
+                if (clipImg != null)
+                {
+                    if (_attachmentManager.SaveClipboardImage(_selectedTicketId, _employeeId, clipImg, out int _, out string savedName, out string error))
+                    {
+                        clipImg.Dispose();
+                        string msg = $"[📸 Attached screenshot: {savedName}]";
+                        _db.ExecuteNonQuery("INSERT INTO ticket_threads (ticket_id, employee_id, message) VALUES (@ticketId, @empId, @msg)", new MySqlParameter[] {
+                            new MySqlParameter("@ticketId", _selectedTicketId),
+                            new MySqlParameter("@empId", _employeeId),
+                            new MySqlParameter("@msg", msg)
+                        });
+
+                        UpdateAttachmentCounter(_selectedTicketId);
+                        LoadThreadHistory(_selectedTicketId);
+                        MessageBox.Show($"Screenshot '{savedName}' successfully attached to Ticket #{_selectedTicketId}!", "Screenshot Attached", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        clipImg.Dispose();
+                        MessageBox.Show($"Failed to save screenshot:\n{error}", "Upload Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error capturing clipboard screenshot:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void BtnNavTickets_Click(object sender, EventArgs e) { } // Already on tickets grid
@@ -637,6 +755,22 @@ namespace BitswardITSM.Core
                         if (lastIdObj != null && lastIdObj != DBNull.Value)
                         {
                             int ticketId = Convert.ToInt32(lastIdObj);
+
+                            // 4.5. Save any attached files/screenshots from NewTicketDialog
+                            if (dlg.PendingFilePaths != null)
+                            {
+                                foreach (string f in dlg.PendingFilePaths)
+                                {
+                                    _attachmentManager.SaveFileAttachment(ticketId, _employeeId, f, out int _, out string _, out string _);
+                                }
+                            }
+                            if (dlg.PendingScreenshots != null)
+                            {
+                                foreach (var img in dlg.PendingScreenshots)
+                                {
+                                    _attachmentManager.SaveClipboardImage(ticketId, _employeeId, img, out int _, out string _, out string _);
+                                }
+                            }
 
                             // 5. Run the Smart 3-tier Assignment Engine
                             string assignedTo = _triageEngine.AssignTicket(ticketId, _employeeId, targetDept);
@@ -1106,6 +1240,9 @@ namespace BitswardITSM.Core
         private TextBox txtTitle;
         private RichTextBox txtDescription;
         private ComboBox cmbPriority;
+        private Button btnAttachFile;
+        private Button btnPasteScreenshot;
+        private Label lblAttachmentSummary;
         private Button btnSubmit;
         private Button btnCancel;
         private Label lblTitle;
@@ -1116,6 +1253,8 @@ namespace BitswardITSM.Core
         public string TicketTitle { get; private set; }
         public string TicketDescription { get; private set; }
         public string TicketPriority { get; private set; }
+        public List<string> PendingFilePaths { get; } = new List<string>();
+        public List<Image> PendingScreenshots { get; } = new List<Image>();
 
         public NewTicketDialog()
         {
@@ -1125,7 +1264,7 @@ namespace BitswardITSM.Core
         private void InitializeComponent()
         {
             this.Text = "Report Device Issue / Create Ticket";
-            this.Size = new Size(500, 420);
+            this.Size = new Size(500, 480);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterParent;
             this.MaximizeBox = false;
@@ -1203,11 +1342,86 @@ namespace BitswardITSM.Core
                 BorderStyle = BorderStyle.FixedSingle
             };
 
+            Action UpdateAttachSummary = () => {
+                int total = PendingFilePaths.Count + PendingScreenshots.Count;
+                lblAttachmentSummary.Text = total == 0 ? "No attachments selected" : $"📎 {total} item(s) attached";
+                lblAttachmentSummary.ForeColor = total == 0 ? Color.FromArgb(160, 175, 190) : Color.LightGreen;
+            };
+
+            btnAttachFile = new Button
+            {
+                Text = "📎 Attach File",
+                Location = new Point(20, 335),
+                Width = 115,
+                Height = 28,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = Color.FromArgb(41, 128, 185),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnAttachFile.FlatAppearance.BorderSize = 0;
+            btnAttachFile.Click += (s, e) => {
+                using (var ofd = new OpenFileDialog())
+                {
+                    ofd.Title = "Select File(s) to Attach";
+                    ofd.Filter = "All Files (*.*)|*.*|Images (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|Logs & Text (*.txt;*.log)|*.txt;*.log|Documents (*.pdf;*.docx;*.xlsx)|*.pdf;*.docx;*.xlsx";
+                    ofd.Multiselect = true;
+                    if (ofd.ShowDialog() == DialogResult.OK)
+                    {
+                        foreach (string f in ofd.FileNames)
+                        {
+                            if (!PendingFilePaths.Contains(f))
+                                PendingFilePaths.Add(f);
+                        }
+                        UpdateAttachSummary();
+                    }
+                }
+            };
+
+            btnPasteScreenshot = new Button
+            {
+                Text = "📸 Paste Screenshot",
+                Location = new Point(142, 335),
+                Width = 145,
+                Height = 28,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = Color.FromArgb(142, 68, 173),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnPasteScreenshot.FlatAppearance.BorderSize = 0;
+            btnPasteScreenshot.Click += (s, e) => {
+                if (Clipboard.ContainsImage())
+                {
+                    Image img = Clipboard.GetImage();
+                    if (img != null)
+                    {
+                        PendingScreenshots.Add(img);
+                        UpdateAttachSummary();
+                        MessageBox.Show("Screenshot captured from clipboard!", "Screenshot Ready", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("No screenshot image detected in clipboard.\n\nTip: Press [Win + Shift + S] to capture your screen first!", "Clipboard Empty", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            };
+
+            lblAttachmentSummary = new Label
+            {
+                Text = "No attachments selected",
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
+                ForeColor = Color.FromArgb(160, 175, 190),
+                Location = new Point(295, 340),
+                Width = 175,
+                Height = 20
+            };
+
             btnSubmit = new Button
             {
                 Text = "Submit Ticket",
                 DialogResult = DialogResult.OK,
-                Location = new Point(245, 340),
+                Location = new Point(245, 385),
                 Width = 105,
                 Height = 32,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
@@ -1233,7 +1447,7 @@ namespace BitswardITSM.Core
             {
                 Text = "Cancel",
                 DialogResult = DialogResult.Cancel,
-                Location = new Point(360, 340),
+                Location = new Point(360, 385),
                 Width = 105,
                 Height = 32,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
@@ -1251,6 +1465,9 @@ namespace BitswardITSM.Core
             this.Controls.Add(cmbPriority);
             this.Controls.Add(lblDescription);
             this.Controls.Add(txtDescription);
+            this.Controls.Add(btnAttachFile);
+            this.Controls.Add(btnPasteScreenshot);
+            this.Controls.Add(lblAttachmentSummary);
             this.Controls.Add(btnSubmit);
             this.Controls.Add(btnCancel);
             this.AcceptButton = btnSubmit;

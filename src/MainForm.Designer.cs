@@ -40,8 +40,11 @@ namespace BitswardITSM.Core
         private System.Windows.Forms.Label lblLockIndicator;
         private System.Windows.Forms.RichTextBox txtThreadHistory;
         private System.Windows.Forms.TextBox txtThreadInput;
+        private System.Windows.Forms.Button btnAttachFile;
+        private System.Windows.Forms.Button btnPasteScreenshot;
         private System.Windows.Forms.Button btnSendThread;
         private System.Windows.Forms.Button btnCreateSubTask;
+        private System.Windows.Forms.Button btnViewAttachments;
         
         private System.Windows.Forms.SplitContainer splitContainerDashboard;
 
@@ -77,6 +80,9 @@ namespace BitswardITSM.Core
             this.tabChanges = new System.Windows.Forms.TabPage();
             this.gridChanges = new System.Windows.Forms.DataGridView();
             this.panelTicketDetails = new System.Windows.Forms.Panel();
+            this.btnViewAttachments = new System.Windows.Forms.Button();
+            this.btnAttachFile = new System.Windows.Forms.Button();
+            this.btnPasteScreenshot = new System.Windows.Forms.Button();
             this.btnCreateSubTask = new System.Windows.Forms.Button();
             this.btnSendThread = new System.Windows.Forms.Button();
             this.txtThreadInput = new System.Windows.Forms.TextBox();
@@ -400,6 +406,9 @@ namespace BitswardITSM.Core
             // panelTicketDetails
             // 
             this.panelTicketDetails.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(43)))), ((int)(((byte)(54)))));
+            this.panelTicketDetails.Controls.Add(this.btnViewAttachments);
+            this.panelTicketDetails.Controls.Add(this.btnAttachFile);
+            this.panelTicketDetails.Controls.Add(this.btnPasteScreenshot);
             this.panelTicketDetails.Controls.Add(this.btnCreateSubTask);
             this.panelTicketDetails.Controls.Add(this.btnSendThread);
             this.panelTicketDetails.Controls.Add(this.txtThreadInput);
@@ -420,6 +429,22 @@ namespace BitswardITSM.Core
             this.panelTicketDetails.Size = new System.Drawing.Size(440, 601);
             this.panelTicketDetails.TabIndex = 0;
             // 
+            // btnViewAttachments
+            // 
+            this.btnViewAttachments.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnViewAttachments.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(73)))), ((int)(((byte)(94)))));
+            this.btnViewAttachments.FlatAppearance.BorderSize = 0;
+            this.btnViewAttachments.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnViewAttachments.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnViewAttachments.ForeColor = System.Drawing.Color.White;
+            this.btnViewAttachments.Location = new System.Drawing.Point(240, 190);
+            this.btnViewAttachments.Name = "btnViewAttachments";
+            this.btnViewAttachments.Size = new System.Drawing.Size(185, 28);
+            this.btnViewAttachments.TabIndex = 14;
+            this.btnViewAttachments.Text = "📎 Attachments (0)";
+            this.btnViewAttachments.UseVisualStyleBackColor = false;
+            this.btnViewAttachments.Click += new System.EventHandler(this.BtnViewAttachments_Click);
+            // 
             // btnCreateSubTask
             // 
             this.btnCreateSubTask.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -428,9 +453,9 @@ namespace BitswardITSM.Core
             this.btnCreateSubTask.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCreateSubTask.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCreateSubTask.ForeColor = System.Drawing.Color.White;
-            this.btnCreateSubTask.Location = new System.Drawing.Point(313, 563);
+            this.btnCreateSubTask.Location = new System.Drawing.Point(335, 563);
             this.btnCreateSubTask.Name = "btnCreateSubTask";
-            this.btnCreateSubTask.Size = new System.Drawing.Size(115, 30);
+            this.btnCreateSubTask.Size = new System.Drawing.Size(95, 30);
             this.btnCreateSubTask.TabIndex = 13;
             this.btnCreateSubTask.Text = "➕ Split Task";
             this.btnCreateSubTask.UseVisualStyleBackColor = false;
@@ -438,19 +463,51 @@ namespace BitswardITSM.Core
             // 
             // btnSendThread
             // 
-            this.btnSendThread.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnSendThread.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSendThread.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(204)))), ((int)(((byte)(113)))));
             this.btnSendThread.FlatAppearance.BorderSize = 0;
             this.btnSendThread.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSendThread.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSendThread.ForeColor = System.Drawing.Color.White;
-            this.btnSendThread.Location = new System.Drawing.Point(232, 563);
+            this.btnSendThread.Location = new System.Drawing.Point(265, 563);
             this.btnSendThread.Name = "btnSendThread";
-            this.btnSendThread.Size = new System.Drawing.Size(75, 30);
+            this.btnSendThread.Size = new System.Drawing.Size(65, 30);
             this.btnSendThread.TabIndex = 12;
-            this.btnSendThread.Text = "Post Comment";
+            this.btnSendThread.Text = "Post";
             this.btnSendThread.UseVisualStyleBackColor = false;
             this.btnSendThread.Click += new System.EventHandler(this.BtnSendThread_Click);
+            // 
+            // btnAttachFile
+            // 
+            this.btnAttachFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAttachFile.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
+            this.btnAttachFile.FlatAppearance.BorderSize = 0;
+            this.btnAttachFile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAttachFile.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnAttachFile.ForeColor = System.Drawing.Color.White;
+            this.btnAttachFile.Location = new System.Drawing.Point(185, 563);
+            this.btnAttachFile.Name = "btnAttachFile";
+            this.btnAttachFile.Size = new System.Drawing.Size(36, 30);
+            this.btnAttachFile.TabIndex = 15;
+            this.btnAttachFile.Text = "📎";
+            this.btnAttachFile.UseVisualStyleBackColor = false;
+            this.btnAttachFile.Click += new System.EventHandler(this.BtnAttachFile_Click);
+            // 
+            // btnPasteScreenshot
+            // 
+            this.btnPasteScreenshot.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPasteScreenshot.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(142)))), ((int)(((byte)(68)))), ((int)(((byte)(173)))));
+            this.btnPasteScreenshot.FlatAppearance.BorderSize = 0;
+            this.btnPasteScreenshot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPasteScreenshot.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnPasteScreenshot.ForeColor = System.Drawing.Color.White;
+            this.btnPasteScreenshot.Location = new System.Drawing.Point(225, 563);
+            this.btnPasteScreenshot.Name = "btnPasteScreenshot";
+            this.btnPasteScreenshot.Size = new System.Drawing.Size(36, 30);
+            this.btnPasteScreenshot.TabIndex = 16;
+            this.btnPasteScreenshot.Text = "📸";
+            this.btnPasteScreenshot.UseVisualStyleBackColor = false;
+            this.btnPasteScreenshot.Click += new System.EventHandler(this.BtnPasteScreenshot_Click);
             // 
             // txtThreadInput
             // 
@@ -461,7 +518,7 @@ namespace BitswardITSM.Core
             this.txtThreadInput.ForeColor = System.Drawing.Color.White;
             this.txtThreadInput.Location = new System.Drawing.Point(15, 565);
             this.txtThreadInput.Name = "txtThreadInput";
-            this.txtThreadInput.Size = new System.Drawing.Size(211, 25);
+            this.txtThreadInput.Size = new System.Drawing.Size(165, 25);
             this.txtThreadInput.TabIndex = 11;
             // 
             // txtThreadHistory

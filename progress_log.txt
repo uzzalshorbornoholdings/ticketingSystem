@@ -36,9 +36,17 @@ Completed Tasks
 - Implemented Post-Implementation Review (PIR) and Rollback Engine for Change Requests (CR) in MainForm.cs with success criteria verification, structured rollback trigger, and PIR note modal viewer.
 - Added backward-compatible schema migration in LoginForm.cs and updated docs/schema.sql for pir_status and pir_notes fields.
 - Fixed BitswardITSM.csproj compile items and resolved MainForm class termination boundaries to achieve 0 warnings and 0 errors.
+- [Phase 6] Created ticket_attachments table schema and safe auto-migration in LoginForm.cs on startup.
+- [Phase 6] Created AttachmentManager.cs with file copy, clipboard image save, CRUD queries, and size formatting helpers.
+- [Phase 6] Created AttachmentViewerForm.cs/.Designer.cs modal with data grid, image preview, Open/SaveAs/Add/Paste/Delete actions.
+- [Phase 6] Integrated attachment buttons into MainForm.Designer.cs (📎 Attachments counter, 📎 attach, 📸 screenshot).
+- [Phase 6] Wired BtnViewAttachments_Click, BtnAttachFile_Click, BtnPasteScreenshot_Click, and UpdateAttachmentCounter in MainForm.cs.
+- [Phase 6] Extended NewTicketDialog with PendingFilePaths/PendingScreenshots lists, Attach File button, Paste Screenshot button, and summary label.
+- [Phase 6] Updated BitswardITSM.csproj with AttachmentManager.cs, AttachmentViewerForm.cs, and AttachmentViewerForm.Designer.cs compile items.
+- [Phase 6] Verified clean compilation: 0 Warning(s), 0 Error(s).
 
 [>] Current Task
-- Completed all Phase 1-5 requirements, resolved all compilation errors, and verified 100% clean build.
+- Phase 6 (File & Screenshot Attachments) complete. All Phases 1-6 done.
 
 Next Steps
 - Launch BitswardITSM.exe in Visual Studio (or run `bin\Debug\BitswardITSM.exe`).
@@ -47,5 +55,7 @@ Next Steps
 - Test Task Manager via sidebar "📋 Tasks List" and sub-task splitting.
 - Test Change Request (CR) CAB approval, Risk Profiler, Maintenance Window, and PIR Success/Rollback workflows.
 - View real-time activity in "📜 Audit Logs".
+- Test file attachments: attach a file to a ticket, paste a screenshot, use AttachmentViewer to open/save/delete.
+- Test attaching files during ticket creation via NewTicketDialog.
 
 
