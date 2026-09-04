@@ -1,28 +1,63 @@
 EmployeeID,Name,Designation,Department,ReportsTo
-MGT-001,Dr. Md. Shafiqul Islam,Chief Technology Officer (CTO),Executive Leadership,Board of Directors
-MGT-002,Dr. Md. Nasim Akhtar,Director of Cybersecurity & SOC,Cybersecurity,Dr. Md. Shafiqul Islam
-MGT-003,Dr. Amran Hossain,VP of Infrastructure & Networking,NOC / Network Admin,Dr. Md. Shafiqul Islam
-MGT-004,Sumaya Kazary,Head of Quality Assurance (QA),QA,Dr. Md. Shafiqul Islam
-MGT-005,Dr. Momotaz Begum,Head of IT Operations & Systems,IT / System Admin,Dr. Md. Shafiqul Islam
-MGT-006,Litan Islam,Head of DevOps & Cloud Engineering,DevOps,Dr. Md. Shafiqul Islam
+MGT-001,Dr. Md. Shafiqul Islam,Head of IT Operations & Systems,IT / System Admin,Dr. Momotaz Begum
+MGT-002,Dr. Md. Nasim Akhtar,Director of Cybersecurity & SOC,Cybersecurity,Dr. Momotaz Begum
+MGT-003,Dr. Amran Hossain,VP of Infrastructure & Networking,NOC / Network Admin,Dr. Momotaz Begum
+MGT-004,Sumaya Kazary,Head of Quality Assurance (QA),QA,Dr. Momotaz Begum
+MGT-005,Dr. Momotaz Begum,Chief Technology Officer (CTO),Executive Leadership,Board of Directors
+MGT-006,Litan Islam,Head of DevOps & Cloud Engineering,DevOps,Dr. Momotaz Begum
 MGT-007,Mst. Sumaya Khatun,Head of Linux Platform Admin,Linux Platform,Dr. Amran Hossain
 MGT-008,Md. Abu Bakkar Siddique,Head of Client Platforms (Win/Mac),Windows / MAC Admin,Dr. Amran Hossain
-MGT-009,Dr. Main Uddin Ahmed,Head of Data Science & Network Logic,Network Strategy,Dr. Md. Shafiqul Islam
-21-0-52-020-004,S. M. RISADUL ISLAM,Security Engineer,Cybersecurity,Dr. Md. Nasim Akhtar
-21-0-52-020-035,UZZAL CHANDRA BOISSHA,Security Engineer,Cybersecurity,Dr. Md. Nasim Akhtar
-21-0-52-020-023,KHANDAKER ARIFUR RAHMAN,QA Engineer,QA,Sumaya Kazary
+MGT-009,Dr. Main Uddin Ahmed,Head of Data Science & Network Logic,Network Strategy,Dr. Momotaz Begum
+21-0-52-020-001,Md. Touhid Mobarak,Senior System Engineer,IT Operations,Dr. Md. Shafiqul Islam
+21-0-52-020-002,Rabea Chowdhury Mily,System Analyst,System Admin,Dr. Md. Shafiqul Islam
 21-0-52-020-003,MD. MUHYMINUL HAQUE SIUM,NOC Engineer,NOC,Dr. Amran Hossain
-21-0-52-020-038,Md. Ahsan Habib,Network Engineer,Network Admin,Dr. Amran Hossain
-21-0-52-020-031,Bidhan Roy,Linux Admin Engineer,Linux Platform,Mst. Sumaya Khatun
-21-0-52-020-054,Md Jasim Sharif,Windows Admin Engineer,Windows Admin,Md. Abu Bakkar Siddique
-21-0-52-020-044,Ruhul Amin Fuad,SOC Analyst Engineer,SOC,Dr. Md. Nasim Akhtar
-21-0-52-020-043,MD ABU SHYID,MAC Admin Engineer,MAC Platform,Md. Abu Bakkar Siddique
-21-0-52-020-047,Utpal Chandra Das,DevOps Engineer,DevOps,Litan Islam
-21-0-52-020-022,Jannatul Ferdose,QA Engineer,QA,Sumaya Kazary
+21-0-52-020-004,S. M. RISADUL ISLAM,Security Engineer,Cybersecurity,Dr. Md. Nasim Akhtar
+21-0-52-020-005,Al-Amin,SOC Analyst,SOC,Dr. Md. Nasim Akhtar
+21-0-52-020-006,MD. MASUD RANA,Network Engineer,Network Admin,Dr. Amran Hossain
+21-0-52-020-007,MD. SHAHIN MIAH,Cybersecurity Analyst,Cybersecurity,Dr. Md. Nasim Akhtar
+21-0-52-020-008,Md.Najmul Islam,Junior Security Engineer,Cybersecurity,Dr. Md. Nasim Akhtar
+21-0-52-020-009,MD. SAJU ISLAM,System Specialist,IT Operations,Dr. Md. Shafiqul Islam
+21-0-52-020-010,Mst Jannatul Ferdows,NOC Support Engineer,NOC,Dr. Amran Hossain
+21-0-52-020-011,Hasnahana,DevOps Engineer,DevOps,Litan Islam
+21-0-52-020-012,Md. Anowar Hossen,Security Analyst,SOC,Dr. Md. Nasim Akhtar
+21-0-52-020-013,Md. Farhan Fahmid,Network Technician,Network Admin,Dr. Amran Hossain
+21-0-52-020-014,Md.Samim Pervage,Infrastructure Engineer,NOC,Dr. Amran Hossain
+21-0-52-020-015,Md. Shahadat Hossain,System Administrator,System Admin,Dr. Md. Shafiqul Islam
 21-0-52-020-016,FARJANA AKTER,Linux Admin Engineer,Linux Platform,Mst. Sumaya Khatun
-21-0-52-020-050,Jinnurain Jihan,DevOps Engineer,DevOps,Litan Islam
-21-0-52-020-029,MD. FASABBIR MIAH,System Engineer,System Admin,Dr. Momotaz Begum
-21-0-52-020-024,MST. AFSANA KHATUN,IT Support Engineer,IT,Dr. Momotaz Begum
-21-0-52-020-056,Ariful Islam Anik,Windows Admin Engineer,Windows Admin,Md. Abu Bakkar Siddique
-21-0-52-020-063,Md Kaosar Zaman,SOC Analyst Engineer,SOC,Dr. Md. Nasim Akhtar
+21-0-52-020-017,MST. FATEMA KHATUN HAPPY,Linux Support Engineer,Linux Platform,Mst. Sumaya Khatun
+21-0-52-020-019,Taufikul islam tutul,Cloud Engineer,DevOps,Litan Islam
+21-0-52-020-021,Md.Ruhul Amin,Junior DevOps Engineer,DevOps,Litan Islam
+21-0-52-020-022,Jannatul Ferdose,QA Engineer,QA,Sumaya Kazary
+21-0-52-020-023,Khandaker Arifur Rahman,QA Engineer,QA,Sumaya Kazary
+21-0-52-020-024,MST.AFSANA KHATUN,System Engineer,IT,Dr. Md. Shafiqul Islam
+21-0-52-020-025,Rotan Chandra Roy,IT Operations Assistant,IT Operations,Dr. Md. Shafiqul Islam
+21-0-52-020-026,Mst.Khansa Moni,Linux Systems Engineer,Linux Platform,Mst. Sumaya Khatun
+21-0-52-020-027,Mokta Rani Das,Junior Linux Admin,Linux Platform,Mst. Sumaya Khatun
+21-0-52-020-028,Keya moni roy,Platform Support Engineer,Linux Platform,Mst. Sumaya Khatun
+21-0-52-020-029,MD.FASABBIR MIAH,System Engineer,System Admin,Dr. Md. Shafiqul Islam
+21-0-52-020-030,Alpana,QA Automation Engineer,QA,Sumaya Kazary
+21-0-52-020-031,Bidhan Roy,Linux Admin Engineer,Linux Platform,Mst. Sumaya Khatun
 21-0-52-020-033,Sornali Akter,MAC Admin Engineer,MAC Platform,Md. Abu Bakkar Siddique
+21-0-52-020-035,Uzzal Chandra Boissha,Security Engineer,Cybersecurity,Dr. Md. Nasim Akhtar
+21-0-52-020-036,Biplob Kumar Halder,Platform Engineer,Windows Admin,Md. Abu Bakkar Siddique
+21-0-52-020-037,MD.Ruhul Amin Shohag,SOC Analyst,SOC,Dr. Md. Nasim Akhtar
+21-0-52-020-038,Md. Ahsan Habib,Network Engineer,Network Admin,Dr. Amran Hossain
+21-0-52-020-040,Tapan Sarker,Network Support,Network Admin,Dr. Amran Hossain
+21-0-52-020-041,MD.Masud Rana,Client Support Engineer,Windows Admin,Md. Abu Bakkar Siddique
+21-0-52-020-043,MD ABU SHYID,MAC Admin Engineer,MAC Platform,Md. Abu Bakkar Siddique
+21-0-52-020-044,Ruhul Amin Fuad,SOC Analyst Engineer,SOC,Dr. Md. Nasim Akhtar
+21-0-52-020-045,SHAHEB ALI,Desktop Support,Windows Admin,Md. Abu Bakkar Siddique
+21-0-52-020-046,Rakibul Hasan,Junior Cloud Engineer,DevOps,Litan Islam
+21-0-52-020-047,Utpal Chandra Das,DevOps Engineer,DevOps,Litan Islam
+21-0-52-020-048,Shaiful Islam,Windows Admin Engineer,Windows Admin,Md. Abu Bakkar Siddique
+21-0-52-020-049,MD. MOYNUL HASAN,Release Engineer,DevOps,Litan Islam
+21-0-52-020-050,Jinnurain Jihan,DevOps Engineer,DevOps,Litan Islam
+21-0-52-020-051,Amzad Hossain,Software Tester,QA,Sumaya Kazary
+21-0-52-020-052,Maisha Fahmida,QA Analyst,QA,Sumaya Kazary
+21-0-52-020-053,MD. SHOHAG HOSSAIN,Junior QA Engineer,QA,Sumaya Kazary
+21-0-52-020-054,Md Jasim Sharif,Windows Admin Engineer,Windows Admin,Md. Abu Bakkar Siddique
+21-0-52-020-056,Ariful Islam Anik,Windows Admin Engineer,Windows Admin,Md. Abu Bakkar Siddique
+21-0-52-020-057,SHUVAGATO SIRCAR MAJUMDER,Network Strategy Analyst,Network Strategy,Dr. Main Uddin Ahmed
+21-0-52-020-058,Md. Nora Alam,Data Analyst,Network Strategy,Dr. Main Uddin Ahmed
+21-0-52-020-062,Md. Mosaddek Al Hameem,Security Engineer,Cybersecurity,Dr. Md. Nasim Akhtar
+21-0-52-020-063,Md Kaosar Zaman,SOC Analyst Engineer,SOC,Dr. Md. Nasim Akhtar
