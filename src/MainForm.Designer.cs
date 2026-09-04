@@ -46,6 +46,7 @@ namespace BitswardITSM.Core
         private System.Windows.Forms.Button btnSendThread;
         private System.Windows.Forms.Button btnCreateSubTask;
         private System.Windows.Forms.Button btnViewAttachments;
+        private System.Windows.Forms.Button btnExportTicketPdf;
         
         private System.Windows.Forms.SplitContainer splitContainerDashboard;
 
@@ -81,6 +82,7 @@ namespace BitswardITSM.Core
             this.tabChanges = new System.Windows.Forms.TabPage();
             this.gridChanges = new System.Windows.Forms.DataGridView();
             this.panelTicketDetails = new System.Windows.Forms.Panel();
+            this.btnExportTicketPdf = new System.Windows.Forms.Button();
             this.btnViewAttachments = new System.Windows.Forms.Button();
             this.btnAttachFile = new System.Windows.Forms.Button();
             this.btnPasteScreenshot = new System.Windows.Forms.Button();
@@ -424,6 +426,7 @@ namespace BitswardITSM.Core
             // panelTicketDetails
             // 
             this.panelTicketDetails.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(43)))), ((int)(((byte)(54)))));
+            this.panelTicketDetails.Controls.Add(this.btnExportTicketPdf);
             this.panelTicketDetails.Controls.Add(this.btnViewAttachments);
             this.panelTicketDetails.Controls.Add(this.btnAttachFile);
             this.panelTicketDetails.Controls.Add(this.btnPasteScreenshot);
@@ -455,13 +458,29 @@ namespace BitswardITSM.Core
             this.btnViewAttachments.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnViewAttachments.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnViewAttachments.ForeColor = System.Drawing.Color.White;
-            this.btnViewAttachments.Location = new System.Drawing.Point(240, 190);
+            this.btnViewAttachments.Location = new System.Drawing.Point(215, 190);
             this.btnViewAttachments.Name = "btnViewAttachments";
-            this.btnViewAttachments.Size = new System.Drawing.Size(185, 28);
+            this.btnViewAttachments.Size = new System.Drawing.Size(120, 28);
             this.btnViewAttachments.TabIndex = 14;
-            this.btnViewAttachments.Text = "📎 Attachments (0)";
+            this.btnViewAttachments.Text = "📎 Files (0)";
             this.btnViewAttachments.UseVisualStyleBackColor = false;
             this.btnViewAttachments.Click += new System.EventHandler(this.BtnViewAttachments_Click);
+            // 
+            // btnExportTicketPdf
+            // 
+            this.btnExportTicketPdf.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnExportTicketPdf.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
+            this.btnExportTicketPdf.FlatAppearance.BorderSize = 0;
+            this.btnExportTicketPdf.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExportTicketPdf.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnExportTicketPdf.ForeColor = System.Drawing.Color.White;
+            this.btnExportTicketPdf.Location = new System.Drawing.Point(340, 190);
+            this.btnExportTicketPdf.Name = "btnExportTicketPdf";
+            this.btnExportTicketPdf.Size = new System.Drawing.Size(85, 28);
+            this.btnExportTicketPdf.TabIndex = 16;
+            this.btnExportTicketPdf.Text = "📄 PDF";
+            this.btnExportTicketPdf.UseVisualStyleBackColor = false;
+            this.btnExportTicketPdf.Click += new System.EventHandler(this.BtnExportTicketPdf_Click);
             // 
             // btnCreateSubTask
             // 

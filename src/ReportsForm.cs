@@ -326,6 +326,77 @@ namespace BitswardITSM.Core
         // EXPORT HANDLERS
         // ===================================================================
 
+        private void BtnExportTicketPdf_Click(object sender, EventArgs e)
+        {
+            int selectedTicketId = -1;
+
+            if (gridDetailedAudit.SelectedRows.Count > 0)
+            {
+                var row = gridDetailedAudit.SelectedRows[0];
+                var idCell = row.Cells["TicketID"];
+                if (idCell?.Value != null && int.TryParse(idCell.Value.ToString(), out int tid))
+                {
+                    selectedTicketId = tid;
+                }
+            }
+            else if (gridDetailedAudit.CurrentRow != null)
+            {
+                var idCell = gridDetailedAudit.CurrentRow.Cells["TicketID"];
+                if (idCell?.Value != null && int.TryParse(idCell.Value.ToString(), out int tid))
+                {
+                    selectedTicketId = tid;
+                }
+            }
+
+            if (selectedTicketId <= 0)
+            {
+                MessageBox.Show("Please select a ticket record from the 'Detailed Ticket SLA Audit' tab first to generate its Incident Dossier PDF.", "Select Ticket", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                tabReports.SelectedTab = tabAuditTrail;
+                return;
+            }
+
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                var slaEngine = new SlaEngine(_db);
+                var dossier = PdfReportExporter.FetchTicketDossier(_db, selectedTicketId, slaEngine, "Reports Dashboard");
+
+                if (dossier == null)
+                {
+                    MessageBox.Show($"Ticket #{selectedTicketId} could not be found.", "Ticket Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                using (var sfd = new SaveFileDialog())
+                {
+                    sfd.Filter = "PDF Documents (*.pdf)|*.pdf";
+                    sfd.FileName = $"Ticket_{selectedTicketId}_Incident_Dossier_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                    sfd.Title = $"Export Incident Dossier for Ticket #{selectedTicketId}";
+
+                    if (sfd.ShowDialog() == DialogResult.OK)
+                    {
+                        PdfReportExporter.ExportTicketDossierToPdf(sfd.FileName, dossier);
+                        lblStatus.Text = $"Ticket PDF exported: {System.IO.Path.GetFileName(sfd.FileName)}";
+                        lblStatus.ForeColor = Color.FromArgb(39, 174, 96);
+                        
+                        var res = MessageBox.Show($"Ticket #{selectedTicketId} Dossier exported successfully!\n\nFile: {sfd.FileName}\n\nWould you like to open it now?", "Export Complete", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                        if (res == DialogResult.Yes)
+                        {
+                            try { System.Diagnostics.Process.Start(sfd.FileName); } catch { }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to export Ticket Dossier PDF:\n{ex.Message}", "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
         private void BtnExportPdf_Click(object sender, EventArgs e)
         {
             if (_summary == null || _detailedAuditTable == null)

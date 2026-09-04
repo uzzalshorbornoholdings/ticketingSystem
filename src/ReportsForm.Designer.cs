@@ -45,6 +45,7 @@ namespace BitswardITSM.Core
 
         // Bottom Actions
         private System.Windows.Forms.Panel panelActions;
+        private System.Windows.Forms.Button btnExportTicketPdf;
         private System.Windows.Forms.Button btnExportPdf;
         private System.Windows.Forms.Button btnExportExcel;
         private System.Windows.Forms.Button btnExportCsv;
@@ -92,6 +93,7 @@ namespace BitswardITSM.Core
             this.tabAuditTrail = new System.Windows.Forms.TabPage();
             this.gridDetailedAudit = new System.Windows.Forms.DataGridView();
             this.panelActions = new System.Windows.Forms.Panel();
+            this.btnExportTicketPdf = new System.Windows.Forms.Button();
             this.btnExportPdf = new System.Windows.Forms.Button();
             this.btnExportExcel = new System.Windows.Forms.Button();
             this.btnExportCsv = new System.Windows.Forms.Button();
@@ -324,6 +326,18 @@ namespace BitswardITSM.Core
             this.lblStatus.Size = new System.Drawing.Size(380, 20);
             this.panelActions.Controls.Add(this.lblStatus);
 
+            this.btnExportTicketPdf.Text = "📄 Ticket PDF";
+            this.btnExportTicketPdf.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnExportTicketPdf.BackColor = System.Drawing.Color.FromArgb(44, 62, 80);
+            this.btnExportTicketPdf.ForeColor = System.Drawing.Color.White;
+            this.btnExportTicketPdf.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExportTicketPdf.FlatAppearance.BorderSize = 0;
+            this.btnExportTicketPdf.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            this.btnExportTicketPdf.Location = new System.Drawing.Point(495, 9);
+            this.btnExportTicketPdf.Size = new System.Drawing.Size(115, 30);
+            this.btnExportTicketPdf.Click += new System.EventHandler(this.BtnExportTicketPdf_Click);
+            this.panelActions.Controls.Add(this.btnExportTicketPdf);
+
             this.btnExportPdf.Text = "Export PDF";
             this.btnExportPdf.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.btnExportPdf.BackColor = System.Drawing.Color.FromArgb(192, 57, 43);
@@ -331,8 +345,8 @@ namespace BitswardITSM.Core
             this.btnExportPdf.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportPdf.FlatAppearance.BorderSize = 0;
             this.btnExportPdf.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            this.btnExportPdf.Location = new System.Drawing.Point(620, 9);
-            this.btnExportPdf.Size = new System.Drawing.Size(110, 30);
+            this.btnExportPdf.Location = new System.Drawing.Point(618, 9);
+            this.btnExportPdf.Size = new System.Drawing.Size(112, 30);
             this.btnExportPdf.Click += new System.EventHandler(this.BtnExportPdf_Click);
             this.panelActions.Controls.Add(this.btnExportPdf);
 

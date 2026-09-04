@@ -334,6 +334,7 @@ namespace BitswardITSM.Core
  
              LoadThreadHistory(ticketId);
              UpdateAttachmentCounter(ticketId);
+             btnExportTicketPdf.Enabled = true;
         }
 
         private void AcquireSoftLock(int ticketId)
@@ -574,8 +575,9 @@ namespace BitswardITSM.Core
             lblDetailAssignee.Text = "Assignee: -";
             lblLockIndicator.Text = string.Empty;
             txtThreadHistory.Clear();
-            btnViewAttachments.Text = "📎 Attachments (0)";
+            btnViewAttachments.Text = "📎 Files (0)";
             btnViewAttachments.BackColor = Color.FromArgb(52, 73, 94);
+            btnExportTicketPdf.Enabled = false;
             ToggleActionButtons(false);
             ConfigureCRPanel(false);
         }
@@ -586,10 +588,56 @@ namespace BitswardITSM.Core
             try
             {
                 int count = _attachmentManager.GetAttachmentCount(ticketId);
-                btnViewAttachments.Text = $"📎 Attachments ({count})";
+                btnViewAttachments.Text = $"📎 Files ({count})";
                 btnViewAttachments.BackColor = count > 0 ? Color.FromArgb(41, 128, 185) : Color.FromArgb(52, 73, 94);
             }
             catch { }
+        }
+
+        private void BtnExportTicketPdf_Click(object sender, EventArgs e)
+        {
+            if (_selectedTicketId == -1)
+            {
+                MessageBox.Show("Please select a ticket from the queue first.", "No Ticket Selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                var dossier = PdfReportExporter.FetchTicketDossier(_db, _selectedTicketId, _slaEngine, $"{_username} ({_userRole})");
+                if (dossier == null)
+                {
+                    MessageBox.Show($"Ticket #{_selectedTicketId} details could not be retrieved from the database.", "Ticket Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                using (var sfd = new SaveFileDialog())
+                {
+                    sfd.Filter = "PDF Documents (*.pdf)|*.pdf";
+                    sfd.FileName = $"Ticket_{_selectedTicketId}_Dossier_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                    sfd.Title = $"Export Ticket #{_selectedTicketId} Dossier as PDF";
+
+                    if (sfd.ShowDialog() == DialogResult.OK)
+                    {
+                        PdfReportExporter.ExportTicketDossierToPdf(sfd.FileName, dossier);
+                        
+                        var res = MessageBox.Show($"Ticket #{_selectedTicketId} Dossier exported successfully to:\n{sfd.FileName}\n\nWould you like to open the PDF document now?", "PDF Export Complete", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                        if (res == DialogResult.Yes)
+                        {
+                            try { System.Diagnostics.Process.Start(sfd.FileName); } catch { }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to export Ticket Dossier PDF:\n{ex.Message}", "PDF Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
         }
 
         private void BtnViewAttachments_Click(object sender, EventArgs e)
