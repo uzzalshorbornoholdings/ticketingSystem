@@ -20,7 +20,9 @@ namespace BitswardITSM.Core
         private int _selectedTicketId = -1;
         private string _selectedTicketType = null;
         private Timer _lockTimer;
-        private readonly HashSet<int> _notifiedTicketIds = new HashSet<int>();
+        private readonly HashSet<string> _notifiedAssignmentKeys = new HashSet<string>();
+        private readonly object _notifiedLock = new object();
+        private bool _isCheckingAssignments = false;
 
         public MainForm(string role, string employeeId, string username, DatabaseManager db)
         {
@@ -33,9 +35,9 @@ namespace BitswardITSM.Core
             _triageEngine = new TriageEngine(_db);
             _attachmentManager = new AttachmentManager(_db);
 
-            // Configure state check timer for ticket soft lock refresh
+            // Configure state check timer for ticket soft lock refresh and assignment monitoring
             _lockTimer = new Timer();
-            _lockTimer.Interval = 30000; // 30 seconds
+            _lockTimer.Interval = 20000; // 20 seconds responsive cycle
             _lockTimer.Tick += LockTimer_Tick;
         }
 
@@ -46,23 +48,111 @@ namespace BitswardITSM.Core
             // Show Admin control button only if the role is Admin
             btnNavAdmin.Visible = (_userRole == "Admin");
 
-            // Pre-populate notified ticket IDs to avoid alert spamming for historical tickets on startup
+            // Pre-populate notified assignment keys to avoid alert spamming for historical items on startup
             if (!string.IsNullOrEmpty(_employeeId))
             {
                 try
                 {
-                    string query = "SELECT id FROM tickets WHERE assigned_employee_id = @empId";
-                    var dt = _db.ExecuteQuery(query, new MySqlParameter[] { new MySqlParameter("@empId", _employeeId) });
-                    foreach (DataRow row in dt.Rows)
+                    string ticketQuery = "SELECT id FROM tickets WHERE assigned_employee_id = @empId";
+                    var dtTickets = _db.ExecuteQuery(ticketQuery, new MySqlParameter[] { new MySqlParameter("@empId", _employeeId) });
+                    lock (_notifiedLock)
                     {
-                        _notifiedTicketIds.Add(Convert.ToInt32(row["id"]));
+                        foreach (DataRow row in dtTickets.Rows)
+                        {
+                            if (row["id"] != DBNull.Value)
+                                _notifiedAssignmentKeys.Add("T_" + row["id"].ToString());
+                        }
+                    }
+
+                    string taskQuery = "SELECT id FROM tasks WHERE assigned_employee_id = @empId";
+                    var dtTasks = _db.ExecuteQuery(taskQuery, new MySqlParameter[] { new MySqlParameter("@empId", _employeeId) });
+                    lock (_notifiedLock)
+                    {
+                        foreach (DataRow row in dtTasks.Rows)
+                        {
+                            if (row["id"] != DBNull.Value)
+                                _notifiedAssignmentKeys.Add("TASK_" + row["id"].ToString());
+                        }
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Startup Notification Init Error] {ex.Message}");
+                }
             }
 
+            InitializeTicketSearch();
             LoadQueueData();
             _lockTimer.Start();
+        }
+
+        private const string TicketSearchPlaceholder = "Search by ID, Title, Priority, Status, Creator, Assignee...";
+
+        private void InitializeTicketSearch()
+        {
+            ModernStyle.StyleTextBox(txtSearchTickets);
+            IntelligentSearchHelper.SetupSearchPlaceholder(txtSearchTickets, TicketSearchPlaceholder);
+        }
+
+        private void TxtSearchTickets_TextChanged(object sender, EventArgs e)
+        {
+            ApplyTicketSearchFilter();
+        }
+
+        private void BtnClearSearchTickets_Click(object sender, EventArgs e)
+        {
+            txtSearchTickets.Text = string.Empty;
+            ApplyTicketSearchFilter();
+            txtSearchTickets.Focus();
+        }
+
+        private void ApplyTicketSearchFilter()
+        {
+            string query = IntelligentSearchHelper.GetCleanSearchQuery(txtSearchTickets, TicketSearchPlaceholder);
+            string rowFilter = IntelligentSearchHelper.BuildRowFilter(query, "ID", "Title", "Priority", "Status", "Creator", "Assignee", "CreatedAt");
+
+            FilterGridDataSource(gridIncidents, rowFilter);
+            FilterGridDataSource(gridServiceRequests, rowFilter);
+            FilterGridDataSource(gridChanges, rowFilter);
+
+            UpdateTabHeaderCounts();
+        }
+
+        private void FilterGridDataSource(DataGridView grid, string rowFilter)
+        {
+            if (grid == null) return;
+            DataTable dt = grid.DataSource as DataTable;
+            if (dt == null)
+            {
+                DataView dv = grid.DataSource as DataView;
+                if (dv != null) dt = dv.Table;
+            }
+            if (dt != null)
+            {
+                IntelligentSearchHelper.ApplyFilter(dt, rowFilter);
+            }
+        }
+
+        private void UpdateTabHeaderCounts()
+        {
+            UpdateSingleTabCount(tabIncidents, gridIncidents, "‼️ Incidents (INC)");
+            UpdateSingleTabCount(tabServiceRequests, gridServiceRequests, "🙋 Requests (SR)");
+            UpdateSingleTabCount(tabChanges, gridChanges, "🔄 Changes (CR)");
+        }
+
+        private void UpdateSingleTabCount(TabPage tab, DataGridView grid, string baseTitle)
+        {
+            if (tab == null || grid == null) return;
+            int count = 0;
+            if (grid.DataSource is DataTable dt)
+            {
+                count = dt.DefaultView.Count;
+            }
+            else if (grid.DataSource is DataView dv)
+            {
+                count = dv.Count;
+            }
+            tab.Text = $"{baseTitle} [{count}]";
         }
 
         private void LoadQueueData()
@@ -81,6 +171,7 @@ namespace BitswardITSM.Core
             gridServiceRequests.DataSource = FetchTicketsByType("SR");
             gridChanges.DataSource = FetchTicketsByType("CR");
 
+            ApplyTicketSearchFilter();
             ClearDetails();
         }
 
@@ -126,19 +217,19 @@ namespace BitswardITSM.Core
             var titleCol = FindColumn(grid, "Title");
             if (titleCol != null) titleCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            // Style header row
-            grid.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(37, 43, 54);
-            grid.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+            // Style header row - light slate header
+            grid.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(241, 245, 249);
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(15, 23, 42);
             grid.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI Semibold", 9f, System.Drawing.FontStyle.Bold);
             grid.EnableHeadersVisualStyles = false;
 
-            // Row styling
-            grid.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(28, 32, 40);
-            grid.DefaultCellStyle.ForeColor = System.Drawing.Color.White;
-            grid.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(41, 128, 185);
-            grid.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
-            grid.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(33, 38, 47);
-            grid.GridColor = System.Drawing.Color.FromArgb(50, 58, 70);
+            // Row styling - clean white light theme
+            grid.DefaultCellStyle.BackColor = System.Drawing.Color.White;
+            grid.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(15, 23, 42);
+            grid.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(224, 242, 254);
+            grid.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(3, 105, 161);
+            grid.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
+            grid.GridColor = System.Drawing.Color.FromArgb(226, 232, 240);
         }
 
         /// <summary>Safely sets column width — no crash if column name doesn't exist.</summary>
@@ -458,18 +549,53 @@ namespace BitswardITSM.Core
         {
             if (_selectedTicketId == -1) return;
 
-            string taskTitle = PromptDialog.ShowDialog("Enter sub-task title:", "Split Ticket to Task");
-            if (string.IsNullOrWhiteSpace(taskTitle)) return;
+            string ticketTitle = lblDetailTitle.Text;
+            string defaultAssigneeId = null;
+            try
+            {
+                object empObj = _db.ExecuteScalar("SELECT assigned_employee_id FROM tickets WHERE id = @id", new MySqlParameter[] { new MySqlParameter("@id", _selectedTicketId) });
+                if (empObj != null && empObj != DBNull.Value) defaultAssigneeId = empObj.ToString();
+            }
+            catch { }
 
-            string query = "INSERT INTO tasks (ticket_id, title, status) VALUES (@ticketId, @title, 'Pending')";
-            _db.ExecuteNonQuery(query, new MySqlParameter[] {
-                new MySqlParameter("@ticketId", _selectedTicketId),
-                new MySqlParameter("@title", taskTitle)
-            });
+            using (var dlg = new CreateSubTaskDialog(_db, _selectedTicketId, ticketTitle, defaultAssigneeId))
+            {
+                if (dlg.ShowDialog(this) == DialogResult.OK)
+                {
+                    string taskTitle = dlg.TaskTitle;
+                    string assigneeId = dlg.AssignedEmployeeId;
+                    string assigneeDisplay = dlg.AssignedDisplayName;
 
-            LogAuditTrail(_selectedTicketId, "Create Sub-Task", $"Subtask created: {taskTitle}");
+                    string query = "INSERT INTO tasks (ticket_id, title, status, assigned_employee_id) VALUES (@ticketId, @title, 'Pending', @assigneeId)";
+                    _db.ExecuteNonQuery(query, new MySqlParameter[] {
+                        new MySqlParameter("@ticketId", _selectedTicketId),
+                        new MySqlParameter("@title", taskTitle),
+                        new MySqlParameter("@assigneeId", string.IsNullOrEmpty(assigneeId) ? (object)DBNull.Value : assigneeId)
+                    });
 
-            MessageBox.Show("Sub-task successfully split and registered!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string assigneeLog = !string.IsNullOrEmpty(assigneeId) 
+                        ? (!string.IsNullOrEmpty(assigneeDisplay) ? assigneeDisplay : assigneeId) 
+                        : "Unassigned";
+
+                    LogAuditTrail(_selectedTicketId, "Create Sub-Task", $"Sub-task created: '{taskTitle}' (Assigned to: {assigneeLog})");
+
+                    // Post a thread update to inform team in conversation log
+                    try
+                    {
+                        string actorEmpId = !string.IsNullOrEmpty(_employeeId) ? _employeeId : "MGT-001";
+                        string threadMsg = $"📋 [Sub-Task Created] \"{taskTitle}\" → Assigned to: {assigneeLog}";
+                        _db.ExecuteNonQuery("INSERT INTO ticket_threads (ticket_id, employee_id, message) VALUES (@ticketId, @empId, @msg)", new MySqlParameter[] {
+                            new MySqlParameter("@ticketId", _selectedTicketId),
+                            new MySqlParameter("@empId", actorEmpId),
+                            new MySqlParameter("@msg", threadMsg)
+                        });
+                        LoadThreadHistory(_selectedTicketId);
+                    }
+                    catch { }
+
+                    ModernToast.Show(this, $"Sub-task created and assigned to {assigneeLog}!", ToastType.Success);
+                }
+            }
         }
 
         private void LogAuditTrail(int ticketId, string action, string details)
@@ -556,7 +682,7 @@ namespace BitswardITSM.Core
                 // Refresh lock timestamp
                 AcquireSoftLock(_selectedTicketId);
             }
-            CheckNewAssignments();
+            CheckNewAssignmentsAsync();
         }
 
         private void ClearDetails()
@@ -890,34 +1016,201 @@ namespace BitswardITSM.Core
             }
         }
 
-        private void CheckNewAssignments()
+        private void CheckNewAssignmentsAsync()
         {
-            if (string.IsNullOrEmpty(_employeeId)) return;
+            if (string.IsNullOrEmpty(_employeeId) || _isCheckingAssignments) return;
+            if (this.IsDisposed || !this.IsHandleCreated) return;
 
+            _isCheckingAssignments = true;
+
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                try
+                {
+                    // 1. Check for newly assigned tickets
+                    string ticketQuery = @"
+                        SELECT id, title, type, priority, status 
+                        FROM tickets 
+                        WHERE assigned_employee_id = @empId AND status IN ('Assigned', 'In Progress')";
+                    
+                    var dtTickets = _db.ExecuteQuery(ticketQuery, new MySqlParameter[] { new MySqlParameter("@empId", _employeeId) });
+                    var newTickets = new List<Tuple<int, string, string, string>>();
+
+                    foreach (DataRow row in dtTickets.Rows)
+                    {
+                        if (row["id"] == DBNull.Value) continue;
+                        int ticketId = Convert.ToInt32(row["id"]);
+                        string key = "T_" + ticketId;
+
+                        lock (_notifiedLock)
+                        {
+                            if (!_notifiedAssignmentKeys.Contains(key))
+                            {
+                                _notifiedAssignmentKeys.Add(key);
+                                string title = row["title"] != DBNull.Value ? row["title"].ToString() : $"Ticket #{ticketId}";
+                                string type = row["type"] != DBNull.Value ? row["type"].ToString() : "INC";
+                                string priority = row["priority"] != DBNull.Value ? row["priority"].ToString() : "P3";
+                                newTickets.Add(Tuple.Create(ticketId, title, type, priority));
+                            }
+                        }
+                    }
+
+                    // 2. Check for newly assigned sub-tasks
+                    string taskQuery = @"
+                        SELECT t.id, t.title, t.ticket_id, tk.title AS ticket_title 
+                        FROM tasks t 
+                        LEFT JOIN tickets tk ON t.ticket_id = tk.id 
+                        WHERE t.assigned_employee_id = @empId AND t.status = 'Pending'";
+
+                    var dtTasks = _db.ExecuteQuery(taskQuery, new MySqlParameter[] { new MySqlParameter("@empId", _employeeId) });
+                    var newTasks = new List<Tuple<int, string, int, string>>();
+
+                    foreach (DataRow row in dtTasks.Rows)
+                    {
+                        if (row["id"] == DBNull.Value) continue;
+                        int taskId = Convert.ToInt32(row["id"]);
+                        string key = "TASK_" + taskId;
+
+                        lock (_notifiedLock)
+                        {
+                            if (!_notifiedAssignmentKeys.Contains(key))
+                            {
+                                _notifiedAssignmentKeys.Add(key);
+                                string title = row["title"] != DBNull.Value ? row["title"].ToString() : $"Task #{taskId}";
+                                int parentTicketId = row["ticket_id"] != DBNull.Value ? Convert.ToInt32(row["ticket_id"]) : 0;
+                                string parentTitle = row["ticket_title"] != DBNull.Value ? row["ticket_title"].ToString() : "";
+                                newTasks.Add(Tuple.Create(taskId, title, parentTicketId, parentTitle));
+                            }
+                        }
+                    }
+
+                    // 3. Dispatch notifications and refresh UI queues if new assignments are found
+                    if ((newTickets.Count > 0 || newTasks.Count > 0) && !this.IsDisposed && this.IsHandleCreated)
+                    {
+                        try
+                        {
+                            this.BeginInvoke(new Action(() =>
+                            {
+                                if (this.IsDisposed) return;
+
+                                // Auto-refresh queues so newly assigned tickets appear immediately in the grids
+                                LoadQueueData();
+
+                                foreach (var t in newTickets)
+                                {
+                                    int tid = t.Item1;
+                                    string tTitle = t.Item2;
+                                    string tType = t.Item3;
+                                    string tPriority = t.Item4;
+
+                                    string typeLabel = tType == "INC" ? "Incident" : (tType == "SR" ? "Service Request" : "Change Request");
+                                    ToastType toastType = tPriority == "P1" ? ToastType.Error : (tPriority == "P2" ? ToastType.Warning : ToastType.Info);
+
+                                    ModernToast.Show(
+                                        this,
+                                        $"[{tType}] #{tid}: {tTitle}",
+                                        toastType,
+                                        durationMs: 4500,
+                                        onClick: () => NavigateToTicket(tid, tType),
+                                        title: $"New {typeLabel} Assigned",
+                                        playSound: true
+                                    );
+                                }
+
+                                foreach (var task in newTasks)
+                                {
+                                    int taskId = task.Item1;
+                                    string taskTitle = task.Item2;
+                                    int parentId = task.Item3;
+
+                                    ModernToast.Show(
+                                        this,
+                                        $"Task #{taskId}: {taskTitle}" + (parentId > 0 ? $" (Ticket #{parentId})" : ""),
+                                        ToastType.Success,
+                                        durationMs: 4500,
+                                        onClick: () => OpenTaskManagerForTicket(parentId),
+                                        title: "New Sub-Task Assigned",
+                                        playSound: true
+                                    );
+                                }
+                            }));
+                        }
+                        catch { }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Assignment Monitor Error] {ex.Message}");
+                }
+                finally
+                {
+                    _isCheckingAssignments = false;
+                }
+            });
+        }
+
+        private void NavigateToTicket(int ticketId, string ticketType)
+        {
             try
             {
-                string query = "SELECT id, title, type FROM tickets WHERE assigned_employee_id = @empId AND status = 'Assigned'";
-                var dt = _db.ExecuteQuery(query, new MySqlParameter[] { new MySqlParameter("@empId", _employeeId) });
-
-                foreach (DataRow row in dt.Rows)
+                if (this.WindowState == FormWindowState.Minimized)
                 {
-                    int ticketId = Convert.ToInt32(row["id"]);
-                    if (!_notifiedTicketIds.Contains(ticketId))
+                    this.WindowState = FormWindowState.Normal;
+                }
+                this.Activate();
+                this.BringToFront();
+
+                int targetTabIndex = (ticketType == "INC") ? 0 : ((ticketType == "SR") ? 1 : 2);
+                if (tabControlQueues.SelectedIndex != targetTabIndex)
+                {
+                    tabControlQueues.SelectedIndex = targetTabIndex;
+                }
+
+                DataGridView targetGrid = (ticketType == "INC") ? gridIncidents : ((ticketType == "SR") ? gridServiceRequests : gridChanges);
+                if (targetGrid != null && targetGrid.Rows.Count > 0)
+                {
+                    targetGrid.ClearSelection();
+                    foreach (DataGridViewRow row in targetGrid.Rows)
                     {
-                        _notifiedTicketIds.Add(ticketId);
-                        ShowToastNotification(ticketId, row["title"].ToString(), row["type"].ToString());
+                        var idCell = FindCell(row, "ID");
+                        if (idCell?.Value != null && Convert.ToInt32(idCell.Value) == ticketId)
+                        {
+                            row.Selected = true;
+                            targetGrid.CurrentCell = idCell;
+                            DisplayTicketDetails(ticketId);
+                            break;
+                        }
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NavigateToTicket Error] {ex.Message}");
+            }
         }
 
-        private void ShowToastNotification(int ticketId, string title, string type)
+        private void OpenTaskManagerForTicket(int ticketId)
         {
-            this.BeginInvoke(new Action(() => {
-                var toast = new ToastNotification(ticketId, title, type);
-                toast.Show();
-            }));
+            try
+            {
+                if (this.WindowState == FormWindowState.Minimized)
+                {
+                    this.WindowState = FormWindowState.Normal;
+                }
+                this.Activate();
+                this.BringToFront();
+
+                _lockTimer.Stop();
+                using (var taskForm = new TasksForm(_db, ticketId > 0 ? ticketId : -1))
+                {
+                    taskForm.ShowDialog(this);
+                }
+                _lockTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[OpenTaskManager Error] {ex.Message}");
+            }
         }
 
         private Panel panelCRControls;
@@ -1376,14 +1669,14 @@ namespace BitswardITSM.Core
             this.StartPosition = FormStartPosition.CenterParent;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.BackColor = Color.FromArgb(28, 32, 40);
+            this.BackColor = Color.FromArgb(248, 250, 252);
 
             lblHeader = new Label
             {
                 Text = "Report an Issue / Ticket",
                 Font = new Font("Segoe UI", 14F, FontStyle.Bold),
                 ForeColor = Color.White,
-                BackColor = Color.FromArgb(41, 128, 185),
+                BackColor = Color.FromArgb(30, 41, 59),
                 Dock = DockStyle.Top,
                 Height = 50,
                 TextAlign = ContentAlignment.MiddleCenter
@@ -1392,7 +1685,7 @@ namespace BitswardITSM.Core
             lblTitle = new Label
             {
                 Text = "Issue Title:",
-                ForeColor = Color.FromArgb(200, 207, 214),
+                ForeColor = Color.FromArgb(15, 23, 42),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
                 Location = new Point(20, 68),
                 Width = 465,
@@ -1403,15 +1696,15 @@ namespace BitswardITSM.Core
                 Location = new Point(20, 91),
                 Width = 465,
                 Font = new Font("Segoe UI", 10F),
-                BackColor = Color.FromArgb(37, 43, 54),
-                ForeColor = Color.White,
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(15, 23, 42),
                 BorderStyle = BorderStyle.FixedSingle
             };
 
             lblTicketType = new Label
             {
                 Text = "Category / Type:",
-                ForeColor = Color.FromArgb(200, 207, 214),
+                ForeColor = Color.FromArgb(15, 23, 42),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
                 Location = new Point(20, 128),
                 Width = 230,
@@ -1422,8 +1715,8 @@ namespace BitswardITSM.Core
                 Location = new Point(20, 151),
                 Width = 230,
                 Font = new Font("Segoe UI", 9.5F),
-                BackColor = Color.FromArgb(37, 43, 54),
-                ForeColor = Color.White,
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(15, 23, 42),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             cmbTicketType.Items.AddRange(new object[] {
@@ -1442,7 +1735,7 @@ namespace BitswardITSM.Core
             lblPriority = new Label
             {
                 Text = "Priority:",
-                ForeColor = Color.FromArgb(200, 207, 214),
+                ForeColor = Color.FromArgb(15, 23, 42),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
                 Location = new Point(265, 128),
                 Width = 220,
@@ -1453,8 +1746,8 @@ namespace BitswardITSM.Core
                 Location = new Point(265, 151),
                 Width = 220,
                 Font = new Font("Segoe UI", 9.5F),
-                BackColor = Color.FromArgb(37, 43, 54),
-                ForeColor = Color.White,
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(15, 23, 42),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             cmbPriority.Items.AddRange(new object[] { "P1", "P2", "P3", "P4" });
@@ -1466,22 +1759,22 @@ namespace BitswardITSM.Core
                 if (sel.Contains("(CR)"))
                 {
                     lblHeader.Text = "⚙️ Submit Change Request (CR)";
-                    lblHeader.BackColor = Color.FromArgb(142, 68, 173); // Rich Purple for Change Management
+                    lblHeader.BackColor = Color.FromArgb(124, 58, 237); // Rich Purple for Change Management
                 }
                 else if (sel.Contains("(SR)"))
                 {
                     lblHeader.Text = "🙋 Submit Service Request (SR)";
-                    lblHeader.BackColor = Color.FromArgb(39, 174, 96); // Vibrant Green for Service Requests
+                    lblHeader.BackColor = Color.FromArgb(22, 163, 74); // Vibrant Green for Service Requests
                 }
                 else if (sel.Contains("Auto"))
                 {
                     lblHeader.Text = "🤖 Report Issue (Smart Auto-Triage)";
-                    lblHeader.BackColor = Color.FromArgb(52, 73, 94); // Modern Slate for Auto-Triage
+                    lblHeader.BackColor = Color.FromArgb(30, 41, 59); // Slate Navy for Auto-Triage
                 }
                 else
                 {
                     lblHeader.Text = "‼️ Report an Incident (INC)";
-                    lblHeader.BackColor = Color.FromArgb(41, 128, 185); // Corporate Blue for Incidents
+                    lblHeader.BackColor = Color.FromArgb(37, 99, 235); // Sapphire Blue for Incidents
                 }
             };
             cmbTicketType.SelectedIndexChanged += (s, e) => updateHeaderForType();
@@ -1490,7 +1783,7 @@ namespace BitswardITSM.Core
             lblDescription = new Label
             {
                 Text = "Description & Details:",
-                ForeColor = Color.FromArgb(200, 207, 214),
+                ForeColor = Color.FromArgb(15, 23, 42),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
                 Location = new Point(20, 192),
                 Width = 465,
@@ -1502,15 +1795,15 @@ namespace BitswardITSM.Core
                 Width = 465,
                 Height = 98,
                 Font = new Font("Segoe UI", 10F),
-                BackColor = Color.FromArgb(37, 43, 54),
-                ForeColor = Color.White,
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(15, 23, 42),
                 BorderStyle = BorderStyle.FixedSingle
             };
 
             Action UpdateAttachSummary = () => {
                 int total = PendingFilePaths.Count + PendingScreenshots.Count;
                 lblAttachmentSummary.Text = total == 0 ? "No attachments selected" : $"📎 {total} item(s) attached";
-                lblAttachmentSummary.ForeColor = total == 0 ? Color.FromArgb(160, 175, 190) : Color.LightGreen;
+                lblAttachmentSummary.ForeColor = total == 0 ? Color.FromArgb(71, 85, 105) : Color.FromArgb(22, 163, 74);
             };
 
             btnAttachFile = new Button
@@ -1520,7 +1813,7 @@ namespace BitswardITSM.Core
                 Width = 115,
                 Height = 28,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                BackColor = Color.FromArgb(41, 128, 185),
+                BackColor = Color.FromArgb(37, 99, 235),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
@@ -1550,7 +1843,7 @@ namespace BitswardITSM.Core
                 Width = 145,
                 Height = 28,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                BackColor = Color.FromArgb(142, 68, 173),
+                BackColor = Color.FromArgb(124, 58, 237),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
@@ -1576,7 +1869,7 @@ namespace BitswardITSM.Core
             {
                 Text = "No attachments selected",
                 Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
-                ForeColor = Color.FromArgb(160, 175, 190),
+                ForeColor = Color.FromArgb(71, 85, 105),
                 Location = new Point(295, 331),
                 Width = 190,
                 Height = 20
@@ -1586,7 +1879,7 @@ namespace BitswardITSM.Core
             lblAssignHeader = new Label
             {
                 Text = "Issue Assignment (Optional):",
-                ForeColor = Color.FromArgb(200, 207, 214),
+                ForeColor = Color.FromArgb(15, 23, 42),
                 Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
                 Location = new Point(20, 366),
                 Width = 465,
@@ -1610,13 +1903,13 @@ namespace BitswardITSM.Core
                         if (!string.IsNullOrEmpty(SelectedAssigneeEmployeeId))
                         {
                             lblSelectedAssignee.Text = $"👤 {SelectedAssigneeDisplayName}";
-                            lblSelectedAssignee.ForeColor = Color.FromArgb(46, 204, 113);
+                            lblSelectedAssignee.ForeColor = Color.FromArgb(22, 163, 74);
                             btnClearAssignee.Visible = true;
                         }
                         else
                         {
                             lblSelectedAssignee.Text = "Auto-Assign (Smart 3-Tier Routing)";
-                            lblSelectedAssignee.ForeColor = Color.FromArgb(160, 175, 190);
+                            lblSelectedAssignee.ForeColor = Color.FromArgb(71, 85, 105);
                             btnClearAssignee.Visible = false;
                         }
                     }
@@ -1630,7 +1923,7 @@ namespace BitswardITSM.Core
                 Width = 110,
                 Height = 28,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                BackColor = Color.FromArgb(41, 128, 185),
+                BackColor = Color.FromArgb(37, 99, 235),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
@@ -1641,7 +1934,7 @@ namespace BitswardITSM.Core
             {
                 Text = "Auto-Assign (Smart 3-Tier Routing)",
                 Font = new Font("Segoe UI", 9F, FontStyle.Italic),
-                ForeColor = Color.FromArgb(160, 175, 190),
+                ForeColor = Color.FromArgb(71, 85, 105),
                 Location = new Point(140, 396),
                 Width = 300,
                 Height = 20
@@ -1654,7 +1947,7 @@ namespace BitswardITSM.Core
                 Width = 35,
                 Height = 26,
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                BackColor = Color.FromArgb(231, 76, 60),
+                BackColor = Color.FromArgb(220, 38, 38),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Visible = false
@@ -1664,7 +1957,7 @@ namespace BitswardITSM.Core
                 SelectedAssigneeEmployeeId = null;
                 SelectedAssigneeDisplayName = null;
                 lblSelectedAssignee.Text = "Auto-Assign (Smart 3-Tier Routing)";
-                lblSelectedAssignee.ForeColor = Color.FromArgb(160, 175, 190);
+                lblSelectedAssignee.ForeColor = Color.FromArgb(71, 85, 105);
                 btnClearAssignee.Visible = false;
             };
 
@@ -1676,7 +1969,7 @@ namespace BitswardITSM.Core
                 Width = 110,
                 Height = 34,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                BackColor = Color.FromArgb(46, 204, 113),
+                BackColor = Color.FromArgb(22, 163, 74),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
@@ -1713,7 +2006,7 @@ namespace BitswardITSM.Core
                 Width = 110,
                 Height = 34,
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                BackColor = Color.FromArgb(231, 76, 60),
+                BackColor = Color.FromArgb(100, 116, 139),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
@@ -1740,99 +2033,6 @@ namespace BitswardITSM.Core
             this.Controls.Add(btnCancel);
             this.AcceptButton = btnSubmit;
             this.CancelButton = btnCancel;
-        }
-    }
-
-    /// <summary>
-    /// Premium Toast Notification panel for active user assignment notifications.
-    /// </summary>
-    public class ToastNotification : Form
-    {
-        private Timer closeTimer;
-        private Label lblBell;
-        private Label lblTitle;
-        private Label lblMessage;
-
-        protected override bool ShowWithoutActivation
-        {
-            get { return true; }
-        }
-
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams baseParams = base.CreateParams;
-                baseParams.ExStyle |= 0x08000000; // WS_EX_NOACTIVATE
-                return baseParams;
-            }
-        }
-
-        public ToastNotification(int ticketId, string ticketTitle, string type)
-        {
-            this.Size = new Size(320, 90);
-            this.FormBorderStyle = FormBorderStyle.None;
-            this.ShowInTaskbar = false;
-            this.TopMost = true;
-            this.BackColor = Color.FromArgb(37, 43, 54);
-
-            Panel accentBorder = toPanelBorder();
-            this.Controls.Add(accentBorder);
-
-            lblBell = new Label
-            {
-                Text = "🔔",
-                Font = new Font("Segoe UI", 16F),
-                ForeColor = Color.Gold,
-                Location = new Point(12, 12),
-                Size = new Size(35, 35),
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-            this.Controls.Add(lblBell);
-
-            lblTitle = new Label
-            {
-                Text = $"New Ticket Assigned ({type})",
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                ForeColor = Color.White,
-                Location = new Point(50, 12),
-                Size = new Size(260, 20)
-            };
-            this.Controls.Add(lblTitle);
-
-            lblMessage = new Label
-            {
-                Text = $"[{ticketId}] {ticketTitle}",
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.FromArgb(200, 207, 214),
-                Location = new Point(50, 34),
-                Size = new Size(260, 45)
-            };
-            this.Controls.Add(lblMessage);
-
-            Rectangle workingArea = Screen.PrimaryScreen.WorkingArea;
-            this.Location = new Point(workingArea.Right - this.Width - 10, workingArea.Bottom - this.Height - 10);
-
-            closeTimer = new Timer();
-            closeTimer.Interval = 4000;
-            closeTimer.Tick += (s, e) => {
-                closeTimer.Stop();
-                this.Close();
-            };
-            closeTimer.Start();
-
-            this.MouseEnter += (s, e) => closeTimer.Stop();
-            this.MouseLeave += (s, e) => closeTimer.Start();
-        }
-
-        private Panel toPanelBorder()
-        {
-            return new Panel
-            {
-                BackColor = Color.FromArgb(41, 128, 185),
-                Dock = DockStyle.Left,
-                Width = 6
-            };
         }
     }
 

@@ -32,6 +32,9 @@ namespace BitswardITSM.Core
 
         private void AssigneeSearchDialog_Load(object sender, EventArgs e)
         {
+            ModernStyle.StyleForm(this);
+            ModernStyle.StyleTextBox(txtSearch);
+            ModernStyle.StyleDataGridView(gridUsers);
             LoadUsers();
         }
 

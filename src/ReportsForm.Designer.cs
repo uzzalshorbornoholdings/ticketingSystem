@@ -125,13 +125,13 @@ namespace BitswardITSM.Core
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.BackColor = System.Drawing.Color.FromArgb(28, 32, 40);
+            this.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
             this.Load += new System.EventHandler(this.ReportsForm_Load);
 
             // ===============================================================
             // HEADER
             // ===============================================================
-            this.panelHeader.BackColor = System.Drawing.Color.FromArgb(31, 73, 125);
+            this.panelHeader.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
             this.panelHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelHeader.Height = 52;
             this.panelHeader.Controls.Add(this.lblHeader);
@@ -145,13 +145,13 @@ namespace BitswardITSM.Core
             // ===============================================================
             // FILTER BAR
             // ===============================================================
-            this.panelFilters.BackColor = System.Drawing.Color.FromArgb(37, 43, 54);
+            this.panelFilters.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
             this.panelFilters.Location = new System.Drawing.Point(0, 52);
             this.panelFilters.Size = new System.Drawing.Size(1080, 44);
 
             this.lblDateRange.Text = "Period:";
             this.lblDateRange.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblDateRange.ForeColor = System.Drawing.Color.FromArgb(180, 190, 200);
+            this.lblDateRange.ForeColor = System.Drawing.Color.FromArgb(71, 85, 105);
             this.lblDateRange.Location = new System.Drawing.Point(14, 12);
             this.lblDateRange.AutoSize = true;
             this.panelFilters.Controls.Add(this.lblDateRange);
@@ -166,7 +166,7 @@ namespace BitswardITSM.Core
 
             this.lblDepartment.Text = "Dept:";
             this.lblDepartment.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblDepartment.ForeColor = System.Drawing.Color.FromArgb(180, 190, 200);
+            this.lblDepartment.ForeColor = System.Drawing.Color.FromArgb(71, 85, 105);
             this.lblDepartment.Location = new System.Drawing.Point(225, 12);
             this.lblDepartment.AutoSize = true;
             this.panelFilters.Controls.Add(this.lblDepartment);
@@ -179,7 +179,7 @@ namespace BitswardITSM.Core
 
             this.lblPriority.Text = "Priority:";
             this.lblPriority.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblPriority.ForeColor = System.Drawing.Color.FromArgb(180, 190, 200);
+            this.lblPriority.ForeColor = System.Drawing.Color.FromArgb(71, 85, 105);
             this.lblPriority.Location = new System.Drawing.Point(465, 12);
             this.lblPriority.AutoSize = true;
             this.panelFilters.Controls.Add(this.lblPriority);
@@ -194,7 +194,7 @@ namespace BitswardITSM.Core
 
             this.btnApplyFilters.Text = "\U0001F504 Apply Filters";
             this.btnApplyFilters.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnApplyFilters.BackColor = System.Drawing.Color.FromArgb(41, 128, 185);
+            this.btnApplyFilters.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.btnApplyFilters.ForeColor = System.Drawing.Color.White;
             this.btnApplyFilters.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnApplyFilters.FlatAppearance.BorderSize = 0;
@@ -206,7 +206,7 @@ namespace BitswardITSM.Core
             // ===============================================================
             // KPI CARDS ROW
             // ===============================================================
-            this.panelKpi.BackColor = System.Drawing.Color.FromArgb(28, 32, 40);
+            this.panelKpi.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
             this.panelKpi.Location = new System.Drawing.Point(0, 96);
             this.panelKpi.Size = new System.Drawing.Size(1080, 85);
 
@@ -219,25 +219,25 @@ namespace BitswardITSM.Core
             // Card: Compliance Rate
             SetupKpiCard(this.cardCompliance, this.lblComplianceTitle, this.lblComplianceValue,
                 "SLA COMPLIANCE RATE", "—", cardStartX, cardTopY, cardW, cardH,
-                System.Drawing.Color.FromArgb(39, 174, 96), System.Drawing.Color.FromArgb(30, 50, 38));
+                System.Drawing.Color.FromArgb(22, 163, 74), System.Drawing.Color.White);
             this.panelKpi.Controls.Add(this.cardCompliance);
 
             // Card: Total Tickets
             SetupKpiCard(this.cardTotal, this.lblTotalTitle, this.lblTotalValue,
                 "TOTAL TICKETS EVALUATED", "—", cardStartX + (cardW + cardSpacing), cardTopY, cardW, cardH,
-                System.Drawing.Color.FromArgb(41, 128, 185), System.Drawing.Color.FromArgb(25, 40, 55));
+                System.Drawing.Color.FromArgb(37, 99, 235), System.Drawing.Color.White);
             this.panelKpi.Controls.Add(this.cardTotal);
 
             // Card: Avg Resolution Time
             SetupKpiCard(this.cardAvgTime, this.lblAvgTimeTitle, this.lblAvgTimeValue,
                 "AVG RESOLUTION TIME", "—", cardStartX + 2 * (cardW + cardSpacing), cardTopY, cardW, cardH,
-                System.Drawing.Color.FromArgb(142, 68, 173), System.Drawing.Color.FromArgb(40, 25, 50));
+                System.Drawing.Color.FromArgb(124, 58, 237), System.Drawing.Color.White);
             this.panelKpi.Controls.Add(this.cardAvgTime);
 
             // Card: Breaches
             SetupKpiCard(this.cardBreaches, this.lblBreachesTitle, this.lblBreachesValue,
                 "SLA BREACHES", "—", cardStartX + 3 * (cardW + cardSpacing), cardTopY, cardW, cardH,
-                System.Drawing.Color.FromArgb(192, 57, 43), System.Drawing.Color.FromArgb(50, 25, 25));
+                System.Drawing.Color.FromArgb(220, 38, 38), System.Drawing.Color.White);
             this.panelKpi.Controls.Add(this.cardBreaches);
 
             // ===============================================================
@@ -250,12 +250,12 @@ namespace BitswardITSM.Core
 
             // --- Tab 1: Breakdown ---
             this.tabBreakdown.Text = "  Priority & Department Breakdown  ";
-            this.tabBreakdown.BackColor = System.Drawing.Color.FromArgb(28, 32, 40);
+            this.tabBreakdown.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
             this.tabBreakdown.Padding = new System.Windows.Forms.Padding(6);
 
             this.lblPriorityHeader.Text = "\U0001F3AF  SLA Performance by Priority Level";
             this.lblPriorityHeader.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
-            this.lblPriorityHeader.ForeColor = System.Drawing.Color.FromArgb(41, 128, 185);
+            this.lblPriorityHeader.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.lblPriorityHeader.Location = new System.Drawing.Point(10, 8);
             this.lblPriorityHeader.AutoSize = true;
             this.tabBreakdown.Controls.Add(this.lblPriorityHeader);
@@ -269,12 +269,12 @@ namespace BitswardITSM.Core
             this.gridPriorityBreakdown.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.gridPriorityBreakdown.MultiSelect = false;
             this.gridPriorityBreakdown.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.gridPriorityBreakdown.BackgroundColor = System.Drawing.Color.FromArgb(28, 32, 40);
+            this.gridPriorityBreakdown.BackgroundColor = System.Drawing.Color.White;
             this.tabBreakdown.Controls.Add(this.gridPriorityBreakdown);
 
             this.lblDeptHeader.Text = "\U0001F3E2  Department Compliance";
             this.lblDeptHeader.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
-            this.lblDeptHeader.ForeColor = System.Drawing.Color.FromArgb(41, 128, 185);
+            this.lblDeptHeader.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.lblDeptHeader.Location = new System.Drawing.Point(10, 212);
             this.lblDeptHeader.AutoSize = true;
             this.tabBreakdown.Controls.Add(this.lblDeptHeader);
@@ -288,14 +288,14 @@ namespace BitswardITSM.Core
             this.gridDeptBreakdown.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.gridDeptBreakdown.MultiSelect = false;
             this.gridDeptBreakdown.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.gridDeptBreakdown.BackgroundColor = System.Drawing.Color.FromArgb(28, 32, 40);
+            this.gridDeptBreakdown.BackgroundColor = System.Drawing.Color.White;
             this.tabBreakdown.Controls.Add(this.gridDeptBreakdown);
 
             this.tabReports.Controls.Add(this.tabBreakdown);
 
             // --- Tab 2: Detailed Audit ---
             this.tabAuditTrail.Text = "  Detailed Ticket SLA Audit  ";
-            this.tabAuditTrail.BackColor = System.Drawing.Color.FromArgb(28, 32, 40);
+            this.tabAuditTrail.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
             this.tabAuditTrail.Padding = new System.Windows.Forms.Padding(6);
 
             this.gridDetailedAudit.Location = new System.Drawing.Point(10, 10);
@@ -307,7 +307,7 @@ namespace BitswardITSM.Core
             this.gridDetailedAudit.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.gridDetailedAudit.MultiSelect = false;
             this.gridDetailedAudit.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.gridDetailedAudit.BackgroundColor = System.Drawing.Color.FromArgb(28, 32, 40);
+            this.gridDetailedAudit.BackgroundColor = System.Drawing.Color.White;
             this.tabAuditTrail.Controls.Add(this.gridDetailedAudit);
 
             this.tabReports.Controls.Add(this.tabAuditTrail);
@@ -315,20 +315,20 @@ namespace BitswardITSM.Core
             // ===============================================================
             // BOTTOM ACTIONS
             // ===============================================================
-            this.panelActions.BackColor = System.Drawing.Color.FromArgb(37, 43, 54);
+            this.panelActions.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
             this.panelActions.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panelActions.Height = 48;
 
             this.lblStatus.Text = "";
             this.lblStatus.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblStatus.ForeColor = System.Drawing.Color.FromArgb(150, 160, 175);
+            this.lblStatus.ForeColor = System.Drawing.Color.FromArgb(71, 85, 105);
             this.lblStatus.Location = new System.Drawing.Point(14, 14);
             this.lblStatus.Size = new System.Drawing.Size(380, 20);
             this.panelActions.Controls.Add(this.lblStatus);
 
             this.btnExportTicketPdf.Text = "📄 Ticket PDF";
             this.btnExportTicketPdf.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnExportTicketPdf.BackColor = System.Drawing.Color.FromArgb(44, 62, 80);
+            this.btnExportTicketPdf.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
             this.btnExportTicketPdf.ForeColor = System.Drawing.Color.White;
             this.btnExportTicketPdf.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportTicketPdf.FlatAppearance.BorderSize = 0;
@@ -340,7 +340,7 @@ namespace BitswardITSM.Core
 
             this.btnExportPdf.Text = "Export PDF";
             this.btnExportPdf.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnExportPdf.BackColor = System.Drawing.Color.FromArgb(192, 57, 43);
+            this.btnExportPdf.BackColor = System.Drawing.Color.FromArgb(220, 38, 38);
             this.btnExportPdf.ForeColor = System.Drawing.Color.White;
             this.btnExportPdf.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportPdf.FlatAppearance.BorderSize = 0;
@@ -352,7 +352,7 @@ namespace BitswardITSM.Core
 
             this.btnExportExcel.Text = "Export Excel";
             this.btnExportExcel.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnExportExcel.BackColor = System.Drawing.Color.FromArgb(39, 174, 96);
+            this.btnExportExcel.BackColor = System.Drawing.Color.FromArgb(22, 163, 74);
             this.btnExportExcel.ForeColor = System.Drawing.Color.White;
             this.btnExportExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportExcel.FlatAppearance.BorderSize = 0;
@@ -364,7 +364,7 @@ namespace BitswardITSM.Core
 
             this.btnExportCsv.Text = "Export CSV";
             this.btnExportCsv.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnExportCsv.BackColor = System.Drawing.Color.FromArgb(52, 73, 94);
+            this.btnExportCsv.BackColor = System.Drawing.Color.FromArgb(71, 85, 105);
             this.btnExportCsv.ForeColor = System.Drawing.Color.White;
             this.btnExportCsv.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportCsv.FlatAppearance.BorderSize = 0;
@@ -376,7 +376,7 @@ namespace BitswardITSM.Core
 
             this.btnClose.Text = "Close";
             this.btnClose.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnClose.BackColor = System.Drawing.Color.FromArgb(231, 76, 60);
+            this.btnClose.BackColor = System.Drawing.Color.FromArgb(100, 116, 139);
             this.btnClose.ForeColor = System.Drawing.Color.White;
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClose.FlatAppearance.BorderSize = 0;
@@ -435,7 +435,7 @@ namespace BitswardITSM.Core
 
             titleLbl.Text = title;
             titleLbl.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
-            titleLbl.ForeColor = System.Drawing.Color.FromArgb(140, 150, 165);
+            titleLbl.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
             titleLbl.Location = new System.Drawing.Point(12, 10);
             titleLbl.AutoSize = true;
             card.Controls.Add(titleLbl);

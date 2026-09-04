@@ -59,11 +59,11 @@ namespace BitswardITSM.Core
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.BackColor = System.Drawing.Color.FromArgb(28, 32, 40);
+            this.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
             this.Load += new System.EventHandler(this.AttachmentViewerForm_Load);
 
             // Header Panel
-            this.panelHeader.BackColor = System.Drawing.Color.FromArgb(41, 128, 185);
+            this.panelHeader.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
             this.panelHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelHeader.Height = 56;
             this.panelHeader.Controls.Add(this.lblHeader);
@@ -77,7 +77,7 @@ namespace BitswardITSM.Core
 
             this.lblSubHeader.Text = "Ticket #0 — Issue";
             this.lblSubHeader.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblSubHeader.ForeColor = System.Drawing.Color.FromArgb(220, 235, 250);
+            this.lblSubHeader.ForeColor = System.Drawing.Color.FromArgb(224, 242, 254);
             this.lblSubHeader.Location = new System.Drawing.Point(14, 30);
             this.lblSubHeader.Size = new System.Drawing.Size(860, 20);
 
@@ -91,20 +91,20 @@ namespace BitswardITSM.Core
             this.gridAttachments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.gridAttachments.MultiSelect = false;
             this.gridAttachments.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.gridAttachments.BackgroundColor = System.Drawing.Color.FromArgb(28, 32, 40);
+            this.gridAttachments.BackgroundColor = System.Drawing.Color.White;
             this.gridAttachments.SelectionChanged += new System.EventHandler(this.GridAttachments_SelectionChanged);
             this.gridAttachments.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.GridAttachments_CellDoubleClick);
             this.gridAttachments.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.GridAttachments_DataBindingComplete);
 
             // Preview Panel
-            this.panelPreview.BackColor = System.Drawing.Color.FromArgb(37, 43, 54);
+            this.panelPreview.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
             this.panelPreview.Location = new System.Drawing.Point(542, 66);
             this.panelPreview.Size = new System.Drawing.Size(330, 390);
             this.panelPreview.Controls.Add(this.picPreview);
             this.panelPreview.Controls.Add(this.lblPreviewDetails);
 
             // Picture Box
-            this.picPreview.BackColor = System.Drawing.Color.FromArgb(20, 24, 30);
+            this.picPreview.BackColor = System.Drawing.Color.White;
             this.picPreview.Location = new System.Drawing.Point(10, 10);
             this.picPreview.Size = new System.Drawing.Size(310, 270);
             this.picPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -113,12 +113,12 @@ namespace BitswardITSM.Core
             // Preview Details Label
             this.lblPreviewDetails.Text = "Select an attachment to preview...";
             this.lblPreviewDetails.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblPreviewDetails.ForeColor = System.Drawing.Color.FromArgb(200, 207, 214);
+            this.lblPreviewDetails.ForeColor = System.Drawing.Color.FromArgb(71, 85, 105);
             this.lblPreviewDetails.Location = new System.Drawing.Point(10, 290);
             this.lblPreviewDetails.Size = new System.Drawing.Size(310, 90);
 
             // Bottom Panel
-            this.panelBottom.BackColor = System.Drawing.Color.FromArgb(37, 43, 54);
+            this.panelBottom.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
             this.panelBottom.Location = new System.Drawing.Point(12, 465);
             this.panelBottom.Size = new System.Drawing.Size(860, 45);
             this.panelBottom.Controls.Add(this.lblCount);
@@ -132,7 +132,7 @@ namespace BitswardITSM.Core
             // Count label
             this.lblCount.Text = "0 attachment(s)";
             this.lblCount.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblCount.ForeColor = System.Drawing.Color.FromArgb(160, 175, 190);
+            this.lblCount.ForeColor = System.Drawing.Color.FromArgb(71, 85, 105);
             this.lblCount.Location = new System.Drawing.Point(10, 13);
             this.lblCount.Size = new System.Drawing.Size(120, 20);
 
@@ -141,7 +141,7 @@ namespace BitswardITSM.Core
             this.btnOpen.Location = new System.Drawing.Point(140, 8);
             this.btnOpen.Size = new System.Drawing.Size(85, 30);
             this.btnOpen.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
-            this.btnOpen.BackColor = System.Drawing.Color.FromArgb(41, 128, 185);
+            this.btnOpen.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.btnOpen.ForeColor = System.Drawing.Color.White;
             this.btnOpen.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOpen.FlatAppearance.BorderSize = 0;
@@ -152,7 +152,7 @@ namespace BitswardITSM.Core
             this.btnSaveAs.Location = new System.Drawing.Point(232, 8);
             this.btnSaveAs.Size = new System.Drawing.Size(90, 30);
             this.btnSaveAs.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
-            this.btnSaveAs.BackColor = System.Drawing.Color.FromArgb(52, 73, 94);
+            this.btnSaveAs.BackColor = System.Drawing.Color.FromArgb(71, 85, 105);
             this.btnSaveAs.ForeColor = System.Drawing.Color.White;
             this.btnSaveAs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveAs.FlatAppearance.BorderSize = 0;
@@ -163,7 +163,7 @@ namespace BitswardITSM.Core
             this.btnAddFile.Location = new System.Drawing.Point(330, 8);
             this.btnAddFile.Size = new System.Drawing.Size(110, 30);
             this.btnAddFile.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
-            this.btnAddFile.BackColor = System.Drawing.Color.FromArgb(39, 174, 96);
+            this.btnAddFile.BackColor = System.Drawing.Color.FromArgb(22, 163, 74);
             this.btnAddFile.ForeColor = System.Drawing.Color.White;
             this.btnAddFile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAddFile.FlatAppearance.BorderSize = 0;
@@ -174,7 +174,7 @@ namespace BitswardITSM.Core
             this.btnPasteScreenshot.Location = new System.Drawing.Point(448, 8);
             this.btnPasteScreenshot.Size = new System.Drawing.Size(150, 30);
             this.btnPasteScreenshot.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
-            this.btnPasteScreenshot.BackColor = System.Drawing.Color.FromArgb(155, 89, 182);
+            this.btnPasteScreenshot.BackColor = System.Drawing.Color.FromArgb(124, 58, 237);
             this.btnPasteScreenshot.ForeColor = System.Drawing.Color.White;
             this.btnPasteScreenshot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPasteScreenshot.FlatAppearance.BorderSize = 0;
@@ -185,7 +185,7 @@ namespace BitswardITSM.Core
             this.btnDelete.Location = new System.Drawing.Point(606, 8);
             this.btnDelete.Size = new System.Drawing.Size(85, 30);
             this.btnDelete.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
-            this.btnDelete.BackColor = System.Drawing.Color.FromArgb(192, 57, 43);
+            this.btnDelete.BackColor = System.Drawing.Color.FromArgb(220, 38, 38);
             this.btnDelete.ForeColor = System.Drawing.Color.White;
             this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDelete.FlatAppearance.BorderSize = 0;
@@ -196,7 +196,7 @@ namespace BitswardITSM.Core
             this.btnClose.Location = new System.Drawing.Point(760, 8);
             this.btnClose.Size = new System.Drawing.Size(90, 30);
             this.btnClose.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
-            this.btnClose.BackColor = System.Drawing.Color.FromArgb(127, 140, 141);
+            this.btnClose.BackColor = System.Drawing.Color.FromArgb(100, 116, 139);
             this.btnClose.ForeColor = System.Drawing.Color.White;
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClose.FlatAppearance.BorderSize = 0;

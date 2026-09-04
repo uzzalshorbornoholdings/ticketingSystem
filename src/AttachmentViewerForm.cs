@@ -108,18 +108,18 @@ namespace BitswardITSM.Core
             if (dateCol != null) dateCol.DefaultCellStyle.Format = "yyyy-MM-dd HH:mm";
 
             // Headers style
-            gridAttachments.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(37, 43, 54);
-            gridAttachments.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            gridAttachments.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(241, 245, 249);
+            gridAttachments.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(15, 23, 42);
             gridAttachments.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI Semibold", 9f, FontStyle.Bold);
             gridAttachments.EnableHeadersVisualStyles = false;
 
             // Row styles
-            gridAttachments.DefaultCellStyle.BackColor = Color.FromArgb(28, 32, 40);
-            gridAttachments.DefaultCellStyle.ForeColor = Color.White;
-            gridAttachments.DefaultCellStyle.SelectionBackColor = Color.FromArgb(41, 128, 185);
-            gridAttachments.DefaultCellStyle.SelectionForeColor = Color.White;
-            gridAttachments.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(33, 38, 47);
-            gridAttachments.GridColor = Color.FromArgb(50, 58, 70);
+            gridAttachments.DefaultCellStyle.BackColor = Color.White;
+            gridAttachments.DefaultCellStyle.ForeColor = Color.FromArgb(15, 23, 42);
+            gridAttachments.DefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 242, 254);
+            gridAttachments.DefaultCellStyle.SelectionForeColor = Color.FromArgb(3, 105, 161);
+            gridAttachments.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
+            gridAttachments.GridColor = Color.FromArgb(226, 232, 240);
         }
 
         private void GridAttachments_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)

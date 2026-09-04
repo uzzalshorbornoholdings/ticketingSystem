@@ -60,16 +60,164 @@ Completed Tasks
 - [Phase 8] Created ReportsForm.cs / ReportsForm.Designer.cs interactive analytics dashboard with real-time KPI scorecards, date/department/priority filters, and export action buttons.
 - [Phase 8] Integrated "📊 SLA Reports" navigation button in MainForm sidebar and "📁 Export Logs" in AuditLogForm.
 - [Phase 8] Registered all Phase 8 components in BitswardITSM.csproj and verified clean 0 warnings, 0 errors build (Debug & Release).
+- [Phase 9] Implemented IntelligentSearchHelper in ModernTheme.cs supporting multi-token (AND logic across space-separated keywords) and multi-column (OR logic across searchable fields) ADO.NET RowFilter construction with special-character escaping.
+- [Phase 9] Integrated real-time keyword search into MainForm Dashboard with search bar above ticket queue tabs, matching across ID, Title, Priority, Status, Creator, Assignee, and CreatedAt with live tab match count indicators.
+- [Phase 9] Integrated real-time keyword search into AuditLogForm Viewer matching across LogID, TicketID, Employee, Role, Action, Details, and Timestamp with instant match counters.
+- [Phase 9] Integrated real-time keyword search into AdminForm Console across both tabs (Manage Users by UserId/Username/Role/EmployeeId/EmployeeName/Designation/Department and Provision Logic Account by EmployeeId/Name/Designation/Department).
+- [Phase 9] Verified clean compilation in both Debug and Release configurations: 0 Warnings, 0 Errors.
+- [Phase 10] Created CreateSubTaskDialog (CreateSubTaskDialog.cs / CreateSubTaskDialog.Designer.cs) with parent ticket context, multi-line action item input, and integrated AssigneeSearchDialog employee search component.
+- [Phase 10] Added database migration for tasks.assigned_employee_id column in LoginForm.cs and docs/schema.sql.
+- [Phase 10] Enhanced BtnCreateSubTask_Click in MainForm.cs to launch CreateSubTaskDialog, persist task assignee, post conversation thread notification, record audit logs, and trigger toast notification.
+- [Phase 10] Updated TasksForm.cs to query and display task Assignee column with formatted grid layout.
+- [Phase 10] Verified clean compilation in both Debug and Release configurations: 0 Warnings, 0 Errors.
 
 [>] Current Status
-- PDF Report Generation (Executive SLA Analytics & Individual Ticket Dossiers) is 100% complete, fully wired to UI, and verified.
+- Intelligent Sub-Task Creation with direct Employee Search & Assignment is 100% complete and verified.
 - Build status: Clean compilation with 0 Warnings and 0 Errors (Debug & Release).
 
-Next Steps & Roadmap Options
-1. Run and test the live application (launch `bin\Debug\BitswardITSM.exe` with credentials `admin` / `admin123`).
-2. Implement Extended Roadmap Feature: Customer Self-Service Portal / Lightweight Web Submission Interface.
-3. Implement Extended Roadmap Feature: SMTP / Email Notification Dispatcher for ticket events.
-4. Implement Extended Roadmap Feature: Interactive Floor & Campus Location Mapping for hardware issues.
+---
+### PHASE 11: Intelligent Keyword Search Engine on TasksForm (Sub-Tasks Management)
+- **Goal**: Implement intelligent, real-time keyword search across TasksForm (global all-tasks view and ticket-filtered view) with seamless multi-column matching and modern dark theme UI consistency.
+- **Completed**:
+  1. `TasksForm.Designer.cs`:
+     - Added search panel with search icon (`🔍`), search text box with placeholder, clear button (`✖`), and live match counter badge (`lblSearchCount`).
+     - Expanded form canvas to 880x580 with balanced spacing across header, search bar, DataGridView, and management bottom bar.
+  2. `TasksForm.cs`:
+Completed Tasks
+- Initialized local git repository in workspace directory.
+- Created project folder structure: /src, /docs, /org, /lib.
+- Drafted database schema definition file /docs/schema.sql, pre-seeded with SLA levels.
+- Created C# connection and helper utility class /src/DatabaseManager.cs.
+- Created C# CSV synchronizer class /src/OrganogramSync.cs.
+- Unified /org/organogram.csv format containing both management and engineers.
+- Created system design and schema documentation /docs/db_schema.txt.
+- Created C# ticket classification and 3-tier routing engine /src/TriageEngine.cs.
+- Created C# business-hours-aware SLA deadline engine /src/SlaEngine.cs.
+- Created API and core backend logic documentation /docs/api_logic.txt.
+- Appended users table to /docs/schema.sql database structure.
+- Developed dynamic SHA-256 salted authentication in /src/AuthManager.cs.
+- Created user control methods (creation, listing, role changes) in /src/AdminManager.cs.
+- Documented authentication salting and privilege roles in /docs/auth_logic.txt.
+- Created WinForms LoginForm (dark theme, auth routing) in /src/LoginForm.cs/.Designer.cs.
+- Created WinForms MainForm (split-panel dashboard, SLA grid colors, soft lock) in /src/MainForm.cs/.Designer.cs.
+- Created WinForms AdminForm (user directory, role editor, provisioning) in /src/AdminForm.cs/.Designer.cs.
+- Created MSBuild project configuration file /src/BitswardITSM.csproj (WinExe, .NET 4.8).
+- Replaced Program.cs with Application.Run(new LoginForm()) WinForms entry point.
+- Documented UI themes and build instructions in /docs/ui_layout.txt.
+- Created /lib/README.txt with MySQL Connector/NET setup instructions.
+- Fixed System.NullReferenceException in MainForm.cs by adding a case-insensitive fallback indexer for DataGridView rows column selection.
+- Resolved layout sizing conflicts in MainForm.cs and MainForm.Designer.cs by disabling AutoSizeColumnsMode before setting explicit widths and utilizing Fill on the Title column.
+- Added early-exit guards to HandleGridSelection in MainForm.cs to prevent premature event triggers during grid loading/binding.
+- Integrated case-insensitive, null-safe FindColumn and FindCell helpers in MainForm.cs and AdminForm.cs to completely eliminate NullReferenceExceptions on database column case variations.
+- Corrected path traversal depth lookup in LoginForm.cs to allow correct loading of schema.sql from built executable outputs.
+- Fixed System.NullReferenceException at DataGridViewBand.set_Thickness in SetColumnWidth by resetting col.AutoSizeMode to None before assigning Width in both MainForm.cs and AdminForm.cs.
+- Fixed layout-lock timing issue in Grid_DataBindingComplete by deferring ConfigureGrids via BeginInvoke so it runs after the data binding cycle completes.
+- Integrated OrganogramSync inside LoginForm.cs to run automatically on launch, seeding departments/employees and auto-linking the default admin to MGT-001 (CTO).
+- Added a "Report Issue" sidebar button and NewTicketDialog to MainForm for full end-to-end issue submission with keyword-based auto-triage (classification, SLA mapping, smart assignment routing, and audit logs).
+- Added dynamic Change Request (CR) controls: Risk Profiler (3-question risk assessment calculator), CAB Review approval controls (for Managers/Admins), and Maintenance Window Scheduler.
+- Implemented a background assignment checker and non-blocking Toast Notifications in bottom-right corner for new assignments.
+- Implemented Task Manager Form (TasksForm.cs / TasksForm.Designer.cs) allowing viewing all tasks or tasks filtered by ticket, with task status dropdown updating and audit logging.
+- Implemented Audit Log Viewer (AuditLogForm.cs / AuditLogForm.Designer.cs) accessible via sidebar "📜 Audit Logs" to view full action history with employee/role joins.
+- Implemented Post-Implementation Review (PIR) and Rollback Engine for Change Requests (CR) in MainForm.cs with success criteria verification, structured rollback trigger, and PIR note modal viewer.
+- Added backward-compatible schema migration in LoginForm.cs and updated docs/schema.sql for pir_status and pir_notes fields.
+- Fixed BitswardITSM.csproj compile items and resolved MainForm class termination boundaries to achieve 0 warnings and 0 errors.
+- [Phase 6] Created ticket_attachments table schema and safe auto-migration in LoginForm.cs on startup.
+- [Phase 6] Created AttachmentManager.cs with file copy, clipboard image save, CRUD queries, and size formatting helpers.
+- [Phase 6] Created AttachmentViewerForm.cs/.Designer.cs modal with data grid, image preview, Open/SaveAs/Add/Paste/Delete actions.
+- [Phase 6] Integrated attachment buttons into MainForm.Designer.cs (📎 Attachments counter, 📎 attach, 📸 screenshot).
+- [Phase 6] Wired BtnViewAttachments_Click, BtnAttachFile_Click, BtnPasteScreenshot_Click, and UpdateAttachmentCounter in MainForm.cs.
+- [Phase 6] Extended NewTicketDialog with PendingFilePaths/PendingScreenshots lists, Attach File button, Paste Screenshot button, and summary label.
+- [Phase 6] Updated BitswardITSM.csproj with AttachmentManager.cs, AttachmentViewerForm.cs, and AttachmentViewerForm.Designer.cs compile items.
+- [Phase 6] Verified clean compilation: 0 Warning(s), 0 Error(s).
+- [Phase 7] Created AssigneeSearchDialog.cs and AssigneeSearchDialog.Designer.cs with live keystroke user search, department/role filters, active ticket load preview, and clear/auto-assign option.
+- [Phase 7] Extended NewTicketDialog in MainForm.cs with "👤 Assign..." button smoothly aligned with assignee status label and clear button.
+- [Phase 7] Removed redundant companion "Smart Search" button for a clean single-button layout.
+- [Phase 7] Updated BtnNewTicket_Click in MainForm.cs to support direct manual assignment to selected user with status Assigned and audit logging, with fallback to smart 3-tier triage.
+- [Phase 7] Registered AssigneeSearchDialog in BitswardITSM.csproj and verified 0 warnings, 0 errors build.
+- [Phase 7] Fixed text overlap in AssigneeSearchDialog by restructuring panelBottom into a 2-tier layout: dedicated full-width top row for lblSelectedInfo with AutoEllipsis & ToolTip, and bottom row for action buttons.
 
+- [Phase 8] Implemented SlaReportManager.cs for computing executive KPIs (Compliance %, MTTR, breach rates, priority & department breakdowns).
+- [Phase 8] Implemented ExcelReportExporter.cs with multi-worksheet XML Spreadsheet 2003 and CSV generation (Executive Summary, Detailed Audit, Full Audit Trail).
+- [Phase 8] Implemented PdfReportExporter.cs with pure C# PDF 1.4 document engine supporting:
+  * Executive SLA Compliance Report with dynamic multi-page pagination, visual SLA compliance progress bar, adaptive 2-column department breakdowns, executive KPI cards, and color-coded SLA status badges.
+  * Individual Ticket Incident Dossier PDF generator (Ticket metadata, issue description, CR governance & risk profiling, sub-tasks checklist, attachments register, and full conversational activity timeline).
+- [Phase 8] Integrated "📄 Ticket PDF" export in ReportsForm and "📄 PDF" button in MainForm ticket details panel with automatic launch prompt.
+- [Phase 8] Created ReportsForm.cs / ReportsForm.Designer.cs interactive analytics dashboard with real-time KPI scorecards, date/department/priority filters, and export action buttons.
+- [Phase 8] Integrated "📊 SLA Reports" navigation button in MainForm sidebar and "📁 Export Logs" in AuditLogForm.
+- [Phase 8] Registered all Phase 8 components in BitswardITSM.csproj and verified clean 0 warnings, 0 errors build (Debug & Release).
+- [Phase 9] Implemented IntelligentSearchHelper in ModernTheme.cs supporting multi-token (AND logic across space-separated keywords) and multi-column (OR logic across searchable fields) ADO.NET RowFilter construction with special-character escaping.
+- [Phase 9] Integrated real-time keyword search into MainForm Dashboard with search bar above ticket queue tabs, matching across ID, Title, Priority, Status, Creator, Assignee, and CreatedAt with live tab match count indicators.
+- [Phase 9] Integrated real-time keyword search into AuditLogForm Viewer matching across LogID, TicketID, Employee, Role, Action, Details, and Timestamp with instant match counters.
+- [Phase 9] Integrated real-time keyword search into AdminForm Console across both tabs (Manage Users by UserId/Username/Role/EmployeeId/EmployeeName/Designation/Department and Provision Logic Account by EmployeeId/Name/Designation/Department).
+- [Phase 9] Verified clean compilation in both Debug and Release configurations: 0 Warnings, 0 Errors.
+- [Phase 10] Created CreateSubTaskDialog (CreateSubTaskDialog.cs / CreateSubTaskDialog.Designer.cs) with parent ticket context, multi-line action item input, and integrated AssigneeSearchDialog employee search component.
+- [Phase 10] Added database migration for tasks.assigned_employee_id column in LoginForm.cs and docs/schema.sql.
+- [Phase 10] Enhanced BtnCreateSubTask_Click in MainForm.cs to launch CreateSubTaskDialog, persist task assignee, post conversation thread notification, record audit logs, and trigger toast notification.
+- [Phase 10] Updated TasksForm.cs to query and display task Assignee column with formatted grid layout.
+- [Phase 10] Verified clean compilation in both Debug and Release configurations: 0 Warnings, 0 Errors.
 
+[>] Current Status
+- Intelligent Sub-Task Creation with direct Employee Search & Assignment is 100% complete and verified.
+- Build status: Clean compilation with 0 Warnings and 0 Errors (Debug & Release).
 
+---
+### PHASE 11: Intelligent Keyword Search Engine on TasksForm (Sub-Tasks Management)
+- **Goal**: Implement intelligent, real-time keyword search across TasksForm (global all-tasks view and ticket-filtered view) with seamless multi-column matching and modern dark theme UI consistency.
+- **Completed**:
+  1. `TasksForm.Designer.cs`:
+     - Added search panel with search icon (`🔍`), search text box with placeholder, clear button (`✖`), and live match counter badge (`lblSearchCount`).
+     - Expanded form canvas to 880x580 with balanced spacing across header, search bar, DataGridView, and management bottom bar.
+  2. `TasksForm.cs`:
+     - Integrated `IntelligentSearchHelper.BuildRowFilter` & `ApplyFilter` across all task columns (`TaskID`, `Title`, `Status`, `Assignee`, `TicketID`, `TicketTitle`, `CreatedAt`).
+     - Added real-time token filtering on `TextChanged`, keyboard navigation (Down arrow jumps to grid, Enter refines), and `btnClearSearch` reset.
+     - Upgraded UI styling with `ModernStyle.StyleForm`, gradient header paint (`ElectricBlue` -> `Teal`), card surface borders, and GDI+ status badges for task statuses (`Pending`, `In Progress`, `Done`, `Cancelled`).
+     - Integrated `ModernToast` notifications on task status updates.
+- **Verification**: MSBuild completed with 0 errors, 0 warnings on both Debug and Release configurations.
+
+---
+### PHASE 12: Light Theme Modernization & Print Optimization
+- **Goal**: Modernize the entire Bitsward ITSM application from dark theme to a professional, clean, light-themed enterprise interface optimized for high readability, screen contrast, and crisp A4/Letter paper printing.
+- **Completed**:
+  1. `ModernTheme.cs`:
+     - Centralized light-theme color tokens (`BaseDark`/`BaseLight` -> `#F8FAFC`, `CardSurface` -> `#FFFFFF`, `SidebarDark` -> `#1E293B`, `TextPrimary` -> `#0F172A`, `TextSecondary` -> `#475569`, `BorderSubtle` -> `#E2E8F0`, `RowSelected` -> `#E0F2FE`, `RowAlt` -> `#F8FAFC`).
+     - Updated all control styling methods (`StyleDataGridView`, `StyleButton`, `StyleTextBox`, `StyleComboBox`, `StyleRichTextBox`, `StyleTabControl`, `StyleForm`, `StylePanel`).
+     - Refined GDI+ badge rendering for semantic badges with pastel backgrounds and high-contrast dark text.
+  2. `MainForm.cs` & `MainForm.Designer.cs`:
+     - Applied light styling to queue grids (`Incidents`, `Service Requests`, `Change Management`), Ticket Details cards, conversation thread history, and programmatic `CreateTicketForm` modal dialog.
+  3. `AuditLogForm.cs` & `AuditLogForm.Designer.cs`:
+     - Slate navy header, light background, white log grid with crisp borders and high-contrast text.
+  4. `AdminForm.cs` & `AdminForm.Designer.cs`:
+     - Light management console for user directory, role editing, and account provisioning.
+  5. `ReportsForm.cs` & `ReportsForm.Designer.cs`:
+     - Pure white KPI scorecards with colored top accent stripes, light breakdown tables, and detailed SLA audit table.
+  6. `TasksForm.cs` & `TasksForm.Designer.cs`:
+     - Light task manager interface with pastel status badges and live search filtering.
+  7. Dialogs (`CreateSubTaskDialog`, `AssigneeSearchDialog`, `AttachmentViewerForm`):
+     - Modern light modal containers, white grid views, and focused input controls.
+- **Verification**: Clean compilation with 0 Warnings and 0 Errors on both Debug and Release configurations (MSBuild verified).
+
+---
+### PHASE 13: Real-Time Notification System Audit & Fix Implementation
+- **Goal**: Comprehensive audit and modernization of toast notifications, background assignment monitoring, and notification state management across Bitsward ITSM.
+- **Completed**:
+  1. `ModernTheme.cs` (`ModernToast`):
+     - Implemented dynamic multi-instance toast stack manager with automatic vertical spacing calculation and smooth repositioning upon dismissal.
+     - Added interactive `Action onClick` callbacks allowing users to click a toast notification to navigate directly to the relevant ticket or task.
+     - Added hover-to-pause dismiss timer with remaining time resumption.
+     - Added systematic timer disposal (`_slideTimer`, `_dismissTimer`, `_fadeTimer`) to eliminate resource leaks.
+     - Added multi-monitor bounds safety and optional audio chime support (`System.Media.SystemSounds.Asterisk.Play()`).
+  2. `MainForm.cs` (Background Assignment Monitoring & Navigation):
+     - Refactored `CheckNewAssignments` into an asynchronous, non-blocking background polling task (`CheckNewAssignmentsAsync`) via `Task.Run` with `_isCheckingAssignments` re-entrancy lock, eliminating UI thread freezes.
+     - Expanded assignment monitoring to cover both parent tickets (`status IN ('Assigned', 'In Progress')`) and sub-tasks (`tasks` table where `status = 'Pending'`).
+     - Upgraded notification state tracking to thread-safe composite keys (`"T_{id}"` and `"TASK_{id}"`) with synchronization locks.
+     - Added real-time queue auto-refresh (`LoadQueueData()`) upon receiving incoming assignments.
+     - Implemented direct navigation helpers (`NavigateToTicket` and `OpenTaskManagerForTicket`) hooked into toast click handlers.
+     - Removed obsolete legacy dark `ToastNotification` class from `MainForm.cs`.
+- **Verification**: Clean compilation with 0 Warnings and 0 Errors on both Debug and Release configurations (MSBuild verified).
+
+---
+### Next Recommended Steps
+1. Interactive QA testing across all light-themed interfaces (`MainForm`, `AuditLogForm`, `AdminForm`, `ReportsForm`, `TasksForm`).
+2. Verify PDF generation and print outputs on A4/Letter physical or virtual printers.
+3. Implement Extended Roadmap Feature: Customer Self-Service Portal / Lightweight Web Submission Interface.
+4. Implement Extended Roadmap Feature: SMTP / Email Notification Dispatcher for ticket events.

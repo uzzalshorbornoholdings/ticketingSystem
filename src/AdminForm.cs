@@ -14,6 +14,11 @@ namespace BitswardITSM.Core
         private string _selectedUsername = null;
         private string _selectedEmployeeId = null;
 
+        private const string UserSearchPlaceholder = "Search users by ID, Username, Role, Employee ID, Name, Department...";
+        private const string EmployeeSearchPlaceholder = "Search unprovisioned employees by ID, Name, Designation, Department...";
+        private DataTable _dtUsers = null;
+        private DataTable _dtEmployees = null;
+
         public AdminForm(DatabaseManager db)
         {
             InitializeComponent();
@@ -23,8 +28,69 @@ namespace BitswardITSM.Core
 
         private void AdminForm_Load(object sender, EventArgs e)
         {
+            ModernStyle.StyleForm(this);
+            ModernStyle.StyleTabControl(tabControlAdmin);
+            ModernStyle.StyleDataGridView(gridUsers);
+            ModernStyle.StyleDataGridView(gridUnassociated);
+            ModernStyle.StyleButton(btnUpdateRole, ThemeColors.ElectricBlue, ThemeColors.Lighten(ThemeColors.ElectricBlue, 20), Color.White);
+            ModernStyle.StyleButton(btnCreateUser, ThemeColors.SuccessGreen, ThemeColors.Lighten(ThemeColors.SuccessGreen, 20), Color.White);
+            ModernStyle.StyleComboBox(cmbRoleEdit);
+            ModernStyle.StyleComboBox(cmbNewRole);
+            ModernStyle.StyleTextBox(txtNewUsername);
+            ModernStyle.StyleTextBox(txtNewPassword);
+
+            InitializeAdminSearch();
             LoadUserData();
             LoadUnassociatedEmployees();
+        }
+
+        private void InitializeAdminSearch()
+        {
+            ModernStyle.StyleTextBox(txtSearchUsers);
+            ModernStyle.StyleTextBox(txtSearchEmployees);
+
+            IntelligentSearchHelper.SetupSearchPlaceholder(txtSearchUsers, UserSearchPlaceholder);
+            IntelligentSearchHelper.SetupSearchPlaceholder(txtSearchEmployees, EmployeeSearchPlaceholder);
+        }
+
+        private void TxtSearchUsers_TextChanged(object sender, EventArgs e)
+        {
+            ApplyUserSearchFilter();
+        }
+
+        private void BtnClearSearchUsers_Click(object sender, EventArgs e)
+        {
+            txtSearchUsers.Text = string.Empty;
+            ApplyUserSearchFilter();
+            txtSearchUsers.Focus();
+        }
+
+        private void ApplyUserSearchFilter()
+        {
+            if (_dtUsers == null) return;
+            string query = IntelligentSearchHelper.GetCleanSearchQuery(txtSearchUsers, UserSearchPlaceholder);
+            string rowFilter = IntelligentSearchHelper.BuildRowFilter(query, "UserId", "Username", "Role", "EmployeeId", "EmployeeName", "Designation", "DepartmentName");
+            IntelligentSearchHelper.ApplyFilter(_dtUsers, rowFilter);
+        }
+
+        private void TxtSearchEmployees_TextChanged(object sender, EventArgs e)
+        {
+            ApplyEmployeeSearchFilter();
+        }
+
+        private void BtnClearSearchEmployees_Click(object sender, EventArgs e)
+        {
+            txtSearchEmployees.Text = string.Empty;
+            ApplyEmployeeSearchFilter();
+            txtSearchEmployees.Focus();
+        }
+
+        private void ApplyEmployeeSearchFilter()
+        {
+            if (_dtEmployees == null) return;
+            string query = IntelligentSearchHelper.GetCleanSearchQuery(txtSearchEmployees, EmployeeSearchPlaceholder);
+            string rowFilter = IntelligentSearchHelper.BuildRowFilter(query, "EmployeeId", "Name", "Designation", "DepartmentName");
+            IntelligentSearchHelper.ApplyFilter(_dtEmployees, rowFilter);
         }
 
         private void TabControlAdmin_SelectedIndexChanged(object sender, EventArgs e)
@@ -91,6 +157,7 @@ namespace BitswardITSM.Core
             try
             {
                 DataTable dt = _adminManager.GetAllUsers();
+                _dtUsers = dt;
                 gridUsers.DataSource = dt;
                 
                 if (gridUsers.Columns.Count > 0)
@@ -101,6 +168,7 @@ namespace BitswardITSM.Core
                     SetColumnWidth(gridUsers, "EmployeeId", 100);
                 }
                 
+                ApplyUserSearchFilter();
                 lblSelectedUser.Text = "Select user to modify role...";
                 _selectedUsername = null;
                 cmbRoleEdit.SelectedIndex = -1;
@@ -116,6 +184,7 @@ namespace BitswardITSM.Core
             try
             {
                 DataTable dt = _adminManager.GetUnassociatedEmployees();
+                _dtEmployees = dt;
                 gridUnassociated.DataSource = dt;
                 
                 if (gridUnassociated.Columns.Count > 0)
@@ -123,6 +192,7 @@ namespace BitswardITSM.Core
                     SetColumnWidth(gridUnassociated, "EmployeeId", 100);
                 }
                 
+                ApplyEmployeeSearchFilter();
                 lblSelectedEmpInfo.Text = "Select an employee from the list above...";
                 _selectedEmployeeId = null;
                 txtNewUsername.Clear();

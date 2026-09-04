@@ -64,8 +64,10 @@ CREATE TABLE IF NOT EXISTS tasks (
     ticket_id INT,
     title VARCHAR(255) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'Pending',
+    assigned_employee_id VARCHAR(50) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
+    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+    FOREIGN KEY (assigned_employee_id) REFERENCES employees(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- 7. Change Requests Table

@@ -1,4 +1,6 @@
 using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace BitswardITSM.Core
@@ -15,6 +17,114 @@ namespace BitswardITSM.Core
             // Core database interface
             _dbManager = new DatabaseManager("localhost", "root", "");
             _authManager = new AuthManager(_dbManager);
+
+            // Apply modern theme styling
+            ApplyModernTheme();
+        }
+
+        private void ApplyModernTheme()
+        {
+            // Double-buffer form to reduce flicker
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.DoubleBuffer, true);
+
+            // Gradient header painting
+            panelHeader.Paint += PanelHeader_Paint;
+
+            // Rounded card region
+            panelCard.Paint += PanelCard_Paint;
+
+            // Focus glow effect on textboxes
+            ModernStyle.StyleTextBox(txtUsername);
+            ModernStyle.StyleTextBox(txtPassword);
+
+            // Input area paint handler for focus glow borders
+            panelInputArea.Paint += PanelInputArea_Paint;
+
+            // Login button rounded painting
+            btnLogin.Paint += BtnLogin_Paint;
+        }
+
+        private void PanelHeader_Paint(object sender, PaintEventArgs e)
+        {
+            var panel = (Panel)sender;
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Draw gradient: Electric Blue → Teal
+            using (var brush = new LinearGradientBrush(
+                panel.ClientRectangle,
+                ThemeColors.ElectricBlue, ThemeColors.Teal,
+                LinearGradientMode.Horizontal))
+            {
+                g.FillRectangle(brush, panel.ClientRectangle);
+            }
+
+            // Draw subtle geometric decoration (angled line)
+            using (var pen = new Pen(Color.FromArgb(40, 255, 255, 255), 1))
+            {
+                g.DrawLine(pen, panel.Width - 120, 0, panel.Width - 40, panel.Height);
+                g.DrawLine(pen, panel.Width - 90, 0, panel.Width - 10, panel.Height);
+            }
+        }
+
+        private void PanelCard_Paint(object sender, PaintEventArgs e)
+        {
+            var panel = (Panel)sender;
+            // Apply rounded region to the card
+            using (var path = GdiPlus.CreateRoundedRectanglePath(
+                new Rectangle(0, 0, panel.Width, panel.Height), 16))
+            {
+                panel.Region = new Region(path);
+            }
+        }
+
+        private void PanelInputArea_Paint(object sender, PaintEventArgs e)
+        {
+            var panel = (Panel)sender;
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Draw focus glow border around focused text box
+            TextBox focused = null;
+            if (txtUsername.Focused) focused = txtUsername;
+            else if (txtPassword.Focused) focused = txtPassword;
+
+            if (focused != null)
+            {
+                var glowRect = new Rectangle(
+                    focused.Left - 2, focused.Top - 2,
+                    focused.Width + 3, focused.Height + 3);
+                using (var pen = new Pen(ThemeColors.ElectricBlue, 2))
+                using (var path = GdiPlus.CreateRoundedRectanglePath(glowRect, 4))
+                {
+                    g.DrawPath(pen, path);
+                }
+            }
+        }
+
+        private void BtnLogin_Paint(object sender, PaintEventArgs e)
+        {
+            var btn = (Button)sender;
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            var rect = new Rectangle(0, 0, btn.Width - 1, btn.Height - 1);
+            bool hover = btn.ClientRectangle.Contains(btn.PointToClient(Cursor.Position));
+
+            // Gradient button: Electric Blue → Teal
+            using (var path = GdiPlus.CreateRoundedRectanglePath(rect, 10))
+            {
+                Color c1 = hover ? ThemeColors.Lighten(ThemeColors.ElectricBlue, 20) : ThemeColors.ElectricBlue;
+                Color c2 = hover ? ThemeColors.Lighten(ThemeColors.Teal, 15) : ThemeColors.Teal;
+
+                using (var brush = new LinearGradientBrush(rect, c1, c2, LinearGradientMode.Horizontal))
+                    g.FillPath(brush, path);
+            }
+
+            // Draw text centered
+            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+            using (var textBrush = new SolidBrush(Color.White))
+                g.DrawString(btn.Text, btn.Font, textBrush, rect, sf);
         }
 
         private void LoginForm_Load(object sender, EventArgs e)
@@ -95,6 +205,17 @@ namespace BitswardITSM.Core
                     }
                     _dbManager.ExecuteNonQuery("ALTER TABLE audit_logs MODIFY COLUMN employee_id VARCHAR(100) NULL;");
                     _dbManager.ExecuteNonQuery("ALTER TABLE audit_logs MODIFY COLUMN ticket_id INT NULL;");
+                }
+                catch { }
+
+                // Step 1.45: Ensure tasks table has assigned_employee_id column
+                try
+                {
+                    var dtTaskCol = _dbManager.ExecuteQuery("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='bitsward_tickets' AND TABLE_NAME='tasks' AND COLUMN_NAME='assigned_employee_id'");
+                    if (dtTaskCol.Rows.Count == 0)
+                    {
+                        _dbManager.ExecuteNonQuery("ALTER TABLE tasks ADD COLUMN assigned_employee_id VARCHAR(50) NULL;");
+                    }
                 }
                 catch { }
 

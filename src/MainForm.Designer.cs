@@ -17,6 +17,10 @@ namespace BitswardITSM.Core
         private System.Windows.Forms.Label lblUserContext;
         
         private System.Windows.Forms.Panel panelMainContent;
+        private System.Windows.Forms.Panel panelSearchTickets;
+        private System.Windows.Forms.Label lblSearchIcon;
+        private System.Windows.Forms.TextBox txtSearchTickets;
+        private System.Windows.Forms.Button btnClearSearchTickets;
         private System.Windows.Forms.TabControl tabControlQueues;
         private System.Windows.Forms.TabPage tabIncidents;
         private System.Windows.Forms.TabPage tabServiceRequests;
@@ -72,6 +76,10 @@ namespace BitswardITSM.Core
             this.lblHeaderTitle = new System.Windows.Forms.Label();
             this.lblUserContext = new System.Windows.Forms.Label();
             this.panelMainContent = new System.Windows.Forms.Panel();
+            this.panelSearchTickets = new System.Windows.Forms.Panel();
+            this.lblSearchIcon = new System.Windows.Forms.Label();
+            this.txtSearchTickets = new System.Windows.Forms.TextBox();
+            this.btnClearSearchTickets = new System.Windows.Forms.Button();
             this.splitContainerDashboard = new System.Windows.Forms.SplitContainer();
             this.tabControlQueues = new System.Windows.Forms.TabControl();
             this.tabIncidents = new System.Windows.Forms.TabPage();
@@ -102,6 +110,7 @@ namespace BitswardITSM.Core
             this.panelSidebar.SuspendLayout();
             this.panelTopHeader.SuspendLayout();
             this.panelMainContent.SuspendLayout();
+            this.panelSearchTickets.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerDashboard)).BeginInit();
             this.splitContainerDashboard.Panel1.SuspendLayout();
             this.splitContainerDashboard.Panel2.SuspendLayout();
@@ -118,7 +127,7 @@ namespace BitswardITSM.Core
             // 
             // panelSidebar
             // 
-            this.panelSidebar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(43)))), ((int)(((byte)(54)))));
+            this.panelSidebar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.panelSidebar.Controls.Add(this.btnNavTickets);
             this.panelSidebar.Controls.Add(this.btnNavTasks);
             this.panelSidebar.Controls.Add(this.btnNavAudit);
@@ -134,7 +143,7 @@ namespace BitswardITSM.Core
             // 
             // btnNavTickets
             // 
-            this.btnNavTickets.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
+            this.btnNavTickets.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnNavTickets.FlatAppearance.BorderSize = 0;
             this.btnNavTickets.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavTickets.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -210,7 +219,7 @@ namespace BitswardITSM.Core
             // 
             // btnNewTicket
             // 
-            this.btnNewTicket.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(204)))), ((int)(((byte)(113)))));
+            this.btnNewTicket.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.btnNewTicket.FlatAppearance.BorderSize = 0;
             this.btnNewTicket.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNewTicket.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -242,7 +251,7 @@ namespace BitswardITSM.Core
             // 
             // panelTopHeader
             // 
-            this.panelTopHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
+            this.panelTopHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.panelTopHeader.Controls.Add(this.lblHeaderTitle);
             this.panelTopHeader.Controls.Add(this.lblUserContext);
             this.panelTopHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -285,7 +294,7 @@ namespace BitswardITSM.Core
             // 
             // splitContainerDashboard
             // 
-            this.splitContainerDashboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.splitContainerDashboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.splitContainerDashboard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainerDashboard.Location = new System.Drawing.Point(0, 0);
             this.splitContainerDashboard.Name = "splitContainerDashboard";
@@ -293,11 +302,66 @@ namespace BitswardITSM.Core
             // splitContainerDashboard.Panel1
             // 
             this.splitContainerDashboard.Panel1.Controls.Add(this.tabControlQueues);
+            this.splitContainerDashboard.Panel1.Controls.Add(this.panelSearchTickets);
             this.splitContainerDashboard.Panel1.Padding = new System.Windows.Forms.Padding(10);
+            // 
+            // panelSearchTickets
+            // 
+            this.panelSearchTickets.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
+            this.panelSearchTickets.Controls.Add(this.btnClearSearchTickets);
+            this.panelSearchTickets.Controls.Add(this.txtSearchTickets);
+            this.panelSearchTickets.Controls.Add(this.lblSearchIcon);
+            this.panelSearchTickets.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelSearchTickets.Location = new System.Drawing.Point(10, 10);
+            this.panelSearchTickets.Name = "panelSearchTickets";
+            this.panelSearchTickets.Size = new System.Drawing.Size(500, 38);
+            this.panelSearchTickets.TabIndex = 1;
+            // 
+            // lblSearchIcon
+            // 
+            this.lblSearchIcon.AutoSize = true;
+            this.lblSearchIcon.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSearchIcon.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.lblSearchIcon.Location = new System.Drawing.Point(6, 8);
+            this.lblSearchIcon.Name = "lblSearchIcon";
+            this.lblSearchIcon.Size = new System.Drawing.Size(24, 20);
+            this.lblSearchIcon.TabIndex = 0;
+            this.lblSearchIcon.Text = "🔍";
+            // 
+            // txtSearchTickets
+            // 
+            this.txtSearchTickets.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSearchTickets.BackColor = System.Drawing.Color.White;
+            this.txtSearchTickets.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtSearchTickets.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtSearchTickets.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.txtSearchTickets.Location = new System.Drawing.Point(34, 6);
+            this.txtSearchTickets.Name = "txtSearchTickets";
+            this.txtSearchTickets.Size = new System.Drawing.Size(425, 25);
+            this.txtSearchTickets.TabIndex = 1;
+            this.txtSearchTickets.TextChanged += new System.EventHandler(this.TxtSearchTickets_TextChanged);
+            // 
+            // btnClearSearchTickets
+            // 
+            this.btnClearSearchTickets.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClearSearchTickets.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.btnClearSearchTickets.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClearSearchTickets.FlatAppearance.BorderSize = 0;
+            this.btnClearSearchTickets.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClearSearchTickets.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnClearSearchTickets.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.btnClearSearchTickets.Location = new System.Drawing.Point(465, 6);
+            this.btnClearSearchTickets.Name = "btnClearSearchTickets";
+            this.btnClearSearchTickets.Size = new System.Drawing.Size(28, 25);
+            this.btnClearSearchTickets.TabIndex = 2;
+            this.btnClearSearchTickets.Text = "✖";
+            this.btnClearSearchTickets.UseVisualStyleBackColor = false;
+            this.btnClearSearchTickets.Click += new System.EventHandler(this.BtnClearSearchTickets_Click);
             // 
             // splitContainerDashboard.Panel2
             // 
-            this.splitContainerDashboard.Panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(43)))), ((int)(((byte)(54)))));
+            this.splitContainerDashboard.Panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.splitContainerDashboard.Panel2.Controls.Add(this.panelTicketDetails);
             this.splitContainerDashboard.Panel2.Padding = new System.Windows.Forms.Padding(10);
             this.splitContainerDashboard.Size = new System.Drawing.Size(984, 621);
@@ -334,7 +398,7 @@ namespace BitswardITSM.Core
             this.gridIncidents.AllowUserToAddRows = false;
             this.gridIncidents.AllowUserToDeleteRows = false;
             this.gridIncidents.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.gridIncidents.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.gridIncidents.BackgroundColor = System.Drawing.Color.White;
             this.gridIncidents.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gridIncidents.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gridIncidents.Location = new System.Drawing.Point(3, 3);
@@ -363,7 +427,7 @@ namespace BitswardITSM.Core
             this.gridServiceRequests.AllowUserToAddRows = false;
             this.gridServiceRequests.AllowUserToDeleteRows = false;
             this.gridServiceRequests.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.gridServiceRequests.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.gridServiceRequests.BackgroundColor = System.Drawing.Color.White;
             this.gridServiceRequests.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gridServiceRequests.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gridServiceRequests.Location = new System.Drawing.Point(3, 3);
@@ -392,7 +456,7 @@ namespace BitswardITSM.Core
             this.gridChanges.AllowUserToAddRows = false;
             this.gridChanges.AllowUserToDeleteRows = false;
             this.gridChanges.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.gridChanges.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.gridChanges.BackgroundColor = System.Drawing.Color.White;
             this.gridChanges.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gridChanges.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gridChanges.Location = new System.Drawing.Point(3, 3);
@@ -407,7 +471,7 @@ namespace BitswardITSM.Core
             // 
             // panelTicketDetails
             // 
-            this.panelTicketDetails.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(43)))), ((int)(((byte)(54)))));
+            this.panelTicketDetails.BackColor = System.Drawing.Color.White;
             this.panelTicketDetails.Controls.Add(this.btnExportTicketPdf);
             this.panelTicketDetails.Controls.Add(this.btnViewAttachments);
             this.panelTicketDetails.Controls.Add(this.btnAttachFile);
@@ -435,7 +499,7 @@ namespace BitswardITSM.Core
             // btnViewAttachments
             // 
             this.btnViewAttachments.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnViewAttachments.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(73)))), ((int)(((byte)(94)))));
+            this.btnViewAttachments.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.btnViewAttachments.FlatAppearance.BorderSize = 0;
             this.btnViewAttachments.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnViewAttachments.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -451,7 +515,7 @@ namespace BitswardITSM.Core
             // btnExportTicketPdf
             // 
             this.btnExportTicketPdf.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnExportTicketPdf.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
+            this.btnExportTicketPdf.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnExportTicketPdf.FlatAppearance.BorderSize = 0;
             this.btnExportTicketPdf.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportTicketPdf.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -467,7 +531,7 @@ namespace BitswardITSM.Core
             // btnCreateSubTask
             // 
             this.btnCreateSubTask.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCreateSubTask.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(155)))), ((int)(((byte)(89)))), ((int)(((byte)(182)))));
+            this.btnCreateSubTask.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(124)))), ((int)(((byte)(58)))), ((int)(((byte)(237)))));
             this.btnCreateSubTask.FlatAppearance.BorderSize = 0;
             this.btnCreateSubTask.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCreateSubTask.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -483,7 +547,7 @@ namespace BitswardITSM.Core
             // btnSendThread
             // 
             this.btnSendThread.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSendThread.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(204)))), ((int)(((byte)(113)))));
+            this.btnSendThread.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.btnSendThread.FlatAppearance.BorderSize = 0;
             this.btnSendThread.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSendThread.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -499,7 +563,7 @@ namespace BitswardITSM.Core
             // btnAttachFile
             // 
             this.btnAttachFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAttachFile.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
+            this.btnAttachFile.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnAttachFile.FlatAppearance.BorderSize = 0;
             this.btnAttachFile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAttachFile.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -515,7 +579,7 @@ namespace BitswardITSM.Core
             // btnPasteScreenshot
             // 
             this.btnPasteScreenshot.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPasteScreenshot.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(142)))), ((int)(((byte)(68)))), ((int)(((byte)(173)))));
+            this.btnPasteScreenshot.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(124)))), ((int)(((byte)(58)))), ((int)(((byte)(237)))));
             this.btnPasteScreenshot.FlatAppearance.BorderSize = 0;
             this.btnPasteScreenshot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPasteScreenshot.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -532,9 +596,9 @@ namespace BitswardITSM.Core
             // 
             this.txtThreadInput.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtThreadInput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.txtThreadInput.BackColor = System.Drawing.Color.White;
             this.txtThreadInput.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtThreadInput.ForeColor = System.Drawing.Color.White;
+            this.txtThreadInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.txtThreadInput.Location = new System.Drawing.Point(15, 565);
             this.txtThreadInput.Name = "txtThreadInput";
             this.txtThreadInput.Size = new System.Drawing.Size(165, 25);
@@ -545,10 +609,10 @@ namespace BitswardITSM.Core
             this.txtThreadHistory.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtThreadHistory.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.txtThreadHistory.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.txtThreadHistory.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtThreadHistory.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtThreadHistory.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.txtThreadHistory.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.txtThreadHistory.Location = new System.Drawing.Point(15, 310);
             this.txtThreadHistory.Name = "txtThreadHistory";
             this.txtThreadHistory.ReadOnly = true;
@@ -568,9 +632,9 @@ namespace BitswardITSM.Core
             // 
             // cmbStatusEdit
             // 
-            this.cmbStatusEdit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.cmbStatusEdit.BackColor = System.Drawing.Color.White;
             this.cmbStatusEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmbStatusEdit.ForeColor = System.Drawing.Color.White;
+            this.cmbStatusEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.cmbStatusEdit.FormattingEnabled = true;
             this.cmbStatusEdit.Items.AddRange(new object[] {
             "Open",
@@ -586,7 +650,7 @@ namespace BitswardITSM.Core
             // 
             // btnChangeStatus
             // 
-            this.btnChangeStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(152)))), ((int)(((byte)(219)))));
+            this.btnChangeStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnChangeStatus.FlatAppearance.BorderSize = 0;
             this.btnChangeStatus.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnChangeStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -601,7 +665,7 @@ namespace BitswardITSM.Core
             // 
             // btnAssignToMe
             // 
-            this.btnAssignToMe.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(152)))), ((int)(((byte)(219)))));
+            this.btnAssignToMe.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnAssignToMe.FlatAppearance.BorderSize = 0;
             this.btnAssignToMe.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAssignToMe.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -618,7 +682,7 @@ namespace BitswardITSM.Core
             // 
             this.lblDetailAssignee.AutoSize = true;
             this.lblDetailAssignee.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDetailAssignee.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(195)))), ((int)(((byte)(199)))));
+            this.lblDetailAssignee.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblDetailAssignee.Location = new System.Drawing.Point(12, 195);
             this.lblDetailAssignee.Name = "lblDetailAssignee";
             this.lblDetailAssignee.Size = new System.Drawing.Size(63, 17);
@@ -629,7 +693,7 @@ namespace BitswardITSM.Core
             // 
             this.lblDetailSla.AutoSize = true;
             this.lblDetailSla.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDetailSla.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(195)))), ((int)(((byte)(199)))));
+            this.lblDetailSla.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblDetailSla.Location = new System.Drawing.Point(12, 165);
             this.lblDetailSla.Name = "lblDetailSla";
             this.lblDetailSla.Size = new System.Drawing.Size(92, 17);
@@ -640,7 +704,7 @@ namespace BitswardITSM.Core
             // 
             this.lblDetailStatus.AutoSize = true;
             this.lblDetailStatus.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDetailStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(195)))), ((int)(((byte)(199)))));
+            this.lblDetailStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblDetailStatus.Location = new System.Drawing.Point(12, 135);
             this.lblDetailStatus.Name = "lblDetailStatus";
             this.lblDetailStatus.Size = new System.Drawing.Size(46, 17);
@@ -651,7 +715,7 @@ namespace BitswardITSM.Core
             // 
             this.lblDetailPriority.AutoSize = true;
             this.lblDetailPriority.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDetailPriority.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(195)))), ((int)(((byte)(199)))));
+            this.lblDetailPriority.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblDetailPriority.Location = new System.Drawing.Point(12, 105);
             this.lblDetailPriority.Name = "lblDetailPriority";
             this.lblDetailPriority.Size = new System.Drawing.Size(51, 17);
@@ -661,7 +725,7 @@ namespace BitswardITSM.Core
             // lblDetailDesc
             // 
             this.lblDetailDesc.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDetailDesc.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.lblDetailDesc.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblDetailDesc.Location = new System.Drawing.Point(12, 45);
             this.lblDetailDesc.Name = "lblDetailDesc";
             this.lblDetailDesc.Size = new System.Drawing.Size(413, 50);
@@ -672,7 +736,7 @@ namespace BitswardITSM.Core
             // 
             this.lblDetailTitle.AutoSize = true;
             this.lblDetailTitle.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDetailTitle.ForeColor = System.Drawing.Color.White;
+            this.lblDetailTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblDetailTitle.Location = new System.Drawing.Point(11, 12);
             this.lblDetailTitle.Name = "lblDetailTitle";
             this.lblDetailTitle.Size = new System.Drawing.Size(162, 21);
@@ -683,7 +747,7 @@ namespace BitswardITSM.Core
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.ClientSize = new System.Drawing.Size(1184, 681);
             this.Controls.Add(this.panelMainContent);
             this.Controls.Add(this.panelSidebar);
@@ -698,6 +762,8 @@ namespace BitswardITSM.Core
             this.panelTopHeader.ResumeLayout(false);
             this.panelTopHeader.PerformLayout();
             this.panelMainContent.ResumeLayout(false);
+            this.panelSearchTickets.ResumeLayout(false);
+            this.panelSearchTickets.PerformLayout();
             this.splitContainerDashboard.Panel1.ResumeLayout(false);
             this.splitContainerDashboard.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerDashboard)).EndInit();

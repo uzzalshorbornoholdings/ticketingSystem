@@ -201,16 +201,16 @@ namespace BitswardITSM.Core
         {
             if (grid.Columns.Count == 0) return;
             grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(37, 43, 54);
-            grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(241, 245, 249);
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(15, 23, 42);
             grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI Semibold", 9f, FontStyle.Bold);
             grid.EnableHeadersVisualStyles = false;
-            grid.DefaultCellStyle.BackColor = Color.FromArgb(28, 32, 40);
-            grid.DefaultCellStyle.ForeColor = Color.White;
-            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(41, 128, 185);
-            grid.DefaultCellStyle.SelectionForeColor = Color.White;
-            grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(33, 38, 47);
-            grid.GridColor = Color.FromArgb(50, 58, 70);
+            grid.DefaultCellStyle.BackColor = Color.White;
+            grid.DefaultCellStyle.ForeColor = Color.FromArgb(15, 23, 42);
+            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 242, 254);
+            grid.DefaultCellStyle.SelectionForeColor = Color.FromArgb(3, 105, 161);
+            grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
+            grid.GridColor = Color.FromArgb(226, 232, 240);
 
             // Color-code compliance and breach columns
             foreach (DataGridViewRow row in grid.Rows)
@@ -230,11 +230,11 @@ namespace BitswardITSM.Core
                             if (double.TryParse(val.TrimEnd('%'), out num))
                             {
                                 if (num >= 90)
-                                    row.Cells[i].Style.ForeColor = Color.FromArgb(39, 174, 96);
+                                    row.Cells[i].Style.ForeColor = Color.FromArgb(22, 163, 74);
                                 else if (num >= 75)
-                                    row.Cells[i].Style.ForeColor = Color.FromArgb(230, 126, 34);
+                                    row.Cells[i].Style.ForeColor = Color.FromArgb(217, 119, 6);
                                 else
-                                    row.Cells[i].Style.ForeColor = Color.FromArgb(192, 57, 43);
+                                    row.Cells[i].Style.ForeColor = Color.FromArgb(220, 38, 38);
                             }
                         }
                     }
@@ -244,7 +244,7 @@ namespace BitswardITSM.Core
                         int breachVal;
                         if (int.TryParse(row.Cells[i].Value?.ToString(), out breachVal) && breachVal > 0)
                         {
-                            row.Cells[i].Style.ForeColor = Color.FromArgb(231, 76, 60);
+                            row.Cells[i].Style.ForeColor = Color.FromArgb(220, 38, 38);
                             row.Cells[i].Style.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
                         }
                     }
@@ -257,16 +257,16 @@ namespace BitswardITSM.Core
             if (gridDetailedAudit.Columns.Count == 0) return;
 
             gridDetailedAudit.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
-            gridDetailedAudit.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(37, 43, 54);
-            gridDetailedAudit.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            gridDetailedAudit.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(241, 245, 249);
+            gridDetailedAudit.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(15, 23, 42);
             gridDetailedAudit.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI Semibold", 9f, FontStyle.Bold);
             gridDetailedAudit.EnableHeadersVisualStyles = false;
-            gridDetailedAudit.DefaultCellStyle.BackColor = Color.FromArgb(28, 32, 40);
-            gridDetailedAudit.DefaultCellStyle.ForeColor = Color.White;
-            gridDetailedAudit.DefaultCellStyle.SelectionBackColor = Color.FromArgb(41, 128, 185);
-            gridDetailedAudit.DefaultCellStyle.SelectionForeColor = Color.White;
-            gridDetailedAudit.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(33, 38, 47);
-            gridDetailedAudit.GridColor = Color.FromArgb(50, 58, 70);
+            gridDetailedAudit.DefaultCellStyle.BackColor = Color.White;
+            gridDetailedAudit.DefaultCellStyle.ForeColor = Color.FromArgb(15, 23, 42);
+            gridDetailedAudit.DefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 242, 254);
+            gridDetailedAudit.DefaultCellStyle.SelectionForeColor = Color.FromArgb(3, 105, 161);
+            gridDetailedAudit.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
+            gridDetailedAudit.GridColor = Color.FromArgb(226, 232, 240);
 
             SetColumnWidth(gridDetailedAudit, "TicketID", 60);
             SetColumnWidth(gridDetailedAudit, "Title", 180);

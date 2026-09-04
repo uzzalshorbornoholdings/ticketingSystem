@@ -94,6 +94,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <!-- Core Design System -->
+    <Compile Include="ModernTheme.cs" />
     <!-- Core Backend Modules -->
     <Compile Include="DatabaseManager.cs" />
     <Compile Include="OrganogramSync.cs" />
@@ -144,6 +146,12 @@
     </Compile>
     <Compile Include="AssigneeSearchDialog.Designer.cs">
       <DependentUpon>AssigneeSearchDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CreateSubTaskDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreateSubTaskDialog.Designer.cs">
+      <DependentUpon>CreateSubTaskDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="SlaReportManager.cs" />
     <Compile Include="ExcelReportExporter.cs" />

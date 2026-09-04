@@ -7,12 +7,22 @@ namespace BitswardITSM.Core
         private System.Windows.Forms.TabPage tabManageUsers;
         private System.Windows.Forms.TabPage tabRegisterUser;
         
+        private System.Windows.Forms.Panel panelSearchUsers;
+        private System.Windows.Forms.Label lblSearchUserIcon;
+        private System.Windows.Forms.TextBox txtSearchUsers;
+        private System.Windows.Forms.Button btnClearSearchUsers;
+
         private System.Windows.Forms.DataGridView gridUsers;
         private System.Windows.Forms.Panel panelRoleUpdate;
         private System.Windows.Forms.Label lblSelectedUser;
         private System.Windows.Forms.ComboBox cmbRoleEdit;
         private System.Windows.Forms.Button btnUpdateRole;
         
+        private System.Windows.Forms.Panel panelSearchEmployees;
+        private System.Windows.Forms.Label lblSearchEmpIcon;
+        private System.Windows.Forms.TextBox txtSearchEmployees;
+        private System.Windows.Forms.Button btnClearSearchEmployees;
+
         private System.Windows.Forms.DataGridView gridUnassociated;
         private System.Windows.Forms.Panel panelRegisterControls;
         private System.Windows.Forms.Label lblSelectedEmpInfo;
@@ -41,12 +51,20 @@ namespace BitswardITSM.Core
         {
             this.tabControlAdmin = new System.Windows.Forms.TabControl();
             this.tabManageUsers = new System.Windows.Forms.TabPage();
+            this.panelSearchUsers = new System.Windows.Forms.Panel();
+            this.lblSearchUserIcon = new System.Windows.Forms.Label();
+            this.txtSearchUsers = new System.Windows.Forms.TextBox();
+            this.btnClearSearchUsers = new System.Windows.Forms.Button();
             this.gridUsers = new System.Windows.Forms.DataGridView();
             this.panelRoleUpdate = new System.Windows.Forms.Panel();
             this.btnUpdateRole = new System.Windows.Forms.Button();
             this.cmbRoleEdit = new System.Windows.Forms.ComboBox();
             this.lblSelectedUser = new System.Windows.Forms.Label();
             this.tabRegisterUser = new System.Windows.Forms.TabPage();
+            this.panelSearchEmployees = new System.Windows.Forms.Panel();
+            this.lblSearchEmpIcon = new System.Windows.Forms.Label();
+            this.txtSearchEmployees = new System.Windows.Forms.TextBox();
+            this.btnClearSearchEmployees = new System.Windows.Forms.Button();
             this.gridUnassociated = new System.Windows.Forms.DataGridView();
             this.panelRegisterControls = new System.Windows.Forms.Panel();
             this.lblRoleLabel = new System.Windows.Forms.Label();
@@ -62,9 +80,11 @@ namespace BitswardITSM.Core
             this.lblStatusMsg = new System.Windows.Forms.Label();
             this.tabControlAdmin.SuspendLayout();
             this.tabManageUsers.SuspendLayout();
+            this.panelSearchUsers.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridUsers)).BeginInit();
             this.panelRoleUpdate.SuspendLayout();
             this.tabRegisterUser.SuspendLayout();
+            this.panelSearchEmployees.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridUnassociated)).BeginInit();
             this.panelRegisterControls.SuspendLayout();
             this.panelTop.SuspendLayout();
@@ -86,6 +106,7 @@ namespace BitswardITSM.Core
             // tabManageUsers
             // 
             this.tabManageUsers.Controls.Add(this.gridUsers);
+            this.tabManageUsers.Controls.Add(this.panelSearchUsers);
             this.tabManageUsers.Controls.Add(this.panelRoleUpdate);
             this.tabManageUsers.Location = new System.Drawing.Point(4, 26);
             this.tabManageUsers.Name = "tabManageUsers";
@@ -95,26 +116,78 @@ namespace BitswardITSM.Core
             this.tabManageUsers.Text = "👤 Manage Users";
             this.tabManageUsers.UseVisualStyleBackColor = true;
             // 
+            // panelSearchUsers
+            // 
+            this.panelSearchUsers.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
+            this.panelSearchUsers.Controls.Add(this.btnClearSearchUsers);
+            this.panelSearchUsers.Controls.Add(this.txtSearchUsers);
+            this.panelSearchUsers.Controls.Add(this.lblSearchUserIcon);
+            this.panelSearchUsers.Location = new System.Drawing.Point(3, 3);
+            this.panelSearchUsers.Name = "panelSearchUsers";
+            this.panelSearchUsers.Size = new System.Drawing.Size(770, 36);
+            this.panelSearchUsers.TabIndex = 2;
+            // 
+            // lblSearchUserIcon
+            // 
+            this.lblSearchUserIcon.AutoSize = true;
+            this.lblSearchUserIcon.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lblSearchUserIcon.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.lblSearchUserIcon.Location = new System.Drawing.Point(8, 8);
+            this.lblSearchUserIcon.Name = "lblSearchUserIcon";
+            this.lblSearchUserIcon.Size = new System.Drawing.Size(22, 19);
+            this.lblSearchUserIcon.TabIndex = 0;
+            this.lblSearchUserIcon.Text = "🔍";
+            // 
+            // txtSearchUsers
+            // 
+            this.txtSearchUsers.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSearchUsers.BackColor = System.Drawing.Color.White;
+            this.txtSearchUsers.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtSearchUsers.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.txtSearchUsers.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.txtSearchUsers.Location = new System.Drawing.Point(32, 6);
+            this.txtSearchUsers.Name = "txtSearchUsers";
+            this.txtSearchUsers.Size = new System.Drawing.Size(696, 24);
+            this.txtSearchUsers.TabIndex = 1;
+            this.txtSearchUsers.TextChanged += new System.EventHandler(this.TxtSearchUsers_TextChanged);
+            // 
+            // btnClearSearchUsers
+            // 
+            this.btnClearSearchUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClearSearchUsers.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.btnClearSearchUsers.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClearSearchUsers.FlatAppearance.BorderSize = 0;
+            this.btnClearSearchUsers.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClearSearchUsers.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnClearSearchUsers.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.btnClearSearchUsers.Location = new System.Drawing.Point(734, 6);
+            this.btnClearSearchUsers.Name = "btnClearSearchUsers";
+            this.btnClearSearchUsers.Size = new System.Drawing.Size(28, 24);
+            this.btnClearSearchUsers.TabIndex = 2;
+            this.btnClearSearchUsers.Text = "✖";
+            this.btnClearSearchUsers.UseVisualStyleBackColor = false;
+            this.btnClearSearchUsers.Click += new System.EventHandler(this.BtnClearSearchUsers_Click);
+            // 
             // gridUsers
             // 
             this.gridUsers.AllowUserToAddRows = false;
             this.gridUsers.AllowUserToDeleteRows = false;
             this.gridUsers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.gridUsers.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.gridUsers.BackgroundColor = System.Drawing.Color.White;
             this.gridUsers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridUsers.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridUsers.Location = new System.Drawing.Point(3, 3);
+            this.gridUsers.Location = new System.Drawing.Point(3, 42);
             this.gridUsers.Name = "gridUsers";
             this.gridUsers.ReadOnly = true;
             this.gridUsers.RowHeadersVisible = false;
             this.gridUsers.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.gridUsers.Size = new System.Drawing.Size(770, 395);
+            this.gridUsers.Size = new System.Drawing.Size(770, 356);
             this.gridUsers.TabIndex = 0;
             this.gridUsers.SelectionChanged += new System.EventHandler(this.GridUsers_SelectionChanged);
             // 
             // panelRoleUpdate
             // 
-            this.panelRoleUpdate.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(43)))), ((int)(((byte)(54)))));
+            this.panelRoleUpdate.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.panelRoleUpdate.Controls.Add(this.btnUpdateRole);
             this.panelRoleUpdate.Controls.Add(this.cmbRoleEdit);
             this.panelRoleUpdate.Controls.Add(this.lblSelectedUser);
@@ -126,7 +199,7 @@ namespace BitswardITSM.Core
             // 
             // btnUpdateRole
             // 
-            this.btnUpdateRole.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(152)))), ((int)(((byte)(219)))));
+            this.btnUpdateRole.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnUpdateRole.FlatAppearance.BorderSize = 0;
             this.btnUpdateRole.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnUpdateRole.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -141,9 +214,9 @@ namespace BitswardITSM.Core
             // 
             // cmbRoleEdit
             // 
-            this.cmbRoleEdit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.cmbRoleEdit.BackColor = System.Drawing.Color.White;
             this.cmbRoleEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmbRoleEdit.ForeColor = System.Drawing.Color.White;
+            this.cmbRoleEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.cmbRoleEdit.FormattingEnabled = true;
             this.cmbRoleEdit.Items.AddRange(new object[] {
             "Admin",
@@ -159,7 +232,7 @@ namespace BitswardITSM.Core
             // 
             this.lblSelectedUser.AutoSize = true;
             this.lblSelectedUser.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSelectedUser.ForeColor = System.Drawing.Color.White;
+            this.lblSelectedUser.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblSelectedUser.Location = new System.Drawing.Point(20, 31);
             this.lblSelectedUser.Name = "lblSelectedUser";
             this.lblSelectedUser.Size = new System.Drawing.Size(161, 17);
@@ -169,6 +242,7 @@ namespace BitswardITSM.Core
             // tabRegisterUser
             // 
             this.tabRegisterUser.Controls.Add(this.gridUnassociated);
+            this.tabRegisterUser.Controls.Add(this.panelSearchEmployees);
             this.tabRegisterUser.Controls.Add(this.panelRegisterControls);
             this.tabRegisterUser.Location = new System.Drawing.Point(4, 26);
             this.tabRegisterUser.Name = "tabRegisterUser";
@@ -178,26 +252,78 @@ namespace BitswardITSM.Core
             this.tabRegisterUser.Text = "➕ Provision Logic Account";
             this.tabRegisterUser.UseVisualStyleBackColor = true;
             // 
+            // panelSearchEmployees
+            // 
+            this.panelSearchEmployees.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
+            this.panelSearchEmployees.Controls.Add(this.btnClearSearchEmployees);
+            this.panelSearchEmployees.Controls.Add(this.txtSearchEmployees);
+            this.panelSearchEmployees.Controls.Add(this.lblSearchEmpIcon);
+            this.panelSearchEmployees.Location = new System.Drawing.Point(3, 3);
+            this.panelSearchEmployees.Name = "panelSearchEmployees";
+            this.panelSearchEmployees.Size = new System.Drawing.Size(770, 36);
+            this.panelSearchEmployees.TabIndex = 2;
+            // 
+            // lblSearchEmpIcon
+            // 
+            this.lblSearchEmpIcon.AutoSize = true;
+            this.lblSearchEmpIcon.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lblSearchEmpIcon.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.lblSearchEmpIcon.Location = new System.Drawing.Point(8, 8);
+            this.lblSearchEmpIcon.Name = "lblSearchEmpIcon";
+            this.lblSearchEmpIcon.Size = new System.Drawing.Size(22, 19);
+            this.lblSearchEmpIcon.TabIndex = 0;
+            this.lblSearchEmpIcon.Text = "🔍";
+            // 
+            // txtSearchEmployees
+            // 
+            this.txtSearchEmployees.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSearchEmployees.BackColor = System.Drawing.Color.White;
+            this.txtSearchEmployees.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtSearchEmployees.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.txtSearchEmployees.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.txtSearchEmployees.Location = new System.Drawing.Point(32, 6);
+            this.txtSearchEmployees.Name = "txtSearchEmployees";
+            this.txtSearchEmployees.Size = new System.Drawing.Size(696, 24);
+            this.txtSearchEmployees.TabIndex = 1;
+            this.txtSearchEmployees.TextChanged += new System.EventHandler(this.TxtSearchEmployees_TextChanged);
+            // 
+            // btnClearSearchEmployees
+            // 
+            this.btnClearSearchEmployees.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClearSearchEmployees.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.btnClearSearchEmployees.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClearSearchEmployees.FlatAppearance.BorderSize = 0;
+            this.btnClearSearchEmployees.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClearSearchEmployees.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnClearSearchEmployees.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.btnClearSearchEmployees.Location = new System.Drawing.Point(734, 6);
+            this.btnClearSearchEmployees.Name = "btnClearSearchEmployees";
+            this.btnClearSearchEmployees.Size = new System.Drawing.Size(28, 24);
+            this.btnClearSearchEmployees.TabIndex = 2;
+            this.btnClearSearchEmployees.Text = "✖";
+            this.btnClearSearchEmployees.UseVisualStyleBackColor = false;
+            this.btnClearSearchEmployees.Click += new System.EventHandler(this.BtnClearSearchEmployees_Click);
+            // 
             // gridUnassociated
             // 
             this.gridUnassociated.AllowUserToAddRows = false;
             this.gridUnassociated.AllowUserToDeleteRows = false;
             this.gridUnassociated.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.gridUnassociated.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.gridUnassociated.BackgroundColor = System.Drawing.Color.White;
             this.gridUnassociated.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridUnassociated.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridUnassociated.Location = new System.Drawing.Point(3, 3);
+            this.gridUnassociated.Location = new System.Drawing.Point(3, 42);
             this.gridUnassociated.Name = "gridUnassociated";
             this.gridUnassociated.ReadOnly = true;
             this.gridUnassociated.RowHeadersVisible = false;
             this.gridUnassociated.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.gridUnassociated.Size = new System.Drawing.Size(770, 325);
+            this.gridUnassociated.Size = new System.Drawing.Size(770, 286);
             this.gridUnassociated.TabIndex = 0;
             this.gridUnassociated.SelectionChanged += new System.EventHandler(this.GridUnassociated_SelectionChanged);
             // 
             // panelRegisterControls
             // 
-            this.panelRegisterControls.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(43)))), ((int)(((byte)(54)))));
+            this.panelRegisterControls.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.panelRegisterControls.Controls.Add(this.lblRoleLabel);
             this.panelRegisterControls.Controls.Add(this.lblPasswordLabel);
             this.panelRegisterControls.Controls.Add(this.lblUsernameLabel);
@@ -215,7 +341,7 @@ namespace BitswardITSM.Core
             // lblRoleLabel
             // 
             this.lblRoleLabel.AutoSize = true;
-            this.lblRoleLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(195)))), ((int)(((byte)(199)))));
+            this.lblRoleLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblRoleLabel.Location = new System.Drawing.Point(400, 60);
             this.lblRoleLabel.Name = "lblRoleLabel";
             this.lblRoleLabel.Size = new System.Drawing.Size(37, 17);
@@ -225,7 +351,7 @@ namespace BitswardITSM.Core
             // lblPasswordLabel
             // 
             this.lblPasswordLabel.AutoSize = true;
-            this.lblPasswordLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(195)))), ((int)(((byte)(199)))));
+            this.lblPasswordLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblPasswordLabel.Location = new System.Drawing.Point(210, 60);
             this.lblPasswordLabel.Name = "lblPasswordLabel";
             this.lblPasswordLabel.Size = new System.Drawing.Size(69, 17);
@@ -235,7 +361,7 @@ namespace BitswardITSM.Core
             // lblUsernameLabel
             // 
             this.lblUsernameLabel.AutoSize = true;
-            this.lblUsernameLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(195)))), ((int)(((byte)(199)))));
+            this.lblUsernameLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblUsernameLabel.Location = new System.Drawing.Point(20, 60);
             this.lblUsernameLabel.Name = "lblUsernameLabel";
             this.lblUsernameLabel.Size = new System.Drawing.Size(72, 17);
@@ -244,7 +370,7 @@ namespace BitswardITSM.Core
             // 
             // btnCreateUser
             // 
-            this.btnCreateUser.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(204)))), ((int)(((byte)(113)))));
+            this.btnCreateUser.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.btnCreateUser.FlatAppearance.BorderSize = 0;
             this.btnCreateUser.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCreateUser.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -259,9 +385,9 @@ namespace BitswardITSM.Core
             // 
             // cmbNewRole
             // 
-            this.cmbNewRole.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.cmbNewRole.BackColor = System.Drawing.Color.White;
             this.cmbNewRole.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmbNewRole.ForeColor = System.Drawing.Color.White;
+            this.cmbNewRole.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.cmbNewRole.FormattingEnabled = true;
             this.cmbNewRole.Items.AddRange(new object[] {
             "Admin",
@@ -275,9 +401,9 @@ namespace BitswardITSM.Core
             // 
             // txtNewPassword
             // 
-            this.txtNewPassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.txtNewPassword.BackColor = System.Drawing.Color.White;
             this.txtNewPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtNewPassword.ForeColor = System.Drawing.Color.White;
+            this.txtNewPassword.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.txtNewPassword.Location = new System.Drawing.Point(213, 80);
             this.txtNewPassword.Name = "txtNewPassword";
             this.txtNewPassword.Size = new System.Drawing.Size(160, 25);
@@ -286,9 +412,9 @@ namespace BitswardITSM.Core
             // 
             // txtNewUsername
             // 
-            this.txtNewUsername.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.txtNewUsername.BackColor = System.Drawing.Color.White;
             this.txtNewUsername.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtNewUsername.ForeColor = System.Drawing.Color.White;
+            this.txtNewUsername.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.txtNewUsername.Location = new System.Drawing.Point(23, 80);
             this.txtNewUsername.Name = "txtNewUsername";
             this.txtNewUsername.Size = new System.Drawing.Size(160, 25);
@@ -298,7 +424,7 @@ namespace BitswardITSM.Core
             // 
             this.lblSelectedEmpInfo.AutoSize = true;
             this.lblSelectedEmpInfo.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSelectedEmpInfo.ForeColor = System.Drawing.Color.White;
+            this.lblSelectedEmpInfo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblSelectedEmpInfo.Location = new System.Drawing.Point(20, 20);
             this.lblSelectedEmpInfo.Name = "lblSelectedEmpInfo";
             this.lblSelectedEmpInfo.Size = new System.Drawing.Size(252, 17);
@@ -307,7 +433,7 @@ namespace BitswardITSM.Core
             // 
             // panelTop
             // 
-            this.panelTop.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(128)))), ((int)(((byte)(185)))));
+            this.panelTop.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.panelTop.Controls.Add(this.lblAdminTitle);
             this.panelTop.Controls.Add(this.lblStatusMsg);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
@@ -330,7 +456,7 @@ namespace BitswardITSM.Core
             // lblStatusMsg
             // 
             this.lblStatusMsg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblStatusMsg.ForeColor = System.Drawing.Color.LimeGreen;
+            this.lblStatusMsg.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.lblStatusMsg.Location = new System.Drawing.Point(400, 16);
             this.lblStatusMsg.Name = "lblStatusMsg";
             this.lblStatusMsg.Size = new System.Drawing.Size(372, 23);
@@ -341,7 +467,7 @@ namespace BitswardITSM.Core
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.ClientSize = new System.Drawing.Size(784, 561);
             this.Controls.Add(this.tabControlAdmin);
             this.Controls.Add(this.panelTop);
@@ -353,10 +479,14 @@ namespace BitswardITSM.Core
             this.Load += new System.EventHandler(this.AdminForm_Load);
             this.tabControlAdmin.ResumeLayout(false);
             this.tabManageUsers.ResumeLayout(false);
+            this.panelSearchUsers.ResumeLayout(false);
+            this.panelSearchUsers.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridUsers)).EndInit();
             this.panelRoleUpdate.ResumeLayout(false);
             this.panelRoleUpdate.PerformLayout();
             this.tabRegisterUser.ResumeLayout(false);
+            this.panelSearchEmployees.ResumeLayout(false);
+            this.panelSearchEmployees.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridUnassociated)).EndInit();
             this.panelRegisterControls.ResumeLayout(false);
             this.panelRegisterControls.PerformLayout();

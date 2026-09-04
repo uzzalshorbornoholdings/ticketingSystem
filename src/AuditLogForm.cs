@@ -14,6 +14,8 @@ namespace BitswardITSM.Core
     {
         private readonly DatabaseManager _db;
         private readonly int _filterTicketId; // -1 = show all logs
+        private const string AuditSearchPlaceholder = "Search audit logs by ID, Ticket, User, Role, Action, Details...";
+        private DataTable _dtLogs = null;
 
         public AuditLogForm(DatabaseManager db, int filterTicketId = -1)
         {
@@ -28,7 +30,50 @@ namespace BitswardITSM.Core
             {
                 lblHeader.Text = $"🔍  Audit Log — Ticket #{_filterTicketId}";
             }
+            InitializeAuditSearch();
             LoadLogs();
+        }
+
+        private void InitializeAuditSearch()
+        {
+            ModernStyle.StyleTextBox(txtSearch);
+            IntelligentSearchHelper.SetupSearchPlaceholder(txtSearch, AuditSearchPlaceholder);
+        }
+
+        private void TxtSearch_TextChanged(object sender, EventArgs e)
+        {
+            ApplyAuditSearchFilter();
+        }
+
+        private void BtnClearSearch_Click(object sender, EventArgs e)
+        {
+            txtSearch.Text = string.Empty;
+            ApplyAuditSearchFilter();
+            txtSearch.Focus();
+        }
+
+        private void ApplyAuditSearchFilter()
+        {
+            if (_dtLogs == null) return;
+
+            string query = IntelligentSearchHelper.GetCleanSearchQuery(txtSearch, AuditSearchPlaceholder);
+            string rowFilter = IntelligentSearchHelper.BuildRowFilter(query, "LogID", "TicketID", "Employee", "Role", "Action", "Details", "Timestamp");
+
+            IntelligentSearchHelper.ApplyFilter(_dtLogs, rowFilter);
+
+            int totalCount = _dtLogs.Rows.Count;
+            int filteredCount = _dtLogs.DefaultView.Count;
+
+            if (string.IsNullOrEmpty(query))
+            {
+                lblCount.Text = $"{totalCount} log entr{(totalCount == 1 ? "y" : "ies")} found";
+                lblSearchCount.Text = string.Empty;
+            }
+            else
+            {
+                lblCount.Text = $"Showing {filteredCount} of {totalCount} log entr{(totalCount == 1 ? "y" : "ies")}";
+                lblSearchCount.Text = $"Matched: {filteredCount}";
+            }
         }
 
         private void LoadLogs()
@@ -74,9 +119,10 @@ namespace BitswardITSM.Core
                 }
 
                 var dt = _db.ExecuteQuery(query, parameters);
+                _dtLogs = dt;
                 gridLogs.DataSource = dt;
                 ConfigureLogGrid();
-                lblCount.Text = $"{dt.Rows.Count} log entr{(dt.Rows.Count == 1 ? "y" : "ies")} found";
+                ApplyAuditSearchFilter();
             }
             catch (Exception ex)
             {
@@ -103,18 +149,18 @@ namespace BitswardITSM.Core
             if (dateCol != null) dateCol.DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
 
             // Header style
-            gridLogs.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(37, 43, 54);
-            gridLogs.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            gridLogs.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(241, 245, 249);
+            gridLogs.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(15, 23, 42);
             gridLogs.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI Semibold", 9f, FontStyle.Bold);
             gridLogs.EnableHeadersVisualStyles = false;
 
             // Row style
-            gridLogs.DefaultCellStyle.BackColor = Color.FromArgb(28, 32, 40);
-            gridLogs.DefaultCellStyle.ForeColor = Color.White;
-            gridLogs.DefaultCellStyle.SelectionBackColor = Color.FromArgb(41, 128, 185);
-            gridLogs.DefaultCellStyle.SelectionForeColor = Color.White;
-            gridLogs.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(33, 38, 47);
-            gridLogs.GridColor = Color.FromArgb(50, 58, 70);
+            gridLogs.DefaultCellStyle.BackColor = Color.White;
+            gridLogs.DefaultCellStyle.ForeColor = Color.FromArgb(15, 23, 42);
+            gridLogs.DefaultCellStyle.SelectionBackColor = Color.FromArgb(224, 242, 254);
+            gridLogs.DefaultCellStyle.SelectionForeColor = Color.FromArgb(3, 105, 161);
+            gridLogs.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
+            gridLogs.GridColor = Color.FromArgb(226, 232, 240);
         }
 
         private void GridLogs_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
