@@ -760,11 +760,6 @@ namespace BitswardITSM.Core
             reportsForm.ShowDialog();
         }
 
-        private void BtnNavChanges_Click(object sender, EventArgs e)
-        {
-            tabControlQueues.SelectedIndex = 2; // Jump to Change Requests tab
-        }
-
         private void BtnNavAdmin_Click(object sender, EventArgs e)
         {
             if (_selectedTicketId != -1) ReleaseSoftLock(_selectedTicketId);

@@ -6,7 +6,6 @@ namespace BitswardITSM.Core
         private System.Windows.Forms.Panel panelSidebar;
         private System.Windows.Forms.Button btnNavTickets;
         private System.Windows.Forms.Button btnNavTasks;
-        private System.Windows.Forms.Button btnNavChanges;
         private System.Windows.Forms.Button btnNavAudit;
         private System.Windows.Forms.Button btnNavReports;
         private System.Windows.Forms.Button btnNavAdmin;
@@ -64,7 +63,6 @@ namespace BitswardITSM.Core
             this.panelSidebar = new System.Windows.Forms.Panel();
             this.btnNavTickets = new System.Windows.Forms.Button();
             this.btnNavTasks = new System.Windows.Forms.Button();
-            this.btnNavChanges = new System.Windows.Forms.Button();
             this.btnNavAudit = new System.Windows.Forms.Button();
             this.btnNavReports = new System.Windows.Forms.Button();
             this.btnNavAdmin = new System.Windows.Forms.Button();
@@ -123,7 +121,6 @@ namespace BitswardITSM.Core
             this.panelSidebar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(43)))), ((int)(((byte)(54)))));
             this.panelSidebar.Controls.Add(this.btnNavTickets);
             this.panelSidebar.Controls.Add(this.btnNavTasks);
-            this.panelSidebar.Controls.Add(this.btnNavChanges);
             this.panelSidebar.Controls.Add(this.btnNavAudit);
             this.panelSidebar.Controls.Add(this.btnNavReports);
             this.panelSidebar.Controls.Add(this.btnNavAdmin);
@@ -157,7 +154,7 @@ namespace BitswardITSM.Core
             this.btnNavTasks.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavTasks.Font = new System.Drawing.Font("Segoe UI Semibold", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnNavTasks.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(207)))), ((int)(((byte)(214)))));
-            this.btnNavTasks.Location = new System.Drawing.Point(10, 75);
+            this.btnNavTasks.Location = new System.Drawing.Point(10, 80);
             this.btnNavTasks.Name = "btnNavTasks";
             this.btnNavTasks.Size = new System.Drawing.Size(180, 45);
             this.btnNavTasks.TabIndex = 1;
@@ -166,28 +163,13 @@ namespace BitswardITSM.Core
             this.btnNavTasks.UseVisualStyleBackColor = true;
             this.btnNavTasks.Click += new System.EventHandler(this.BtnNavTasks_Click);
             // 
-            // btnNavChanges
-            // 
-            this.btnNavChanges.FlatAppearance.BorderSize = 0;
-            this.btnNavChanges.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnNavChanges.Font = new System.Drawing.Font("Segoe UI Semibold", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnNavChanges.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(207)))), ((int)(((byte)(214)))));
-            this.btnNavChanges.Location = new System.Drawing.Point(10, 130);
-            this.btnNavChanges.Name = "btnNavChanges";
-            this.btnNavChanges.Size = new System.Drawing.Size(180, 45);
-            this.btnNavChanges.TabIndex = 2;
-            this.btnNavChanges.Text = "⚙️ CR Changes";
-            this.btnNavChanges.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnNavChanges.UseVisualStyleBackColor = true;
-            this.btnNavChanges.Click += new System.EventHandler(this.BtnNavChanges_Click);
-            // 
             // btnNavAudit
             // 
             this.btnNavAudit.FlatAppearance.BorderSize = 0;
             this.btnNavAudit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavAudit.Font = new System.Drawing.Font("Segoe UI Semibold", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnNavAudit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(207)))), ((int)(((byte)(214)))));
-            this.btnNavAudit.Location = new System.Drawing.Point(10, 185);
+            this.btnNavAudit.Location = new System.Drawing.Point(10, 140);
             this.btnNavAudit.Name = "btnNavAudit";
             this.btnNavAudit.Size = new System.Drawing.Size(180, 45);
             this.btnNavAudit.TabIndex = 6;
@@ -202,7 +184,7 @@ namespace BitswardITSM.Core
             this.btnNavReports.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavReports.Font = new System.Drawing.Font("Segoe UI Semibold", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnNavReports.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(207)))), ((int)(((byte)(214)))));
-            this.btnNavReports.Location = new System.Drawing.Point(10, 240);
+            this.btnNavReports.Location = new System.Drawing.Point(10, 200);
             this.btnNavReports.Name = "btnNavReports";
             this.btnNavReports.Size = new System.Drawing.Size(180, 45);
             this.btnNavReports.TabIndex = 7;
@@ -217,7 +199,7 @@ namespace BitswardITSM.Core
             this.btnNavAdmin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavAdmin.Font = new System.Drawing.Font("Segoe UI Semibold", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnNavAdmin.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(207)))), ((int)(((byte)(214)))));
-            this.btnNavAdmin.Location = new System.Drawing.Point(10, 295);
+            this.btnNavAdmin.Location = new System.Drawing.Point(10, 260);
             this.btnNavAdmin.Name = "btnNavAdmin";
             this.btnNavAdmin.Size = new System.Drawing.Size(180, 45);
             this.btnNavAdmin.TabIndex = 3;
@@ -233,7 +215,7 @@ namespace BitswardITSM.Core
             this.btnNewTicket.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNewTicket.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnNewTicket.ForeColor = System.Drawing.Color.White;
-            this.btnNewTicket.Location = new System.Drawing.Point(10, 350);
+            this.btnNewTicket.Location = new System.Drawing.Point(10, 320);
             this.btnNewTicket.Name = "btnNewTicket";
             this.btnNewTicket.Size = new System.Drawing.Size(180, 45);
             this.btnNewTicket.TabIndex = 5;
